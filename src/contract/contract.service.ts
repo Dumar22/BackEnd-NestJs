@@ -1,0 +1,155 @@
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { CreateContractDto } from './dto/create-contract.dto';
+import { UpdateContractDto } from './dto/update-contract.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Contract } from './entities/contract.entity';
+import { Repository } from 'typeorm';
+import { User } from 'src/auth/entities/user.entity';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { isUUID } from 'class-validator';
+
+@Injectable()
+export class ContractService {
+
+  private readonly logger = new Logger('ContractService')
+
+  constructor(   
+    @InjectRepository( Contract)
+    private readonly contractsRepository: Repository<Contract>,
+
+  ){}
+
+  async create(createContractDto: CreateContractDto, user: User) {
+
+    const existingContract = await this.contractsRepository.createQueryBuilder()
+    .where('contract.ot = :ot AND warehouseId = :warehouseId', { 
+      ot: createContractDto.ot, 
+      warehouseId: user.warehouses[0].id  
+    })
+    .getOne();
+  
+      if (existingContract) {
+        throw new BadRequestException(`El Contrato con Orden de trabajo ${createContractDto.ot} ya existe en la bodega ${user.warehouses[0].name}.`);
+      }
+
+    try {   
+
+       const contract = this.contractsRepository.create({
+       ...createContractDto,
+       user, 
+       warehouse: user.warehouses[0]
+        
+      });
+
+     await this.contractsRepository.save(contract);
+
+      return {message:'Contrato creado'}
+      
+    } catch (error) {          
+      console.log(error); 
+      this.handleDBExeptions(error)
+    }
+   
+
+  }
+
+  async findAll(paginationDto: PaginationDto, user: User) {
+    const { limit = 10, offset = 0 } = paginationDto;
+  
+    let contractsQuery = this.contractsRepository.createQueryBuilder('contract')
+      .leftJoinAndSelect('contract.user', 'user')
+      .leftJoinAndSelect('contract.warehouse', 'warehouse');
+  
+    if (!user.rol.includes('admin')) {
+      // Si no es administrador, aplicar restricciones por bodega
+      contractsQuery = contractsQuery
+        .where('user.id = :userId', { userId: user.id })
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+    }
+    // Agrega la condición para excluir las erramientas eliminados
+      contractsQuery = contractsQuery.andWhere('contract.deletedAt IS NULL');
+  
+    const contract = await contractsQuery
+      .skip(offset)
+      .take(limit)
+      .getMany();
+  
+    return contract
+  }
+
+ async findOne(term: string, user: User) {
+   
+   let contract: Contract;
+     if (isUUID(term)) {
+      contract = await this.contractsRepository.findOneBy({id: term});
+     }else{      
+      const queryBuilder = this.contractsRepository.createQueryBuilder();
+      contract = await queryBuilder
+       .where('UPPER(name) =:name or ot =:ot',{
+        name: term.toUpperCase(),
+        ot: term,
+       }).getOne();
+    }    
+    if (!contract)
+      throw new NotFoundException(`Medidor no fue encontrado.`);
+
+      return contract;
+  }  
+  
+ async update(id: string, updateContractDto: UpdateContractDto, user: User) {
+   
+    const contract = await this.contractsRepository.preload({
+      id: id,
+      ...updateContractDto
+    });
+      
+    const existingContract = await this.contractsRepository.createQueryBuilder()
+    .where('(LOWER(contract.registration) = LOWER(:registration) OR contract.ot = :ot) AND contract.warehouseId = :warehouseId', {
+      registration: updateContractDto.registration,
+      ot: updateContractDto.ot,
+      warehouseId: user.warehouses[0].id,
+    })
+    .andWhere('contract.id != :contractId', { contractId: id })
+    .getOne();
+
+  if (existingContract && (existingContract.registration !== contract.registration || existingContract.ot !== contract.ot)) {
+    throw new BadRequestException(`El contrato con orden de trabajo ${updateContractDto.ot} ya existe en la bodega ${user.warehouses[0].name}.`);
+  }   
+        try {
+          await this.contractsRepository.save(contract);
+          return {Message:'Contrato actualizado con exito'};
+   
+        } catch (error) {
+          this.handleDBExeptions(error)
+        }
+  }
+
+  async remove(id: string, user: User) {
+
+    const contract = await this.contractsRepository.findOneBy({id: id});
+
+  if (contract) {
+    contract.deletedBy = user.id;
+    contract.deletedAt = new Date();
+
+    await this.contractsRepository.save(contract);
+    // const material = await this.findOne( id );
+    //await this.materialsRepository.delete({ id });
+    return {message:'Contrato eliminado.'}
+  }else{
+    throw new NotFoundException(`El contrato no fue encontrado.`);
+  }
+}
+
+
+  private handleDBExeptions(error: any){    
+
+    if (error.code === 'ER_DUP_ENTRY') {
+      throw new BadRequestException('El contrato con orden de trabajo ingresada ya existe.');
+    }
+
+       this.logger.error(error);
+            
+      throw new InternalServerErrorException('Unexpected error, check server logs');
+  }
+}
