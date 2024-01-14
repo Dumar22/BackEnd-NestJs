@@ -90,11 +90,10 @@ private readonly logger = new Logger('MaterialsService')
   
       return { materials, failedMaterials, message: 'Materiales creados' };
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       this.handleDBExeptions(error);
     }
   }
-  
   
   private materialDataFormat(entry: CreateMaterialDto, user: User): Material {
     return this.materialsRepository.create({
@@ -103,6 +102,7 @@ private readonly logger = new Logger('MaterialsService')
       warehouse: user.warehouses[0],
     });
   }
+
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;
   

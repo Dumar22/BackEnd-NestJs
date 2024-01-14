@@ -57,7 +57,10 @@ export class Material {
   materialAssignments: AssignmentDetailsMaterialsVehicle[];
 
     @OneToMany(() => DetailsExitMaterials ,
-    materialexit => materialexit.material)     
+    materialexit => materialexit.material,
+    {
+      eager: true,
+    })     
   exitMaterials: DetailsExitMaterials [];
 
     @OneToMany(() => AssingMaterialsDetailsProyect ,

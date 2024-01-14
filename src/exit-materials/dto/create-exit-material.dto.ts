@@ -12,6 +12,9 @@ export class CreateExitMaterialDto {
     @IsString()
     @MinLength(2)
     type: string;
+
+    @IsString()
+   state: string;
   
     @IsString()
     @IsOptional()

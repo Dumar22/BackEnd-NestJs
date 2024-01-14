@@ -13,10 +13,7 @@ export class AssignmentDetailsMaterialsVehicle {
   material: Material;
   
    @Column('int',{ default:0, nullable: false })
-    assignedQuantity: number;   
-
-    @Column('text',{ nullable: true })
-    observation: string;   
+    assignedQuantity: number;     
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignedAt: Date;

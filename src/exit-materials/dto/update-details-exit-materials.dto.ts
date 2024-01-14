@@ -1,8 +1,11 @@
+
+import { PartialType } from "@nestjs/mapped-types";
 import { Type } from "class-transformer";
 import { IsString, IsUUID, IsNumber, IsPositive, IsOptional, IsDate, IsBoolean } from "class-validator";
+import { CreateDetailExitMaterialsDto } from "./create-details-exit-materials.dto";
 
 
-export class CreateDetailExitMaterialsDto {
+export class UpdateDetailExitMaterialsDto  extends PartialType(CreateDetailExitMaterialsDto) {
 
     @IsString() 
     @IsUUID()
@@ -33,5 +36,5 @@ export class CreateDetailExitMaterialsDto {
     @Type(() => Date)
     returnedA?: Date;
   
-
+    
   }

@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/entities/user.entity';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 
 
 @Injectable()
@@ -17,6 +18,8 @@ export class ToolsService {
   constructor(   
     @InjectRepository( Tool)
     private readonly toolsRepository: Repository<Tool>,
+    private readonly fileUploadService: FileUploadService
+
 
   ){}
 
@@ -54,6 +57,52 @@ export class ToolsService {
     }
    
 
+  }
+
+  async createxls(fileBuffer: Buffer, createToolDto: CreateToolDto, user: User) {
+    try {
+      // Lógica para procesar el archivo Excel y obtener la lista de materiales
+      const tools = await this.fileUploadService.processExcel(fileBuffer, this.toolsRepository, (entry: CreateToolDto) => {
+        return this.toolDataFormat(entry, user);
+      });   
+        
+      // Lista de herramientass que no fueron cargados
+      const failedTools: { tool: CreateToolDto; reason: string }[] = [];
+  
+      for (const tool of tools) {
+        const existingtool = await this.toolsRepository.createQueryBuilder()
+        .where('(tool.name = :name OR tool.code = :code) AND warehouseId = :warehouseId', {
+          name: tool.name,  
+          code: tool.code,
+          warehouseId: user.warehouses[0].id  
+        })
+    .getOne();
+          
+    if (existingtool) {
+      failedTools.push({ 
+       tool, 
+        reason: `La herramienta ${tool.name} ya existe en la bodega ${user.warehouses[0].name}.` 
+      });    
+    } else {    
+      // Guardar el material solo si no existe
+      await this.toolsRepository.save(tool);     
+    }
+      }
+  
+      return { tools, failedTools, message: 'Herramientas creadas' };
+    } catch (error) {
+      //console.log(error);
+      this.handleDBExeptions(error);
+    }
+  }
+  
+
+  private toolDataFormat(entry: CreateToolDto, user: User): Tool {
+    return this.toolsRepository.create({
+      ...entry,
+      user,
+      warehouse: user.warehouses[0],
+    });
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {

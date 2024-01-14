@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ToolsService } from './tools.service';
 import { CreateToolDto } from './dto/create-tool.dto';
 import { UpdateToolDto } from './dto/update-tool.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('tools')
 export class ToolsController {
@@ -17,6 +18,14 @@ export class ToolsController {
   @GetUser() user: User,
   ) {
     return this.toolsService.create(createToolDto, user);
+  }
+
+  @Post('upload-excel')
+  @Auth()
+  @UseInterceptors(FileInterceptor('file'))
+  async createxls(@UploadedFile() file: Express.Multer.File, createToolDto: CreateToolDto, 
+  @GetUser() user: User) {
+    return this.toolsService.createxls( file.buffer,  createToolDto, user,);
   }
 
   @Get()

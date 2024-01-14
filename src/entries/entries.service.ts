@@ -9,6 +9,13 @@ import { isUUID } from 'class-validator';
 import { Material } from 'src/materials/entities/material.entity';
 import { Meter } from 'src/meters/entities/meter.entity';
 import { FileUploadService } from 'src/upload-xls/upload-xls.service';
+import * as pdfMake from 'pdfmake/build/pdfmake';
+import * as currencyFormatter from 'currency-formatter';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import { logoBase64 } from 'src/common/helpers/logo-base64';
+import *as moment from 'moment-timezone';
+
+moment.tz.setDefault("America/Bogota");
 
 
 @Injectable()
@@ -134,10 +141,11 @@ export class EntriesService {
       return this.detailsEntryRepository.create({
       ...entry,
     });
-  }
-  
+  }  
 
   async updateMaterialAndMeterDetails(entry: Entry) {
+    
+    
     try {
       for (const detail of entry.details) {
         // Obtener el material existente
@@ -174,25 +182,128 @@ export class EntriesService {
         }
   
         if (existingMaterial) {
-    // Verificar si el nuevo precio es mayor al existente
-    if (detail.price > existingMaterial.price) {
-      // Actualizar el precio solo si es mayor
-      await this.materialRepository.update(
-        { code: detail.code },
-        { price: detail.price, // Actualizar el precio solo si es mayor // Otras actualizaciones según sea necesario
-          quantity: () => `quantity + ${detail.quantity}`,
-        },
+          // Actualizar la cantidad en cualquier caso
+          await this.materialRepository.update(
+            { code: detail.code },
+            {
+              quantity: () => `quantity + ${detail.quantity}`,
+            }
+          );
         
-      );
-    }
-  }
+          // Verificar si el nuevo precio es mayor al existente
+          if (detail.price > existingMaterial.price) {
+            // Actualizar el precio solo si es mayor
+            await this.materialRepository.update(
+              { code: detail.code },
+              { price: detail.price }
+            );
+          }
+        }
   
       }
     } catch (error) {
       // Propagar la excepción
       throw new Error(error);
     }
-  }  
+  } 
+  
+  async generarPDF(id: string, user: User): Promise<Buffer> {
+    const transferData = await this.entriesRepository.findOneBy({id: id});
+    
+    if (!transferData) {
+      throw new NotFoundException('Entrada no encontrada');
+    }
+
+    const formattedDate = moment(transferData.date).format('DD/MM/YYYY HH:mm');
+  
+    // Calcular el total de los detalles del traslado
+    const totalMat = transferData.details.reduce((acc, detail) => acc + (detail.total), 0);
+    const totalFormatted = currencyFormatter.format(totalMat, { code: 'COP' });
+
+    transferData.details.forEach((detail) => {
+      detail.price = currencyFormatter.format(detail.price, { code: 'USD' }); // Cambia 'USD' según tu moneda
+      detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
+    });
+
+    const pdfDefinition = {
+      header: {
+        image: logoBase64,
+        fit: [100, 100],
+        alignment: 'left',
+        margin: [40, 20],
+      },
+      content: [
+        { text: 'TRASLADOS', fontSize: 15, alignment: 'center', margin: [0, 15, 0, 35] },
+        {
+          columns: [
+            // Datos a la izquierda
+            [
+              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 12 },
+              { text: 'Número de entrada: ' + transferData.entryNumber, fontSize: 12 },
+              { text: 'Origen: ' + transferData.origin, fontSize: 12 },
+            
+            ],
+            [
+              { text: 'Nit: ' + transferData.origin, fontSize: 12 },
+              { text: 'Provedor: ' + transferData.providerName, fontSize: 12, margin: [0, 0, 0, 20] }
+              
+            ],
+          ],
+        },
+        // ... Otros detalles según sea necesario
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', '*', '*', '*', '*', '*'],
+            body: [
+              [
+                { text: 'Código', style: 'tableHeader' },
+                { text: 'Material', style: 'tableHeader' },
+                { text: 'Unidad', style: 'tableHeader' },
+                { text: 'Serial', style: 'tableHeader' },
+                { text: 'Marca', style: 'tableHeader' },
+                { text: 'Cantidad', style: 'tableHeader' },
+                { text: 'Precio unidad', style: 'tableHeader' },
+                { text: 'Total', style: 'tableHeader' },
+              ],
+              // Agrega filas con los detalles del traslado
+              ...transferData.details.map((detail) => [
+                {text: detail.code, alignment: 'center', fontSize: 10},
+                 {text: detail.name, alignment: 'center', fontSize: 10}, 
+                {text: detail.unity, alignment: 'center', fontSize: 10},
+                {text: detail.serial, alignment: 'center', fontSize: 10},
+                {text: detail.brand, alignment: 'center', fontSize: 10},
+                { text: detail.quantity, alignment: 'center' }, // Centrar la cantidad
+                {text: detail.price, alignment: 'center'},
+                {text: detail.total, alignment: 'center'}
+              ]),
+              ['', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+            ],
+          },
+        },
+        { text: 'Observaciones: ' + transferData.observation, fontSize: 12, margin: [0, 20] },
+      ],
+      styles :{
+        tableHeader: {
+          bold: true,
+          fillColor: '#F5F5F5',
+          alignment: 'center',
+        },
+      }
+    };
+    
+    
+     
+
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      const pdfDocGenerator = pdfMake.createPdf(pdfDefinition);
+      pdfDocGenerator.getBuffer((buffer) => {
+        resolve(buffer);
+      });
+    });
+
+    return pdfBuffer;
+  }
 
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;
@@ -245,7 +356,7 @@ export class EntriesService {
     return entry;
   }
   
-  async update(id: string, updateEntryDto: UpdateEntryDto, updateDetailDtos: UpdateDetailDto[], user: User) {
+  async update(id: string, updateEntryDto: UpdateEntryDto, updateDetailDto: UpdateDetailDto[], user: User) {
 
     const existingEntry = await this.entriesRepository.findOneBy({id: id});
   
@@ -254,21 +365,24 @@ export class EntriesService {
            
   
     // Actualizar la entrada con los datos proporcionados en updateEntryDto
-    this.entriesRepository.merge(existingEntry, updateEntryDto);   
+    this.entriesRepository.merge(existingEntry, updateEntryDto);  
   
     // Actualizar los detalles de la entrada
-    const updatedDetails = updateDetailDtos.map(updateDetailDtos => {
-      const existingDetail = existingEntry.details.find(detail => detail.id === updateDetailDtos.id);
-  
+    const updatedDetails = updateEntryDto.createDetailDto.map(updateDetail => {
+      const existingDetail = existingEntry.details.find(detail => detail.id === updateDetail.id);
       
-      if (!existingDetail) {
-        throw new NotFoundException(`Detalle con ID ${updateDetailDtos.id} no encontrado en la entrada.`);
+      if (existingDetail) {
+        // El detalle existe, por lo que se actualiza
+        this.detailsEntryRepository.merge(existingDetail, updateDetail);
+        return existingDetail;
+      } else {
+        // El detalle no existe, por lo que se crea como un nuevo detalle
+        const newDetail = this.detailsEntryRepository.create(updateDetail);
+        existingEntry.details.push(newDetail);
+        return newDetail;
       }
-  
-      // Actualizar el detalle con los datos proporcionados en updateDetailDto
-      this.detailsEntryRepository.merge(existingDetail, updateDetailDtos);
-      return existingDetail;
     });
+    
 
   try {
     
@@ -292,6 +406,7 @@ export class EntriesService {
   if (entry) {
     entry.deletedBy = user.id;
     entry.deletedAt = new Date();
+    entry.entryNumber = 'XXXX-XX'
 
     await this.entriesRepository.save(entry);
     // const material = await this.findOne( id );

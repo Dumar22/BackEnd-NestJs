@@ -1,33 +1,45 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateToolAssignmentDto } from './create-tool-assignment.dto';
-import {  IsArray, IsDate, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import {  IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsPositive, IsString, IsUUID, MinLength } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ToolAssignmentDetail } from '../entities';
 
 
 export class UpdateToolAsignamentDto extends PartialType(CreateToolAssignmentDto) {
     @IsString()
     @IsOptional()    
     id?:string;
-
-    @IsDate()
-    @Type(() => Date)
-    date: Date;
     
     @IsString()
     @MinLength(2)
     reason: string;
   
-    @IsString()
-    @IsOptional()
-    observation?: string;
-  
     @IsString() 
     @IsUUID()
     collaboratorId: string;
     
-   @IsArray()  
-   details:ToolAssignmentDetail[];
+    @IsString() 
+    @IsUUID()
+    toolId: string;
+  
+    @IsNumber()
+    @IsPositive()
+    assignedQuantity: number;
+  
+    @IsString()
+    @IsOptional()
+    observation?: string;
+   
+    @IsDate()
+    @Type(() => Date)
+    assignedAt: Date;
+  
+    @IsDate()
+    @IsOptional()
+    @Type(() => Date)
+    returnedAt?: Date;
+  
+    @IsBoolean()
+    returnTools?: boolean;
 
 
 }

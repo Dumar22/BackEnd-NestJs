@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
+import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 
 @Injectable()
 export class ContractService {
@@ -16,7 +17,7 @@ export class ContractService {
   constructor(   
     @InjectRepository( Contract)
     private readonly contractsRepository: Repository<Contract>,
-
+    private readonly fileUploadService: FileUploadService
   ){}
 
   async create(createContractDto: CreateContractDto, user: User) {
@@ -52,6 +53,51 @@ export class ContractService {
    
 
   }
+
+  async createxls(fileBuffer: Buffer, createContractDto: CreateContractDto, user: User) {
+    try {
+      // Lógica para procesar el archivo Excel y obtener la lista de materiales
+      const contracts = await this.fileUploadService.processExcel(fileBuffer, this.contractsRepository, (entry: CreateContractDto) => {
+        return this.contractDataFormat(entry, user);
+      });   
+        
+      // Lista de materiales que no fueron cargados
+      const failedContracts: { contract: CreateContractDto; reason: string }[] = [];
+  
+      for (const contract of contracts) {
+        const existingContract = await this.contractsRepository.createQueryBuilder()
+        .where('contract.ot = :ot AND warehouseId = :warehouseId', {  
+          ot: contract.ot,
+          warehouseId: user.warehouses[0].id  
+        })
+    .getOne();
+          
+    if (existingContract) {
+      failedContracts.push({ 
+        contract, 
+        reason: `El Contrato con órden de trabajo ${contract.ot} ya existe en la bodega ${user.warehouses[0].name}.` 
+      });    
+    } else {    
+      // Guardar el Contarto solo si no existe
+      await this.contractsRepository.save(contract);     
+    }
+      }
+  
+      return { contracts,  failedContracts, message: 'Contartos creados' };
+    } catch (error) {
+      // console.log(error);
+      this.handleDBExeptions(error);
+    }
+  }
+  
+  private contractDataFormat(entry: CreateContractDto, user: User): Contract {
+    return this.contractsRepository.create({
+      ...entry,
+      user,
+      warehouse: user.warehouses[0],
+    });
+  }
+
 
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;

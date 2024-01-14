@@ -15,14 +15,6 @@ export class UpdateAssignmentDetailsMaterialsVehicleDto extends PartialType(Crea
     @IsNumber()
     @IsPositive()
     assignedQuantity: number;
-      
-    @IsString()
-    @IsOptional()
-    observation?: string;
-       
-    @IsDate()
-    @Type(() => Date)
-    assignedAt: Date;
   
     @IsDate()
     @IsOptional()

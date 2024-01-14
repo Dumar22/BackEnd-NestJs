@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { MetersService } from './meters.service';
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { UpdateMeterDto } from './dto/update-meter.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('meters')
 export class MetersController {
@@ -17,6 +18,14 @@ export class MetersController {
     @GetUser() user: User,
     ) {
     return this.metersService.create(createMeterDto, user);
+  }
+
+  @Post('upload-excel')
+  @Auth()
+  @UseInterceptors(FileInterceptor('file'))
+  async createxls(@UploadedFile() file: Express.Multer.File, createMeterDto: CreateMeterDto, 
+  @GetUser() user: User) {
+    return this.metersService.createxls( file.buffer,  createMeterDto, user,);
   }
 
   @Get()

@@ -244,7 +244,6 @@ export class TransfersService {
    try {
      // Actualizar el traslado con los datos proporcionados en updateTransferDto
     this.transfersRepository.merge(existingTransfer, updateTransferDto);
-  console.log(existingTransfer);
   
     // Actualizar los detalles del traslado
     const updatedDetails = updateDetailTransferDtos.map(updateDetailTransferDto => {
@@ -315,11 +314,11 @@ async updateMaterialAndMeterDetails(transfer: Transfer) {
 
     
       // Si el material es un medidor
-      if (detail.code === "1001") {
+      if (detail.name.startsWith("MEDIDOR")) {
         // Buscar si ya existe el medidor por código y serial en la bodega de destino
         const existingMeter = await this.meterRepository.createQueryBuilder()
           .where('meter.code = :code AND meter.serial = :serial AND warehouseId = :warehouseId', {
-            code: "1001", // Código del medidor
+            code: detail.code, // Código del medidor
             serial: detail.serial, // Serial del medidor
             warehouseId: transfer.warehouse.id, // Id de la bodega de destino
           })

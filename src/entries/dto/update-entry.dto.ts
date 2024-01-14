@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateEntryDto } from './create-entry.dto';
-import { IsDate, IsString, MinLength, IsNotEmpty, Matches, IsOptional, IsArray } from 'class-validator';
+import { IsDate, IsString, MinLength, IsNotEmpty, Matches, IsOptional, IsArray, MaxLength } from 'class-validator';
 import { DetailsEntry } from '../entities';
 
 export class UpdateEntryDto extends PartialType(CreateEntryDto) {
@@ -17,7 +17,8 @@ export class UpdateEntryDto extends PartialType(CreateEntryDto) {
     providerName: string
 
     @IsNotEmpty()
-    @Matches(/^[0-9]{11}$/, { message: 'El número de nit debe tener 11 dígitos numéricos.' })
+    @MinLength(2)
+    @MaxLength(13)
     providerNit: string
 
     @IsString()
@@ -25,5 +26,6 @@ export class UpdateEntryDto extends PartialType(CreateEntryDto) {
     observation?:string
 
     @IsArray()
+    @IsOptional()
     createDetailDto?: DetailsEntry[];
 }

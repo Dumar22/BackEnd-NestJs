@@ -1,11 +1,10 @@
 import { BeforeInsert, BeforeUpdate, Column, 
-    CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+    CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn,
      UpdateDateColumn } from "typeorm";
 import * as moment from 'moment-timezone';
 import { User } from "src/auth/entities/user.entity";
 import { Warehouse } from "src/warehouses/entities/warehouse.entity";
 import { ToolAssignment } from "src/tool-assignment/entities/tool-assignment.entity";
-import { ToolAssignmentDetail } from "src/tool-assignment/entities/details-tool-assignment.entity";
 
 
 @Entity()
@@ -53,8 +52,8 @@ export class Tool {
     @ManyToOne(() => Warehouse, warehouse => warehouse.tools)
     warehouse: Warehouse;
    
-    @OneToMany(() => ToolAssignmentDetail, toolAssignment => toolAssignment.tool)
-    toolAssignments: ToolAssignmentDetail[];
+    @OneToMany(() => ToolAssignment, toolAssignment => toolAssignment.tool)
+    toolAssignments: ToolAssignment[];
 
    @Column({ nullable: true })
    deletedBy: string;

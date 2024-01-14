@@ -4,11 +4,9 @@ import { ToolAssignment } from './entities/tool-assignment.entity';
 import { Repository } from 'typeorm';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 import { Tool } from 'src/tools/entities/tool.entity';
-import { CreateToolAssignmentDto } from './dto/create-tool-assignment.dto';
-import { CreateToolAssignmentDetailDto, UpdateToolAsignamentDto, UpdateToolAssignmentDetailDto } from './dto';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { ToolAssignmentDetail } from './entities';
+import { CreateToolAssignmentDto, UpdateToolAsignamentDto } from './dto';
 
 @Injectable()
 export class ToolAssignmentService {
@@ -23,15 +21,13 @@ export class ToolAssignmentService {
     private readonly toolRepository: Repository<Tool>,
     @InjectRepository(ToolAssignment)
     private readonly toolAssignmentRepository: Repository<ToolAssignment>,
-    @InjectRepository(ToolAssignmentDetail)
-    private readonly toolAssignmentDetailRepository: Repository<ToolAssignmentDetail>,
   ) {}
 
-  async create(createToolAssignmentDTO: CreateToolAssignmentDto, details: CreateToolAssignmentDetailDto[], user: User) {
+  async create(createToolAssignmentDTO: CreateToolAssignmentDto, user: User) {
     
-    const { collaboratorId,...rest } = createToolAssignmentDTO;   
+    const { collaboratorId,toolId,...rest } = createToolAssignmentDTO;   
     
-    //console.log(createToolAssignmentDTO);
+    
     
     // Buscar el colaborador en la base de datos
     const collaborator = await this.collaboratorRepository.findOne({
@@ -43,99 +39,54 @@ export class ToolAssignmentService {
       throw new NotFoundException('Colaborador no encontrado');
     }   
     
-    const ware= collaborator.warehouse.id              
+    // Buscar el herramienta en la base de datos
+    const tool = await this.toolRepository.findOne({
+      where:{id:toolId},
+      relations:['warehouse']
+    });
+
+    if (!tool) {
+      throw new NotFoundException('Herramienta no encontrada');
+    }   
+    if (tool.quantity < createToolAssignmentDTO.assignedQuantity) {
+      throw new NotFoundException('La cantidad de asignacion es mayor a la cantidad de existencia, por favor revisar');
+    }   
+
+     // Actualizar la cantidad de la herramienta en el inventario
+     await this.toolRepository.decrement(
+      { id: toolId },
+      'quantity',
+      createToolAssignmentDTO.assignedQuantity
+    );        
    
-   try {   
+   try {
+     // Creamos la instancia de ToolAssignment sin los detalles
+     const newToolAssignment = await this.toolAssignmentRepository.create({
+       ...createToolAssignmentDTO,
+       collaborator,
+       tool,
+       warehouse: user.warehouses[0],
+       user,
+     });
 
-      // Creamos la instancia de ToolAssignment sin los detalles
-      const newToolAssignment = await this.toolAssignmentRepository.create({
-        ...rest,
-        user,
-        collaborator,
-        details: details,
-        warehouse: user.warehouses[0]
-      });
-      
-      //console.log(newToolAssignment);
-      
-      // Verificar si todas las herramientas existen y 
-    // Actualiza la cantidad de herramientas en el inventario
-   await this.verifyToolsExistence(details, ware);    
-  
-      // Guardar la asignación en la base de datos  
-      
-    
-      
-      const detailsWithTools = [];
-for (const detail of details) {
+     // Guardar la asignación en la base de datos
+     const savedToolAssignment =
+       await this.toolAssignmentRepository.save(newToolAssignment);
 
-  const existingAssignment = await this.toolAssignmentRepository.findOne({
-    where: {
-      collaborator:  { id: createToolAssignmentDTO.collaboratorId }, 
-      details: { tool: {id: detail.toolId} ,
-      returnedAt: null },
-    }
-  });
-
-  console.log(existingAssignment);
-  const existingDurability = existingAssignment.details[0].durabilityTool; // Ajusta esto según la estructura exacta de tu entidad
-
-  if (existingAssignment) {
-    // Puedes manejar el caso donde la herramienta ya está asignada a este colaborador
-    throw new BadRequestException(
-      `La herramienta con ID ${detail.toolId} ya está asignada al colaborador. La asignación anterior tiene una duración de ${existingDurability} días.`
-    );
-  }
-
-  
-  const tool = await this.toolRepository.findOneBy({id:detail.toolId});
-
-  
-
-  detailsWithTools.push({
-    ...detail,
-    tool
-  });
-
-}
-
-const savedToolAssignment = await this.toolAssignmentRepository.save(newToolAssignment);
-
-const detailAssignments = [];
-
-for (const detail of detailsWithTools) {
-
-  detailAssignments.push(
-    this.toolAssignmentDetailRepository.create({  
-      ...detail,
-      toolAssignment: savedToolAssignment  
-    })
-  );
-
-}
- 
-//console.log('data save',detailAssignments);
-
-await this.toolAssignmentDetailRepository.save(detailAssignments);
-  
-  
-      // Devolver la asignación completa con los detalles asociados
-      return detailAssignments
-  
-      
-    } catch (error) {
+     // Devolver la asignación completa con los detalles asociados
+     return { assignment: savedToolAssignment, message: 'Assignación creada' };
+   } catch (error) {
      // console.log('created',error);
-      
-      // Manejar las excepciones de la base de datos
-      this.handleDBExceptions(error);
 
-    }
+     // Manejar las excepciones de la base de datos
+     this.handleDBExceptions(error);
+   }
  }
 
   async findOne(id: string,user: User) {
     const toolAssignment = await this.toolAssignmentRepository.findOne({
       where: {id: id},     
-        relations: ['collaborator', 'details.tool']      
+        relations: ['collaborator', 'tool']      
     });
   
     if (!toolAssignment) {
@@ -147,12 +98,14 @@ await this.toolAssignmentDetailRepository.save(detailAssignments);
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;
   
-    let toolAssignmentQuery = this.toolAssignmentRepository.createQueryBuilder('tool_assignment')
-      .leftJoinAndSelect('tool_assignment.collaborator', 'collaborator')
-      .leftJoinAndSelect('tool_assignment.details', 'details')
-      .leftJoinAndSelect('details.tool', 'tool')
-      .leftJoinAndSelect('tool_assignment.user', 'user')
-      .leftJoinAndSelect('tool_assignment.warehouse', 'warehouse');
+    let toolAssignmentQuery = this.toolAssignmentRepository.createQueryBuilder('tool-assignment')
+      .leftJoinAndSelect('tool-assignment.collaborator', 'collaborator')
+      .leftJoinAndSelect('tool-assignment.tool', 'tool')     
+      .leftJoinAndSelect('tool-assignment.user', 'user')
+      .leftJoinAndSelect('tool-assignment.warehouse', 'warehouse');
+
+      
+      
   
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
@@ -160,8 +113,8 @@ await this.toolAssignmentDetailRepository.save(detailAssignments);
         .where('user.id = :userId', { userId: user.id })
         .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
-    // Agrega la condición para excluir las erramientas eliminados
-      toolAssignmentQuery = toolAssignmentQuery.andWhere('tool_assignment.deletedAt IS NULL');
+    // Agrega la condición para excluir las herramientas eliminados
+      toolAssignmentQuery = toolAssignmentQuery.andWhere('tool-assignment.deletedAt IS NULL');
   
     const toolassignment = await toolAssignmentQuery
       .skip(offset)
@@ -177,58 +130,54 @@ await this.toolAssignmentDetailRepository.save(detailAssignments);
     if (!toolAssignment) {
       throw new NotFoundException(`Asignación de herramienta con ID ${id} no encontrada.`);
     }
+
+    toolAssignment.deletedBy = user.id;
+    toolAssignment.deletedAt = new Date();
+
+    await this.toolAssignmentRepository.save(toolAssignment);
+    
+    return {message: 'Asignación de herramienta eliminada con éxito.'}
   
-    // // Actualizar la cantidad de herramientas después de la eliminación
-    // await this.toolRepository
-    //   .createQueryBuilder()
-    //   .update(Tool)
-    //   .set({ quantity: () => 'quantity + 1' })
-    //   //.where('id = :toolId', { toolId: toolAssignment.tool.id })
-    //   .execute();
-  
-    await this.toolAssignmentRepository.delete(id);
-  
-    return { message: 'Asignación de herramienta eliminada con éxito.' };
   }  
 
-  async update(id: string, updateToolAssignmentDto: UpdateToolAsignamentDto, details: UpdateToolAssignmentDetailDto[], user: User) {
+  async update(id: string, updateToolAssignmentDto: UpdateToolAsignamentDto, user: User) {
 
-    // 1. Obtener asignación existente
-    const toolAssignment = await this.toolAssignmentRepository.findOne({
-      where: {id: id},
-      relations: ['details', 'details.tool']  
+    const toolAssignment = await this.toolAssignmentRepository.preload({
+      id: id,
+      ...updateToolAssignmentDto
     });
+
+    const toolID = updateToolAssignmentDto.toolId
+    // // 1. Obtener asignación existente
+    // const toolAssignment = await this.toolAssignmentRepository.findOne({
+    //   where: {id: id},
+    //   relations: ['tool', 'collaborator']  
+    // });
   
     if (!toolAssignment) {
       throw new NotFoundException('Asignación no encontrada');  
     }
+
+     // Buscar el herramienta en la base de datos
+     const toolExist = await this.toolRepository.findOne({
+      where:{id:toolID},
+      relations:['warehouse']
+    });
+
+    if (!toolExist) {
+      throw new NotFoundException('Herramienta no encontrada');
+    }   
+    if (toolExist.quantity <updateToolAssignmentDto.assignedQuantity) {
+      throw new NotFoundException('La cantidad de asignacion es mayor a la cantidad de existencia, por favor revisar');
+    }   
+
+     // Actualizar la cantidad de la herramienta en el inventario
+     await this.toolRepository.decrement(
+      { id: toolID },
+      'quantity',
+      updateToolAssignmentDto.assignedQuantity
+    );       
   
-    // 2. Iterar sobre detalles actualizados
-    for(const updatedDetailDto of details) {
-  
-      // Buscar detalle existente
-      const existingDetail = toolAssignment.details.find(d => d.id === updatedDetailDto.id);
-  
-      if (existingDetail) {
-        // Actualizar valores
-        existingDetail.assignedQuantity = updatedDetailDto.assignedQuantity;
-        existingDetail.observation = updatedDetailDto.observation;
-        
-        // ...actualizar otros campos
-        
-      } else {
-        // Crear nuevo detalle
-        const newDetail = new ToolAssignmentDetail();
-        newDetail.tool = await this.toolRepository.findOneBy({id: updatedDetailDto.toolId});
-        newDetail.assignedQuantity = updatedDetailDto.assignedQuantity;
-        
-        // Mapear otros valores
-        
-        // Agregar al array de detalles
-        toolAssignment.details.push(newDetail); 
-      }
-  
-    }
   
     // 3. Guardar y retornar
     await this.toolAssignmentRepository.save(toolAssignment);
@@ -236,48 +185,6 @@ await this.toolAssignmentDetailRepository.save(detailAssignments);
     return toolAssignment;
   
   }
-
-  private async verifyToolsExistence(details: CreateToolAssignmentDetailDto[], warehouseId: string): Promise<void> {
-    try {
-      for (const detail of details) {
-        const toolId = detail.toolId;
-        const assignedQuantity = detail.assignedQuantity;
-  
-        // Buscar la herramienta en la base de datos
-        const tool = await this.toolRepository.findOne({
-          where: { id: toolId },
-          relations: ['warehouse']
-        });
-  
-        if (!tool) {
-          throw new Error(`Herramienta con ID ${toolId} no encontrada`);
-        }
-  
-        // Verificar si la herramienta pertenece a la bodega del colaborador
-        if (tool.warehouse.id !== warehouseId) {
-          throw new Error(`Herramienta con ID ${toolId} no encontrada en la bodega asignada al colaborador`);
-        }
-  
-        // Verificar si la cantidad asignada es mayor que la cantidad disponible
-        if (assignedQuantity > tool.quantity) {
-          throw new Error(`La cantidad asignada de la herramienta con ID ${toolId} es mayor que la cantidad disponible`);
-        }
-  
-        // Actualizar la cantidad de la herramienta en el inventario
-        await this.toolRepository.decrement(
-          { id: toolId },
-          'quantity',
-          assignedQuantity
-        );
-        
-       
-      }
-    } catch (error) {
-      // Manejar las excepciones de la base de datos
-      this.handleDBExceptions(error);
-    }
-  }
-  
 
   private handleDBExceptions(error: any){    
 
@@ -298,7 +205,7 @@ await this.toolAssignmentDetailRepository.save(detailAssignments);
 
 
   async updateDurability(): Promise<void> {
-    const detailsToUpdate = await this.toolAssignmentDetailRepository.find({
+    const detailsToUpdate = await this.toolAssignmentRepository.find({
       where: {
         returnedAt: null, // Así solo consideramos los detalles que aún no han sido devueltos
       },
@@ -306,7 +213,7 @@ await this.toolAssignmentDetailRepository.save(detailAssignments);
 
     for (const detail of detailsToUpdate) {
       detail.calculateDurability(); // Asumiendo que la entidad tiene el método calculateDurability
-      await this.toolAssignmentDetailRepository.save(detail);
+      await this.toolAssignmentRepository.save(detail);
     }
   }
 }

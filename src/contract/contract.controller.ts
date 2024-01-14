@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ContractService } from './contract.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('contract')
 export class ContractController {
@@ -17,6 +18,15 @@ export class ContractController {
   ) {
     return this.contractService.create(createContractDto, user);
   }
+
+  @Post('upload-excel')
+  @Auth()
+  @UseInterceptors(FileInterceptor('file'))
+  async createxls(@UploadedFile() file: Express.Multer.File, createContractDto: CreateContractDto, 
+  @GetUser() user: User) {
+    return this.contractService.createxls( file.buffer,  createContractDto, user,);
+  }
+
 
   @Get()
   @Auth()

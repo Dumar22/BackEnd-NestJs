@@ -7,6 +7,7 @@ import { Meter } from './entities/meter.entity';
 import { isUUID } from 'class-validator';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 
 @Injectable()
 export class MetersService {
@@ -16,7 +17,7 @@ export class MetersService {
   constructor(   
     @InjectRepository( Meter)
     private readonly metersRepository: Repository<Meter>,
-
+    private readonly fileUploadService: FileUploadService
   ){}
 
   async create(createMeterDto: CreateMeterDto, user: User) {
@@ -58,6 +59,51 @@ export class MetersService {
    
 
   }
+
+  async createxls(fileBuffer: Buffer, createMaterialDto: CreateMeterDto, user: User) {
+    try {
+      // Lógica para procesar el archivo Excel y obtener la lista de materiales
+      const meters = await this.fileUploadService.processExcel(fileBuffer, this.metersRepository, (entry: CreateMeterDto) => {
+        return this.meterDataFormat(entry, user);
+      });   
+        
+      // Lista de materiales que no fueron cargados
+      const failedMeters: { meter: CreateMeterDto; reason: string }[] = [];
+  
+      for (const meter of meters) {
+        const existingmeter = await this.metersRepository.createQueryBuilder()
+        .where('meter.serial = :serial AND warehouseId = :warehouseId', {
+          serial: meter.serial,  
+          warehouseId: user.warehouses[0].id  
+        })
+    .getOne();
+          
+    if (existingmeter) {
+      failedMeters.push({ 
+        meter,
+        reason: `El medidor con serie ${meter.serial} ya existe en la bodega ${user.warehouses[0].name}.` 
+      });    
+    } else {    
+      // Guardar el material solo si no existe
+      await this.metersRepository.save(meter);     
+    }
+      }
+  
+      return { meters, failedMeters, message: 'Medidores creados' };
+    } catch (error) {
+      // console.log(error);
+      this.handleDBExeptions(error);
+    }
+  }
+  
+  private meterDataFormat(entry: CreateMeterDto, user: User): Meter {
+    return this.metersRepository.create({
+      ...entry,
+      user,
+      warehouse: user.warehouses[0],
+    });
+  }
+
 
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;

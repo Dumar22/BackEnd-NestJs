@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ToolAssignmentService } from './tool-assignment.service';
 import { Auth, GetUser } from 'src/auth/decorators';
-import { CreateToolAssignmentDetailDto, CreateToolAssignmentDto, UpdateToolAsignamentDto, UpdateToolAssignmentDetailDto } from './dto';
+import { CreateToolAssignmentDto, UpdateToolAsignamentDto } from './dto';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
@@ -14,10 +14,9 @@ export class ToolAsignamentController {
   @Auth()
   create(    
     @Body() createToolAssignmentDto: CreateToolAssignmentDto, 
-    @Body('details') details: CreateToolAssignmentDetailDto[],
     @GetUser() user: User
     ) {
-    return this.toolAssignmentService.create(createToolAssignmentDto,details, user);
+    return this.toolAssignmentService.create(createToolAssignmentDto, user);
   }
 
 
@@ -42,9 +41,8 @@ export class ToolAsignamentController {
   update
   (@Param('id', ParseUUIDPipe) id: string,
   @Body() updateToolAsignamentDto: UpdateToolAsignamentDto,
-  @Body('details') details: UpdateToolAssignmentDetailDto[],
   @GetUser() user: User,) {
-    return this.toolAssignmentService.update(id, updateToolAsignamentDto, details, user);
+    return this.toolAssignmentService.update(id, updateToolAsignamentDto, user);
   }
 
   @Delete(':id')

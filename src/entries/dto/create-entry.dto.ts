@@ -22,7 +22,7 @@ export class CreateEntryDto {
 
     @IsNotEmpty()
     @MinLength(2)
-    @MaxLength(12)
+    @MaxLength(13)
     // @Matches(/^[0-9]{11}$/, { message: 'El número de nit debe tener 11 dígitos numéricos.' })
     providerNit: string
 
