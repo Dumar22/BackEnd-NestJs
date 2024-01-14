@@ -39,7 +39,7 @@ Clone the file ```.env.template``` and remember to ```.env``` whit you data
 # Up data Base
 
 Install Docker and docker-desktop in your pc
-
+## Running container
 ```
 docker-compose up -d
 ```

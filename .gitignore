@@ -2,6 +2,9 @@
 /dist
 /node_modules
 mysql/
+.env
+.gitignore
+Cafe_redes.png
 
 # Logs
 logs
