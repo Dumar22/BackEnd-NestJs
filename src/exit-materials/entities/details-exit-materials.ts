@@ -27,7 +27,7 @@ export class DetailsExitMaterials {
   @Column('int', { default: 0, nullable: false })
   used: number;
 
-  @Column('int', { default: 0, nullable: false })
+  @Column('float', { default: 0, nullable: false })
   total: number;
 
   @Column('text', { nullable: true })
@@ -42,24 +42,44 @@ export class DetailsExitMaterials {
   @JoinColumn()
   meter: Meter;
 
-  @ManyToOne(() => ExitMaterial, (exitMaterial) => exitMaterial.details, {
-    eager: true,
-  })
+  @ManyToOne(() => ExitMaterial, (exitMaterial) => exitMaterial.details)
   exitMaterial: ExitMaterial;
 
   @BeforeInsert()
   insertTotal(){
-      this.used = this.assignedQuantity - this.restore
-      // Verificar si this.material es null y asignar un precio predeterminado
-    const materialPrice = this.material ? this.material.price : 0;
-      this.total = this.used * materialPrice
-      
+   // Asegurarse de que los valores sean números válidos
+   const isNumeric = (value: any) => !isNaN(parseFloat(value)) && isFinite(value);
+// lo restamos con 0 por que en el momento de ingresar restore esta undifined
+   this.used =  this.assignedQuantity - this.restore;
+
+   // Verificar si this.material tiene un precio y asignar un precio predeterminado
+   const materialPrice = this.material && isNumeric(this.material.price) ? this.material.price : 0;
+
+   // Verificar si this.meter tiene un precio y asignar un precio predeterminado
+   const meterPrice = this.meter && isNumeric(this.meter.price) ? this.meter.price : 0;
+
+   // Seleccionar el precio mayor entre materialPrice y meterPrice
+   const selectedPrice = Math.max(materialPrice, meterPrice);
+   
+   this.total = this.used * selectedPrice;
   }
   @BeforeUpdate()
   updateTotal(){
-    this.used = this.assignedQuantity - this.restore
-    const materialPrice = this.material ? this.material.price : 0;
-    this.total = this.used * materialPrice
+
+    const isNumeric = (value: any) => !isNaN(parseFloat(value)) && isFinite(value);
+    
+    this.used =  this.assignedQuantity - this.restore;
+
+    // Verificar si this.material tiene un precio y asignar un precio predeterminado
+    const materialPrice = this.material && isNumeric(this.material.price) ? this.material.price : 0;
+ 
+    // Verificar si this.meter tiene un precio y asignar un precio predeterminado
+    const meterPrice = this.meter && isNumeric(this.meter.price) ? this.meter.price : 0;
+ 
+    // Seleccionar el precio mayor entre materialPrice y meterPrice
+    const selectedPrice = Math.max(materialPrice, meterPrice);
+    
+    this.total = this.used * selectedPrice;
   }
 
 }

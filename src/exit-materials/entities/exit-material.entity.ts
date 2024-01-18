@@ -21,6 +21,9 @@ export class ExitMaterial {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column('int', { default: 0, nullable: false })
+  ExitNumber: number;
+
   @Column({ nullable: false })
   date: Date;
 
@@ -73,8 +76,9 @@ export class ExitMaterial {
   @BeforeInsert()
   insertTotal() {
     this.createdAt = moment().tz('America/Bogota').toDate();
-    this.updatedAt = new Date();
+    this.updatedAt = new Date();    
   }
+  
   @BeforeUpdate()
   updateTotal() {
     this.updatedAt = new Date();

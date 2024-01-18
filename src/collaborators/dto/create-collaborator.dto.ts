@@ -19,9 +19,9 @@ export class CreateCollaboratorDto {
   @IsPositive()
   document:number;
 
-  @IsNumber()
-  @IsPositive()
-  phone:number;
+  @IsString()
+  @MinLength(6)
+  phone:string;
  
   @IsEmail()
   @IsOptional()

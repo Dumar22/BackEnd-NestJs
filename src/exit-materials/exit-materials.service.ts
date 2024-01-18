@@ -55,6 +55,12 @@ export class ExitMaterialsService {
     
     const { collaboratorId, contractId, ...rest } = createexitMaterialsDto;
 
+
+
+    // Obtener el número de salida para el usuario actual
+  const lastExitNumber = await this.getLastExitNumberForUser(user.id);
+
+
     // Verificar si ya se hizo una salida al contrato de tipo instalación
     // Servicio común
     async function validateNoPreviousExit(
@@ -112,13 +118,19 @@ export class ExitMaterialsService {
       throw new NotFoundException('Contrato no encontrado');
     }
 
+
     const ware = collaborator.warehouse.id;
 
+
+
     try {
+
+      
       // Creamos la instancia de ToolAssignment sin los detalles
       const newMaterialAssignment = await this.exitMaterialsRepository.create({
         ...rest,
         user,
+        ExitNumber: lastExitNumber + 1,
         collaborator,
         contract,
         details,
@@ -170,12 +182,22 @@ export class ExitMaterialsService {
       // Devolver la asignación completa con los detalles asociados
       return {message:'Salida creada correctamente.'};
     } catch (error) {
-      // console.log('created',error);
-
       // Manejar las excepciones de la base de datos
       this.handleDBExceptions(error);
     }
   }
+
+
+  // Método para obtener el último número de salida para el usuario
+private async getLastExitNumberForUser(userId: string): Promise<number> {
+  const lastExit = await this.exitMaterialsRepository.findOne({
+    where: { user: { id: userId } },
+    order: { ExitNumber: 'DESC' },
+  });
+
+  return lastExit ? lastExit.ExitNumber : 0;
+}
+ 
 
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;
@@ -236,6 +258,10 @@ export class ExitMaterialsService {
     details: UpdateDetailExitMaterialsDto[],
     user: User, ) {
 
+      console.log(updateExitMaterialsDto);
+      
+      
+
       const { collaboratorId, contractId, ...rest } =updateExitMaterialsDto
 
        // Obtener la salida existente por su ID
@@ -270,9 +296,7 @@ export class ExitMaterialsService {
       });
 
       if (previousExit) {
-        throw new BadRequestException(
-          `Ya existe una salida previa de tipo ${exitType} para este contrato`,
-        );
+        
       }
     }
     
@@ -307,34 +331,36 @@ export class ExitMaterialsService {
       throw new NotFoundException('Contrato no encontrado');
     }
 
-
+    //console.log('ExitMaterialsAndMeter before merge:', exitMaterialsAndMeter);
     const ware = collaborator.warehouse.id;
     try {
 // Usar merge para copiar los valores de updateExitMaterialsDto en la entidad principal
 this.exitMaterialsRepository.merge(exitMaterialsAndMeter, updateExitMaterialsDto);
 
 // Actualizar los detalles de la salida
-exitMaterialsAndMeter.details.forEach((detail, index) => {
-  if (details[index]) {
+updateExitMaterialsDto.details.forEach((detail, index) => {
+  if (exitMaterialsAndMeter.details[index]) {
     // Actualizar los campos necesarios de cada detalle
-    detail.restore = details[index].restore;
-    detail.observation = details[index].observation;
+    exitMaterialsAndMeter.details[index].restore = detail.restore;
+    exitMaterialsAndMeter.details[index].observation = detail.observation;
   }
 });
-
 // Verificar si todas las herramientas existen y
       // Actualiza la cantidad de herramientas en el inventario
-      await this.retunMaterialsAndMeters(details, ware);
+     await this.retunMaterialsAndMeters(details, ware);
+
+
 
 // Guardar la salida actualizada
 const updatedExitMaterial = await this.exitMaterialsRepository.save(exitMaterialsAndMeter);
+const updatedDetailsExitMaterial = await this.detailsExitRepository.save(exitMaterialsAndMeter.details);
 
 // Realizar cualquier lógica adicional necesaria después de la actualización
 
-return { message: 'Salida actualizada correctamente.', updatedExitMaterial };
+return { message: 'Salida actualizada correctamente.', updatedExitMaterial, updatedDetailsExitMaterial };
 
 } catch (error) {
- // console.log('created',error);
+  console.log('created',error);
 
  // Manejar las excepciones de la base de datos
  this.handleDBExceptions(error);
@@ -449,13 +475,6 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
 
     const exitMaterials =  await this.exitMaterialsRepository.findOneBy({ id: id });
 
-    const exitMaterial = await this.exitMaterialsRepository.findOne( {
-
-where:{
-  id: id},
-  relations: ['details', 'details.material'],
-      
-    });
     
     if (exitMaterials) {
       exitMaterials.deletedBy = user.id;
@@ -553,7 +572,7 @@ where:{
   }
 
   private async retunMaterialsAndMeters(
-    details: CreateDetailExitMaterialsDto[],
+    details: UpdateDetailExitMaterialsDto[],
     warehouseId: string,
   ): Promise<void> {
     try {
@@ -621,6 +640,9 @@ where:{
   }
 
   private handleDBExceptions(error: any) {
+
+    console.log(error);
+    
     if (error.code === 'ER_DUP_ENTRY') {
       throw new BadRequestException('La entrada ya existe.');
     }

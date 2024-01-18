@@ -64,8 +64,8 @@ export class VehiclesService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       vehiclesQuery = vehiclesQuery
-        .where('user.id = :userId', { userId: user.id })
-        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        // .where('user.id = :userId', { userId: user.id })
+        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir las erramientas eliminados
       vehiclesQuery = vehiclesQuery.andWhere('vehicle.deletedAt IS NULL');

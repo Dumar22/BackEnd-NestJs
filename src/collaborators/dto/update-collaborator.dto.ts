@@ -22,9 +22,9 @@ export class UpdateCollaboratorDto extends PartialType(CreateCollaboratorDto) {
   @IsPositive()
   document:number;
 
-  @IsNumber()
-  @IsPositive()
-  phone:number;
+  @IsString()
+  @MinLength(6)
+  phone:string;
  
   @IsEmail()
   @IsOptional()

@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsString, IsUUID, IsNumber, IsPositive, IsOptional, IsDate, IsBoolean } from "class-validator";
+import { IsString, IsUUID, IsNumber, IsPositive, IsOptional, IsDate } from "class-validator";
 
 
 export class CreateDetailExitMaterialsDto {
@@ -16,8 +16,8 @@ export class CreateDetailExitMaterialsDto {
     @IsPositive()
     assignedQuantity: number;
 
-    @IsNumber()
-    @IsPositive()
+    @IsNumber({ allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 })
+    @IsPositive({ each: true, message: 'Restore must be a positive number' })
     restore: number;
       
     @IsString()

@@ -65,6 +65,7 @@ export class ExitMaterialsController {
   }
 
   @Patch(':id')
+  @Auth()
   update(@Param('id') id: string, 
   @Body() updateExitMaterialDto: UpdateExitMaterialDto,
   @Body('details') details: UpdateDetailExitMaterialsDto[],

@@ -6,6 +6,10 @@ import { DetailsExitMaterials } from '../entities';
 
 export class UpdateExitMaterialDto extends PartialType(CreateExitMaterialDto) {
 
+    @IsString()
+    @IsOptional()
+     id?: string;
+
     @IsDate()
     @Type(() => Date)
     date: Date;

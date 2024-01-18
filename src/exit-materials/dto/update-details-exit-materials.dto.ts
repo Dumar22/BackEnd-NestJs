@@ -7,6 +7,10 @@ import { CreateDetailExitMaterialsDto } from "./create-details-exit-materials.dt
 
 export class UpdateDetailExitMaterialsDto  extends PartialType(CreateDetailExitMaterialsDto) {
 
+    @IsString()
+    @IsOptional()
+    id?: string;
+  
     @IsString() 
     @IsUUID()
     materialId?: string;
@@ -26,15 +30,6 @@ export class UpdateDetailExitMaterialsDto  extends PartialType(CreateDetailExitM
     @IsString()
     @IsOptional()
     observation?: string;
-       
-    @IsDate()
-    @Type(() => Date)
-    assignedAt: Date;
-  
-    @IsDate()
-    @IsOptional()
-    @Type(() => Date)
-    returnedA?: Date;
   
     
   }
