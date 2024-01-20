@@ -118,8 +118,8 @@ await this.materialAssignmentDetailRepository.save(detailAssignments);
   if (!user.rol.includes('admin')) {
     // Si no es administrador, aplicar restricciones por bodega
     materialAssignmentQuery = materialAssignmentQuery
-      .where('user.id = :userId', { userId: user.id })
-      .andWhere('warehouse.id IN (:...warehouseIds)', {
+      // .where('user.id = :userId', { userId: user.id })
+      .where('warehouse.id IN (:...warehouseIds)', {
          warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
   }
   // Agrega la condición para excluir las erramientas eliminados

@@ -112,8 +112,8 @@ export class ProvidersService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       providersQuery = providersQuery
-        .where('user.id = :userId', { userId: user.id })
-        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        // .where('user.id = :userId', { userId: user.id })
+        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir los proveedores eliminados
       providersQuery = providersQuery.andWhere('provider.deletedAt IS NULL');

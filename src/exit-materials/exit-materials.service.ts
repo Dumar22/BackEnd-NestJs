@@ -215,8 +215,8 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       exitMaterialQuery = exitMaterialQuery
-        .where('user.id = :userId', { userId: user.id })
-        .andWhere('warehouse.id IN (:...warehouseIds)', {
+        // .where('user.id = :userId', { userId: user.id })
+        .where('warehouse.id IN (:...warehouseIds)', {
           warehouseIds: user.warehouses.map(warehouse => warehouse.id),
         });
     }

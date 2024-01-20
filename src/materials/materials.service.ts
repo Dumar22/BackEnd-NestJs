@@ -113,8 +113,9 @@ private readonly logger = new Logger('MaterialsService')
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       materialsQuery = materialsQuery
-        .where('user.id = :userId', { userId: user.id })
-        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        // .where('user.id = :userId', { userId: user.id })
+        // .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir los materiales eliminados
       materialsQuery = materialsQuery.andWhere('material.deletedAt IS NULL');

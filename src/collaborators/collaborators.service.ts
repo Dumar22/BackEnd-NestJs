@@ -113,8 +113,8 @@ export class CollaboratorsService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       colaboratorsQuery = colaboratorsQuery
-        .where('user.id = :userId', { userId: user.id })
-        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        // .where('user.id = :userId', { userId: user.id })
+        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir los materiales eliminados
       colaboratorsQuery = colaboratorsQuery.andWhere('collaborator.deletedAt IS NULL');
