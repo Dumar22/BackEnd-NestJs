@@ -37,7 +37,7 @@ import { AssingMaterialsProyectModule } from './assing-materials-proyect/assing-
       database: process.env.DB_DATABASE,
       //timezone: 'Z',
       autoLoadEntities: true,
-      synchronize:true, // use synchronize for development
+      synchronize:false, // use synchronize for development
     }),
     MaterialsModule,
     CommonModule,
