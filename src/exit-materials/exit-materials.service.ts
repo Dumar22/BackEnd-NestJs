@@ -44,7 +44,7 @@ export class ExitMaterialsService {
     private readonly exitMaterialsRepository: Repository<ExitMaterial>,
     @InjectRepository(DetailsExitMaterials)
     private readonly detailsExitRepository: Repository<DetailsExitMaterials>,
-  ) {}
+  ) {  pdfMake.vfs = pdfFonts.pdfMake.vfs;}
 
   async create(
     createexitMaterialsDto: CreateExitMaterialDto,
@@ -371,19 +371,19 @@ return { message: 'Salida actualizada correctamente.', updatedExitMaterial, upda
 
 
 async generarPDF(id: string, user: User): Promise<Buffer> {
-  const ExitData = await this.exitMaterialsRepository.findOneBy({id: id});
+  const exitData = await this.exitMaterialsRepository.findOneBy({id: id}); 
   
-  if (!ExitData) {
+  if (!exitData) {
     throw new NotFoundException('Salida de materiales no encontrada');
   }
 
-  const formattedDate = moment(ExitData.date).format('DD/MM/YYYY HH:mm');
+  const formattedDate = moment(exitData.date).format('DD/MM/YYYY HH:mm');
 
   // Calcular el total de los detalles
-  const totalMat = ExitData.details.reduce((acc, detail) => acc + (detail.total), 0);
+  const totalMat = exitData.details.reduce((acc, detail) => acc + (detail.total), 0);
   const totalFormatted = currencyFormatter.format(totalMat, { code: 'COP' });
 
-  ExitData.details.forEach((detail) => {
+  exitData.details.forEach((detail) => {
     detail.material.price = currencyFormatter.format(detail.material.price, { code: 'USD' }); // Cambia 'USD' según tu moneda
     detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
   });
@@ -396,20 +396,20 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       margin: [40, 20],
     },
     content: [
-      { text: 'TRASLADOS', fontSize: 15, alignment: 'center', margin: [0, 15, 0, 35] },
+      { text: 'SALIDAS DE ALMACEN', fontSize: 15, alignment: 'center', margin: [0, 15, 0, 35] },
       {
         columns: [
           // Datos a la izquierda
           [
             { text: 'Fecha de salida: ' + formattedDate, fontSize: 12 },
-            { text: 'Responsable: ' + ExitData.collaborator.name, fontSize: 12 },
-            { text: 'Documento: ' + ExitData.collaborator.document, fontSize: 12 },
-            { text: 'Orden de trabajo: ' + ExitData.contract.ot, fontSize: 12, margin: [0, 0, 0, 20] },
+            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 12 },
+            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 12 },
+            { text: 'Orden de trabajo: ' + exitData.contract.ot, fontSize: 12, margin: [0, 0, 0, 20] },
           ],
           [
-            { text: 'Contrato: ' + ExitData.contract.registration, fontSize: 12 },
-            { text: 'Direccion: ' + ExitData.contract.addres, fontSize: 12 },
-            { text: 'Subsicriptor: ' + ExitData.contract.name, fontSize: 12 },
+            { text: 'Contrato: ' + exitData.contract.registration, fontSize: 12 },
+            { text: 'Dirección: ' + exitData.contract.addres, fontSize: 12 },
+            { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 12 },
           ],
         ],
       },
@@ -417,37 +417,38 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       {
         table: {
           headerRows: 1,
-          widths: ['*', '*', '*', '*', '*', '*', '*'],
+          widths: ['*', '*', '*', '*', '*', '*', '*', '*'],
           body: [
             [
               { text: 'Código', style: 'tableHeader' },
               { text: 'Material', style: 'tableHeader' },
-              { text: 'Unidad', style: 'tablLeHeader' },
-              { text: 'Serial', style: 'tablLeHeader' },
-              { text: 'Cantidad', style: 'tableHeader' },
-              { text: 'Precio unidad', style: 'tableHeader' },
+              { text: 'Unidad', style: 'tableHeader' },
+              { text: 'Serial', style: 'tableHeader' },
+              { text: 'Cantidad Asignada', style: 'tableHeader' },
+              { text: 'Devuelve', style: 'tableHeader' },
+              { text: 'Usado', style: 'tableHeader' },
               { text: 'Total', style: 'tableHeader' },
             ],
             // Agrega filas con los detalles del traslado
-            ...ExitData.details.map((detail) => [
-              {text: detail.material.code ? detail.material.code : detail.meter.code, alignment: 'center', fontSize: 10},
-               {text: detail.material.name ? detail.material.name : detail.meter.name,  // Usar medidor.name si material.name es null
+            ...exitData.details.map((detail) => [
+              {text: detail.material?.code ? detail.material.code : detail.meter.code, alignment: 'center', fontSize: 10},
+               {text: detail.material?.name ? detail.material.name : detail.meter.name,  // Usar medidor.name si material.name es null
                alignment: 'center',
                fontSize: 10,}, 
-               {text: detail.material.unity ? detail.material.unity : detail.meter.unity,  // Usar medidor.name si material.name es null
+               {text: detail.material?.unity ? detail.material.unity : detail.meter.unity,  // Usar medidor.name si material.name es null
                alignment: 'center',
                fontSize: 10,}, 
-              {text: detail.meter.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 10},
+               { text: detail.meter?.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 10},
               {text: detail.assignedQuantity, alignment: 'center', fontSize: 10},
-              { text: detail.restore, alignment: 'center' }, // Centrar la cantidad
+              { text: ' ', alignment: 'center' }, // Centrar la cantidad
               {text: detail.used, alignment: 'center'},
               {text: detail.total, alignment: 'center'}
             ]),
-            ['', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+            ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
           ],
         },
       },
-      { text: 'Observaciones: ' + ExitData.observation, fontSize: 12, margin: [0, 20] },
+      { text: 'Observaciones: ' + exitData.observation, fontSize: 12, margin: [0, 20] },
     ],
     styles :{
       tableHeader: {

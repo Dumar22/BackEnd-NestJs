@@ -69,9 +69,11 @@ export class Transfer {
   })
   warehouse: Warehouse;
 
-  @OneToMany(() => DetailsTransfer, (details) => details.transfer, {
+  @OneToMany(
+    () => DetailsTransfer,
+    (details) => details.transfer, {
     eager: true,
-  })
+  } )
   details: DetailsTransfer[];
 
   @BeforeInsert()

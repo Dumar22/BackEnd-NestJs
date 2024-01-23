@@ -33,7 +33,13 @@ export class DetailsExitMaterials {
   @Column('text', { nullable: true })
   observation: string;
 
-  @ManyToOne(() => Material, (material) => material.exitMaterials)
+  @ManyToOne(
+    () => Material, 
+    material => material.exitMaterials,
+    {
+      eager: true,
+    }
+    )
   material: Material;
 
   @OneToOne(() => Meter, {
@@ -42,7 +48,10 @@ export class DetailsExitMaterials {
   @JoinColumn()
   meter: Meter;
 
-  @ManyToOne(() => ExitMaterial, (exitMaterial) => exitMaterial.details)
+  @ManyToOne(
+    () => ExitMaterial,
+     exitMaterial => exitMaterial.details
+     )
   exitMaterial: ExitMaterial;
 
   @BeforeInsert()

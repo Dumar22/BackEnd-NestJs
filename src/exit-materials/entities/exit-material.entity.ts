@@ -68,9 +68,9 @@ export class ExitMaterial {
 
   @OneToMany(
     () => DetailsExitMaterials,
-    (details) => details.exitMaterial,
-    
-  )
+    (details) => details.exitMaterial,{
+      eager: true,
+    } )
   details: DetailsExitMaterials[];
 
   @BeforeInsert()

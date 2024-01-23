@@ -58,9 +58,7 @@ export class Material {
 
     @OneToMany(() => DetailsExitMaterials ,
     materialexit => materialexit.material,
-    {
-      eager: true,
-    })     
+   )     
   exitMaterials: DetailsExitMaterials [];
 
     @OneToMany(() => AssingMaterialsDetailsProyect ,
