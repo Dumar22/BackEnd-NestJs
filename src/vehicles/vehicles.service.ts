@@ -22,8 +22,11 @@ export class VehiclesService {
   async create(createVehicleDto: CreateVehicleDto, user: User) {
 
     const existingVehicle = await this.vehiclesRepository.createQueryBuilder()
-    .where('vehicle.plate = :plate', { plate: createVehicleDto.plate })
-    .andWhere('warehouseId = :warehouseId', { warehouseId: user.warehouses[0].id })
+    .where('vehicle.plate = :plate AND warehouseId = :warehouseId', { 
+      plate: createVehicleDto.plate, 
+      //code: createMeterDto.brand,
+      warehouseId: user.warehouses[0].id  
+    })
     .getOne();
   
       if (existingVehicle) {
