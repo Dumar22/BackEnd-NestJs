@@ -22,9 +22,8 @@ export class VehiclesService {
   async create(createVehicleDto: CreateVehicleDto, user: User) {
 
     const existingVehicle = await this.vehiclesRepository.createQueryBuilder()
-    .where('vehicle.plate = :plate AND warehouseId = :warehouseId', { 
+    .where('plate = :plate AND warehouseId = :warehouseId', { 
       plate: createVehicleDto.plate, 
-      //code: createMeterDto.brand,
       warehouseId: user.warehouses[0].id  
     })
     .getOne();
@@ -47,7 +46,7 @@ export class VehiclesService {
       return {vehiculo: vehicle, message:'Vehículo creado'}
       
     } catch (error) {          
-      //console.log(error); 
+    console.log(error); 
       this.handleDBExeptions(error)
     }
    
