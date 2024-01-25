@@ -23,7 +23,7 @@ export class CollaboratorsService {
 
   async create(createCollaboratorDto: CreateCollaboratorDto, user: User) {
 
-    const existingCollaborator = await this.collaboratorsRepository.createQueryBuilder()
+    const existingCollaborator = await this.collaboratorsRepository.createQueryBuilder('collaborator')
     .where('(collaborator.name = :name OR collaborator.code = :code) AND warehouseId = :warehouseId', { 
       name: createCollaboratorDto.name, 
       code: createCollaboratorDto.code,
@@ -68,7 +68,7 @@ export class CollaboratorsService {
       const failedcollaborators: { collaborators: CreateCollaboratorDto; reason: string }[] = [];
   
       for (const collaborator of collaborators) {
-        const ExistingCollaborator = await this.collaboratorsRepository.createQueryBuilder()
+        const ExistingCollaborator = await this.collaboratorsRepository.createQueryBuilder('collaborator')
         .where('(collaborator.name = :name OR collaborator.code = :code) AND warehouseId = :warehouseId', {
           name: collaborator.name,  
           code: collaborator.code,
@@ -154,7 +154,7 @@ export class CollaboratorsService {
       ...updateCollaboratorDto
     });
       
-    const existingCollaborator = await this.collaboratorsRepository.createQueryBuilder()
+    const existingCollaborator = await this.collaboratorsRepository.createQueryBuilder('collaborator')
     .where('(LOWER(collaborator.name) = LOWER(:name) OR collaborator.code = :code) AND collaborator.warehouseId = :warehouseId', {
       name: updateCollaboratorDto.name,
       code: updateCollaboratorDto.code,

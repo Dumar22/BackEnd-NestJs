@@ -155,7 +155,7 @@ private readonly logger = new Logger('MaterialsService')
       ...updateMaterialDto
     });
       
-    const existingMaterial = await this.materialsRepository.createQueryBuilder()
+    const existingMaterial = await this.materialsRepository.createQueryBuilder('material')
     .where('(LOWER(material.name) = LOWER(:name) OR material.code = :code) AND material.warehouseId = :warehouseId', {
       name: updateMaterialDto.name,
       code: updateMaterialDto.code,

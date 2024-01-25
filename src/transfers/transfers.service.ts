@@ -38,7 +38,7 @@ export class TransfersService {
 
   async create(createTransferDto: CreateTransferDto, createDetailTransferDto: CreateDetailTransferDto[], user: User) {
     // Verificar si ya existe un traslado con el mismo número en la misma bodega
-    const existingTransfer = await this.transfersRepository.createQueryBuilder()
+    const existingTransfer = await this.transfersRepository.createQueryBuilder('transfer')
       .where('transfer.transferNumber = :transferNumber AND warehouseId = :warehouseId', {
         transferNumber: createTransferDto.transferNumber,
         warehouseId: user.warehouses[0].id,

@@ -22,7 +22,7 @@ export class ProyectsService {
 
   async create(createProyectDto: CreateProyectDto, user: User) {
 
-    const existingProyect = await this.proyectsRepository.createQueryBuilder()
+    const existingProyect = await this.proyectsRepository.createQueryBuilder('proyect')
     .where('proyect.name = :name  AND warehouseId = :warehouseId', { 
       name: createProyectDto.name,       
       warehouseId: user.warehouses[0].id  
@@ -104,7 +104,7 @@ export class ProyectsService {
       ...updateProyectDto
     });
       
-    const existingProyect = await this.proyectsRepository.createQueryBuilder()
+    const existingProyect = await this.proyectsRepository.createQueryBuilder('proyect')
     .where('(LOWER(proyect.name) = LOWER(:name) ) AND proyect.warehouseId = :warehouseId', {
       name: updateProyectDto.name,      
       warehouseId: user.warehouses[0].id

@@ -23,7 +23,7 @@ export class MetersService {
   async create(createMeterDto: CreateMeterDto, user: User) {
 
 
-    const existingMeter = await this.metersRepository.createQueryBuilder()
+    const existingMeter = await this.metersRepository.createQueryBuilder('meter')
     .where('meter.serial = :serial AND warehouseId = :warehouseId', { 
       serial: createMeterDto.serial, 
       //code: createMeterDto.brand,
@@ -71,7 +71,7 @@ export class MetersService {
       const failedMeters: { meter: CreateMeterDto; reason: string }[] = [];
   
       for (const meter of meters) {
-        const existingmeter = await this.metersRepository.createQueryBuilder()
+        const existingmeter = await this.metersRepository.createQueryBuilder('meter')
         .where('meter.serial = :serial AND warehouseId = :warehouseId', {
           serial: meter.serial,  
           warehouseId: user.warehouses[0].id  

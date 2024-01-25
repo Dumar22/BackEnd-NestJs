@@ -38,7 +38,7 @@ export class EntriesService {
 
   async create(createEntryDto: CreateEntryDto, createDetailDto: CreateDetailDto[], user: User) {
     // Verificar si ya existe una entrada con el mismo número en la misma bodega
-    const existingEntry = await this.entriesRepository.createQueryBuilder()
+    const existingEntry = await this.entriesRepository.createQueryBuilder('entry')
       .where('entry.entryNumber = :entryNumber AND warehouseId = :warehouseId', {
         entryNumber: createEntryDto.entryNumber,
         warehouseId: user.warehouses[0].id,
@@ -92,7 +92,7 @@ export class EntriesService {
       });
   
       // Verificar si ya existe una entrada con el mismo número en la misma bodega
-      const existingEntry = await this.entriesRepository.createQueryBuilder()
+      const existingEntry = await this.entriesRepository.createQueryBuilder('entry')
         .where('entry.entryNumber = :entryNumber AND warehouseId = :warehouseId', {
           entryNumber: createEntryDto.entryNumber,
           warehouseId: user.warehouses[0].id,

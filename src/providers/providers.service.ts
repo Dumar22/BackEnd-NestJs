@@ -23,7 +23,7 @@ export class ProvidersService {
 
   async create(createProviderDto: CreateProviderDto, user: User) {
 
-    const existingProvider = await this.providersRepository.createQueryBuilder()
+    const existingProvider = await this.providersRepository.createQueryBuilder('provider')
     .where('(provider.name = :name OR provider.nit = :nit) AND warehouseId = :warehouseId', { 
       name: createProviderDto.name, 
       nit: createProviderDto.nit,
@@ -67,7 +67,7 @@ export class ProvidersService {
       const failedProviders: { provider: CreateProviderDto; reason: string }[] = [];
   
       for (const provider of providers) {
-        const ExistingProvider = await this.providersRepository.createQueryBuilder()
+        const ExistingProvider = await this.providersRepository.createQueryBuilder('provider')
         .where('(provider.name = :name OR provider.nit = :nit) AND warehouseId = :warehouseId', {
           name: provider.name,  
           nit: provider.nit,
@@ -153,7 +153,7 @@ export class ProvidersService {
       ...updateProviderDto
     });
       
-    const existingProvider = await this.providersRepository.createQueryBuilder()
+    const existingProvider = await this.providersRepository.createQueryBuilder('provider')
     .where('(LOWER(provider.name) = LOWER(:name) OR provider.nit = :nit) AND provider.warehouseId = :warehouseId', {
       name: updateProviderDto.name,
       nit: updateProviderDto.nit,

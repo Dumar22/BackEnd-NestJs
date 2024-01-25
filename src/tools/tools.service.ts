@@ -26,7 +26,7 @@ export class ToolsService {
 
   async create(createToolDto: CreateToolDto, user: User) {
 
-    const existingTool = await this.toolsRepository.createQueryBuilder()
+    const existingTool = await this.toolsRepository.createQueryBuilder('tool')
     .where('(tool.name = :name OR tool.code = :code) AND warehouseId = :warehouseId', { 
       name: createToolDto.name, 
       code: createToolDto.code,
@@ -70,7 +70,7 @@ export class ToolsService {
       const failedTools: { tool: CreateToolDto; reason: string }[] = [];
   
       for (const tool of tools) {
-        const existingtool = await this.toolsRepository.createQueryBuilder()
+        const existingtool = await this.toolsRepository.createQueryBuilder('tool')
         .where('(tool.name = :name OR tool.code = :code) AND warehouseId = :warehouseId', {
           name: tool.name,  
           code: tool.code,
@@ -155,7 +155,7 @@ export class ToolsService {
       ...updateToolDto
     });
       
-    const existingTool = await this.toolsRepository.createQueryBuilder()
+    const existingTool = await this.toolsRepository.createQueryBuilder('tool')
     .where('(LOWER(tool.name) = LOWER(:name) OR tool.code = :code) AND tool.warehouseId = :warehouseId', {
       name: updateToolDto.name,
       code: updateToolDto.code,

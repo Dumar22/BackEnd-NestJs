@@ -22,7 +22,7 @@ export class ContractService {
 
   async create(createContractDto: CreateContractDto, user: User) {
 
-    const existingContract = await this.contractsRepository.createQueryBuilder()
+    const existingContract = await this.contractsRepository.createQueryBuilder('contract')
     .where('contract.ot = :ot AND warehouseId = :warehouseId', { 
       ot: createContractDto.ot, 
       warehouseId: user.warehouses[0].id  
@@ -66,7 +66,7 @@ export class ContractService {
   
       for (const contract of contracts) {
         const existingContract = await this.contractsRepository.createQueryBuilder()
-        .where('contract.ot = :ot AND warehouseId = :warehouseId', {  
+        .where('ot = :ot AND warehouseId = :warehouseId', {  
           ot: contract.ot,
           warehouseId: user.warehouses[0].id  
         })
@@ -149,7 +149,7 @@ export class ContractService {
       ...updateContractDto
     });
       
-    const existingContract = await this.contractsRepository.createQueryBuilder()
+    const existingContract = await this.contractsRepository.createQueryBuilder('contract')
     .where('(LOWER(contract.registration) = LOWER(:registration) OR contract.ot = :ot) AND contract.warehouseId = :warehouseId', {
       registration: updateContractDto.registration,
       ot: updateContractDto.ot,
