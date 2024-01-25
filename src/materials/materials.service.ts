@@ -26,7 +26,7 @@ private readonly logger = new Logger('MaterialsService')
   async create(createMaterialDto: CreateMaterialDto, user: User) {
 
     const existingMaterial = await this.materialsRepository.createQueryBuilder()
-    .where('(material.name = :name OR material.code = :code) AND warehouseId = :warehouseId', { 
+    .where('(name = :name OR code = :code) AND warehouseId = :warehouseId', { 
       name: createMaterialDto.name, 
       code: createMaterialDto.code,
       warehouseId: user.warehouses[0].id  
@@ -70,11 +70,11 @@ private readonly logger = new Logger('MaterialsService')
   
       for (const material of materials) {
         const existingMaterial = await this.materialsRepository.createQueryBuilder()
-        .where('(material.name = :name OR material.code = :code) AND warehouseId = :warehouseId', {
-          name: material.name,  
-          code: material.code,
-          warehouseId: user.warehouses[0].id  
-        })
+    .where('(name = :name OR code = :code) AND warehouseId = :warehouseId', { 
+      name: createMaterialDto.name, 
+      code: createMaterialDto.code,
+      warehouseId: user.warehouses[0].id  
+    })
     .getOne();
           
     if (existingMaterial) {
