@@ -50,7 +50,7 @@ export class MaterialsController {
     return this.materialsService.findOne(term, user);
   }
 
-  @Get(':term')
+  @Get('search/:term')
   @Auth()
   searchMaterial(@Param('term') term: string,
   @GetUser() user:User
