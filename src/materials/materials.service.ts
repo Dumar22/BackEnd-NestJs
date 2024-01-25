@@ -69,12 +69,12 @@ private readonly logger = new Logger('MaterialsService')
       const failedMaterials: { material: CreateMaterialDto; reason: string }[] = [];
   
       for (const material of materials) {
-        const existingMaterial = await this.materialsRepository.createQueryBuilder()
-    .where('(name = :name OR code = :code) AND warehouseId = :warehouseId', { 
-      name: createMaterialDto.name, 
-      code: createMaterialDto.code,
-      warehouseId: user.warehouses[0].id  
-    })
+        const existingMaterial = await this.materialsRepository.createQueryBuilder('material')
+        .where('(material.name = :name OR material.code = :code) AND warehouseId = :warehouseId', {
+          name: material.name,  
+          code: material.code,
+          warehouseId: user.warehouses[0].id  
+        })
     .getOne();
           
     if (existingMaterial) {

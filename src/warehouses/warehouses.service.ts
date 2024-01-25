@@ -54,7 +54,7 @@ export class WarehousesService {
     const warehouse =await this.warehouseRepository.findOneBy({id: term});
 
     if (!warehouse)
-      throw new NotFoundException(`El material no fue encontrado.`);
+      throw new NotFoundException(`Bodega no fue encontrado.`);
     return warehouse
   }
 
