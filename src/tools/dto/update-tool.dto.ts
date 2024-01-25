@@ -13,7 +13,8 @@ export class UpdateToolDto extends PartialType(CreateToolDto) {
     @MinLength(2)
     code:string;
   
-    @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO']) 
+    // @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO']) 
+    @IsString()
     unity:string;
   
     @IsNumber()

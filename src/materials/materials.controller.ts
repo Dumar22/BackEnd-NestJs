@@ -50,6 +50,14 @@ export class MaterialsController {
     return this.materialsService.findOne(term, user);
   }
 
+  @Get(':term')
+  @Auth()
+  searchMaterial(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.materialsService.searchMaterial(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateMaterialDto: UpdateMaterialDto,

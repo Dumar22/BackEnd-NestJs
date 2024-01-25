@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import * as xlsx from 'xlsx';
 import { UpdateMaterialDto } from './dto/update-material.dto';
 import { CreateMaterialDto } from './dto/create-material.dto';
@@ -147,6 +147,17 @@ private readonly logger = new Logger('MaterialsService')
 
       return material;
   }  
+
+  async searchMaterial(term: string, user: User) {
+    let data = await this.materialsRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+        { code: Like(`%${term}%`) },
+      ],
+    });
+    return data;
+  }
+
   
  async update(id: string, updateMaterialDto: UpdateMaterialDto, user: User) {
     
