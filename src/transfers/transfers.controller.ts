@@ -38,6 +38,14 @@ export class TransfersController {
     return this.transfersService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchTransfer(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.transfersService.searchTransfer(term, user);
+  }
+
   @Get('pdf/:id')
    @Auth()
   async generateReport(

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateToolDto } from './dto/create-tool.dto';
 import { UpdateToolDto } from './dto/update-tool.dto';
 import { Tool } from './entities/tool.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/entities/user.entity';
 import { isUUID } from 'class-validator';
@@ -148,6 +148,17 @@ export class ToolsService {
       return tool;
   }  
   
+
+  async searchTool(term: string, user: User) {
+    let data = await this.toolsRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+        { code: Like(`%${term}%`) },
+      ],
+    });
+    return data;
+  }
+
  async update(id: string, updateToolDto: UpdateToolDto, user: User) {
     
     const tool = await this.toolsRepository.preload({

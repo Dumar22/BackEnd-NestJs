@@ -3,7 +3,7 @@ import { CreateProyectDto } from './dto/create-proyect.dto';
 import { UpdateProyectDto } from './dto/update-proyect.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Proyect } from './entities/proyect.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { isUUID } from 'class-validator';
@@ -96,6 +96,16 @@ export class ProyectsService {
 
       return proyect;
   }  
+
+  async searchProyect(term: string, user: User) {
+    let data = await this.proyectsRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+       
+      ],
+    });
+    return data;
+  }
   
  async update(id: string, updateProyectDto: UpdateProyectDto, user: User) {
     

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateCollaboratorDto } from './dto/create-collaborator.dto';
 import { UpdateCollaboratorDto } from './dto/update-collaborator.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Collaborator } from './entities/collaborator.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { isUUID } from 'class-validator';
@@ -147,6 +147,17 @@ export class CollaboratorsService {
       return collaborator;
   }  
   
+
+  async searchCollaborator(term: string, user: User) {
+    let data = await this.collaboratorsRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+        { code: Like(`%${term}%`) },
+      ],
+    });
+    return data;
+  }
+
  async update(id: string, updateCollaboratorDto: UpdateCollaboratorDto, user: User) {
     
     const collaborator = await this.collaboratorsRepository.preload({

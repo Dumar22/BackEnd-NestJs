@@ -46,6 +46,14 @@ export class MetersController {
     return this.metersService.findOne(term,user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchMeter(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.metersService.searchMeter(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id', ParseUUIDPipe) id: string, 

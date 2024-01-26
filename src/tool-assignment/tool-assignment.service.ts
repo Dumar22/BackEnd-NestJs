@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException, Logger, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ToolAssignment } from './entities/tool-assignment.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 import { Tool } from 'src/tools/entities/tool.entity';
 import { User } from 'src/auth/entities/user.entity';
@@ -122,6 +122,14 @@ export class ToolAssignmentService {
       .getMany();
   
     return  toolassignment
+  }
+
+  async searchToolAssignment(term: string, user: User) {
+    let data = await this.toolAssignmentRepository.createQueryBuilder('tool_assignment')
+    .leftJoinAndSelect('tool_assignment.collaborator', 'collaborator')
+    .where('collaborator.name LIKE :term OR tool_assignment.reason LIKE :term', { term: `%${term}%` })
+    .getMany();
+    return data;
   }
 
   async remove(id: string, user: User) {

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateMeterDto } from './dto/create-meter.dto';
 import { UpdateMeterDto } from './dto/update-meter.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Meter } from './entities/meter.entity';
 import { isUUID } from 'class-validator';
 import { User } from 'src/auth/entities/user.entity';
@@ -148,6 +148,18 @@ export class MetersService {
 
       return meter;
   }  
+
+  async searchMeter(term: string, user: User) {
+    let data = await this.metersRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+        { code: Like(`%${term}%`) },
+        { serial: Like(`%${term}%`) },
+        { brand: Like(`%${term}%`) },
+      ],
+    });
+    return data;
+  }
   
  async update(id: string, updateMeterDto: UpdateMeterDto, user: User) {
  

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { UpdateTransferDto } from './dto/update-transfer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { DetailsTransfer, Transfer } from './entities';
 import { Material } from 'src/materials/entities/material.entity';
 import { Meter } from 'src/meters/entities/meter.entity';
@@ -231,6 +231,19 @@ export class TransfersService {
   
     return transfer;
   }
+
+  async searchTransfer(term: string, user: User) {
+
+    
+    let data = await this.transfersRepository.find({
+      where: [
+        { transferNumber: Like(`%${term}%`) },
+        { destination: Like(`%${term}%`) }
+      ],
+    });
+    return data;
+  }
+
   
   async update(id: string, updateTransferDto: UpdateTransferDto, updateDetailTransferDtos: UpdateDetailTransferDto[], user: User) {
     const existingTransfer = await this.transfersRepository.findOne({

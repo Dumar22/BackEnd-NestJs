@@ -44,6 +44,14 @@ export class ContractController {
     return this.contractService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchContract(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.contractService.searchContract(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id') id: string, @Body() updateContractDto: UpdateContractDto,

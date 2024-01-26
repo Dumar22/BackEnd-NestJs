@@ -3,7 +3,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Contract } from './entities/contract.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
@@ -141,6 +141,19 @@ export class ContractService {
 
       return contract;
   }  
+
+  
+  async searchContract(term: string, user: User) {
+    let data = await this.contractsRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+        { ot: Like(`%${term}%`) },
+        { registration: Like(`%${term}%`) },
+        { addres: Like(`%${term}%`) },
+      ],
+    });
+    return data;
+  }
   
  async update(id: string, updateContractDto: UpdateContractDto, user: User) {
    

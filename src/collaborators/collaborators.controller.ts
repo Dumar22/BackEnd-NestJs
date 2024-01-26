@@ -47,6 +47,14 @@ export class CollaboratorsController {
     return this.collaboratorsService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchCollaborator(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.collaboratorsService.searchCollaborator(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id',ParseUUIDPipe) id: string, @Body() updateCollaboratorDto: UpdateCollaboratorDto,

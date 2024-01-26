@@ -46,6 +46,14 @@ export class ProvidersController {
     return this.providersService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchProvider(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.providersService.searchProvider(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id', ParseUUIDPipe) id: string, 

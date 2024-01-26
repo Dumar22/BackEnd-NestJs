@@ -45,6 +45,14 @@ export class ToolsController {
     return this.toolsService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchTool(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.toolsService.searchTool(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateToolDto: UpdateToolDto,

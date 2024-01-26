@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateProviderDto } from './dto/create-provider.dto';
 import { UpdateProviderDto } from './dto/update-provider.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Provider } from './entities/provider.entity';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -146,6 +146,16 @@ export class ProvidersService {
       return provider;
   }  
   
+  async searchProvider(term: string, user: User) {
+    let data = await this.providersRepository.find({
+      where: [
+        { name: Like(`%${term}%`) },
+        { nit: Like(`%${term}%`) },
+      ],
+    });
+    return data;
+  }
+
  async update(id: string, updateProviderDto: UpdateProviderDto, user: User) {
     
     const provider = await this.providersRepository.preload({

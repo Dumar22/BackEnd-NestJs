@@ -35,6 +35,14 @@ export class ToolAsignamentController {
   @GetUser() user: User,) {
     return this.toolAssignmentService.findOne(term, user);
   }
+
+  @Get('search/:term')
+  @Auth()
+  searchToolAssignment(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.toolAssignmentService.searchToolAssignment(term, user);
+  }
     
   @Patch(':id')
   @Auth()

@@ -33,6 +33,14 @@ export class ProyectsController {
     return this.proyectsService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchProyect(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.proyectsService.searchProyect(term, user);
+  }
+
   @Patch(':id')
   @Auth()
   update(@Param('id',ParseUUIDPipe) id: string,
