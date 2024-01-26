@@ -76,6 +76,14 @@ export class ExitMaterialsController {
     return this.exitMaterialsService.update(id, updateExitMaterialDto,details, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchsearchExitMaterial(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.exitMaterialsService.searchExitMaterial(term, user);
+  }
+
   @Delete(':id')
   @Auth()
   remove(@Param('id', ParseUUIDPipe) id: string, 

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateDetailDto, CreateEntryDto, UpdateDetailDto, UpdateEntryDto } from './dto';
 import { User } from 'src/auth/entities/user.entity';
 import { DetailsEntry, Entry } from './entities';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
@@ -354,6 +354,18 @@ export class EntriesService {
     }
   
     return entry;
+  }
+
+  async searchEntry(term: string, user: User) {
+    let data = await this.entriesRepository.find({
+      where: [
+        { entryNumber: Like(`%${term}%`) },
+        { providerName: Like(`%${term}%`) },
+        { origin: Like(`%${term}%`) },
+        
+      ],
+    });
+    return data;
   }
   
   async update(id: string, updateEntryDto: UpdateEntryDto, updateDetailDto: UpdateDetailDto[], user: User) {

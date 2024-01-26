@@ -254,6 +254,16 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     return exitMaterialsAndMeter;
   }
 
+  
+  async searchExitMaterial(term: string, user: User) {
+    let data = await this.exitMaterialsRepository.createQueryBuilder('exitMaterials')
+    .leftJoinAndSelect('exitMaterials.collaborator', 'collaborator')
+    .leftJoinAndSelect('exitMaterials.collaborator', 'contract')
+    .where('collaborator.name LIKE :term OR exitMaterials.type LIKE :term OR contract.ot OR exitMaterials.ExitNumber', { term: `%${term}%` })
+    .getMany();
+    return data;
+  }
+
   async update(id: string , updateExitMaterialsDto: UpdateExitMaterialDto,
     details: UpdateDetailExitMaterialsDto[],
     user: User, ) {

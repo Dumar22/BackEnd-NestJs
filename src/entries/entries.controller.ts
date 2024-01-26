@@ -81,6 +81,15 @@ async createxls(
     return this.entriesService.findOne(term, user);
   }
 
+  @Get('search/:term')
+  @Auth()
+  searchEntry(@Param('term') term: string,
+  @GetUser() user:User
+  ) {
+    return this.entriesService.searchEntry(term, user);
+  }
+
+
   @Patch(':id')
   @Auth()
   update
