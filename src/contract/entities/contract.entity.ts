@@ -27,9 +27,17 @@ export class Contract {
     @Column({nullable: false })
     request: string;
 
+    @Column({nullable: false })
+    municipality: string;
+
+    @Column({nullable: false })
+    neighborhood: string;
+
     @Column({ nullable: false })
     phone: string;
-   
+
+    @Column({nullable: false })
+    date: Date;
     // @Column({default:false, nullable: false })
     // available: boolean;
       

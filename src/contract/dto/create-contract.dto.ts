@@ -1,4 +1,5 @@
-import { IsString, MinLength, IsNumber, IsPositive, IsNotEmpty, Matches, IsOptional } from "class-validator"
+import { Type } from "class-transformer"
+import { IsString, MinLength, IsNumber, IsPositive, IsNotEmpty, Matches, IsOptional, IsDate } from "class-validator"
 
 export class CreateContractDto {
     
@@ -21,10 +22,26 @@ export class CreateContractDto {
     @MinLength(2)
     request:string
 
-    
-    @IsNotEmpty()
-//@Matches(/^[0-9]{11}$/, { message: 'El número de teléfono debe tener 10 dígitos numéricos.' })
+    @IsNotEmpty()   
     phone:string
+
+    @IsString()
+    @MinLength(2)
+    municipality: string;
+
+    @IsString()
+    @MinLength(2)
+    neighborhood: string;
+
+    @IsDate()
+    @Type(() => Date)
+    date: Date;
+
+
+
+//     @IsNotEmpty()
+// //@Matches(/^[0-9]{11}$/, { message: 'El número de teléfono debe tener 10 dígitos numéricos.' })
+//     phone:string
 
     @IsString()
     @IsOptional()

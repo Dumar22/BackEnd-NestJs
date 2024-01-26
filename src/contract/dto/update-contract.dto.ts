@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateContractDto } from './create-contract.dto';
-import { IsString, MinLength,  IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, MinLength,  IsNotEmpty, IsOptional, IsDate } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateContractDto extends PartialType(CreateContractDto) {
 
@@ -26,6 +27,19 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
 
     @IsNotEmpty()   
     phone:string
+
+    @IsString()
+    @MinLength(2)
+    municipality: string;
+
+    @IsString()
+    @MinLength(2)
+    neighborhood: string;
+
+    @IsDate()
+    @Type(() => Date)
+    date: Date;
+
 
     @IsString()
     @IsOptional()
