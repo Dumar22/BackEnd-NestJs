@@ -13,7 +13,7 @@ export class Contract {
     id: string;
 
     @Column({nullable: false })
-    registration: string;
+    contract: string;
 
     @Column({nullable: false })
     name: string;
@@ -23,6 +23,9 @@ export class Contract {
   
     @Column({nullable: false })
     addres: string;
+
+    @Column({nullable: false })
+    request: string;
 
     @Column({ nullable: false })
     phone: string;

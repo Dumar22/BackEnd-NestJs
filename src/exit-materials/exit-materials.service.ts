@@ -417,7 +417,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
             { text: 'Orden de trabajo: ' + exitData.contract.ot, fontSize: 12, margin: [0, 0, 0, 20] },
           ],
           [
-            { text: 'Contrato: ' + exitData.contract.registration, fontSize: 12 },
+            { text: 'Contrato: ' + exitData.contract.contract, fontSize: 12 },
             { text: 'Dirección: ' + exitData.contract.addres, fontSize: 12 },
             { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 12 },
           ],

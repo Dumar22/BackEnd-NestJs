@@ -4,7 +4,7 @@ export class CreateContractDto {
     
     @IsString()
     @MinLength(2)
-    registration:string
+    contract:string
 
     @IsString()
     @MinLength(2)
@@ -17,6 +17,11 @@ export class CreateContractDto {
     @MinLength(2)
     addres:string
 
+    @IsString()
+    @MinLength(2)
+    request:string
+
+    
     @IsNotEmpty()
 //@Matches(/^[0-9]{11}$/, { message: 'El número de teléfono debe tener 10 dígitos numéricos.' })
     phone:string

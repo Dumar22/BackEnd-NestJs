@@ -23,7 +23,7 @@ export class ContractService {
   async create(createContractDto: CreateContractDto, user: User) {
 
     const existingContract = await this.contractsRepository.createQueryBuilder('contract')
-    .where('contract.ot = :ot AND warehouseId = :warehouseId', { 
+    .where('contract.contract = :contract AND warehouseId = :warehouseId', { 
       ot: createContractDto.ot, 
       warehouseId: user.warehouses[0].id  
     })
@@ -148,7 +148,8 @@ export class ContractService {
       where: [
         { name: Like(`%${term}%`) },
         { ot: Like(`%${term}%`) },
-        { registration: Like(`%${term}%`) },
+        { contract: Like(`%${term}%`) },
+        { request: Like(`%${term}%`) },
         { addres: Like(`%${term}%`) },
       ],
     });
@@ -163,15 +164,15 @@ export class ContractService {
     });
       
     const existingContract = await this.contractsRepository.createQueryBuilder('contract')
-    .where('(LOWER(contract.registration) = LOWER(:registration) OR contract.ot = :ot) AND contract.warehouseId = :warehouseId', {
-      registration: updateContractDto.registration,
+    .where('(LOWER(contract.contract) = LOWER(:contract) OR contract.ot = :ot) AND contract.warehouseId = :warehouseId', {
+      contract: updateContractDto.contract,
       ot: updateContractDto.ot,
       warehouseId: user.warehouses[0].id,
     })
     .andWhere('contract.id != :contractId', { contractId: id })
     .getOne();
 
-  if (existingContract && (existingContract.registration !== contract.registration || existingContract.ot !== contract.ot)) {
+  if (existingContract && (existingContract.contract !== contract.contract || existingContract.ot !== contract.ot)) {
     throw new BadRequestException(`El contrato con orden de trabajo ${updateContractDto.ot} ya existe en la bodega ${user.warehouses[0].name}.`);
   }   
         try {

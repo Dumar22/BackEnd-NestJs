@@ -7,7 +7,7 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
 
     @IsString()
     @MinLength(2)
-    registration:string
+    contract:string
 
     @IsString()
     @MinLength(2)
@@ -19,6 +19,10 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
     @IsString()
     @MinLength(2)
     addres:string
+
+    @IsString()
+    @MinLength(2)
+    request:string
 
     @IsNotEmpty()   
     phone:string
