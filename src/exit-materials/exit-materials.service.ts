@@ -399,6 +399,8 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
   });
 
   const pdfDefinition = {
+    pageSize: 'letter',
+    pageMargins: [40, 40, 40, 40],
     header: {
       image: logoBase64,
       fit: [100, 100],
@@ -411,15 +413,15 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
         columns: [
           // Datos a la izquierda
           [
-            { text: 'Fecha de salida: ' + formattedDate, fontSize: 12 },
-            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 12 },
-            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 12 },
-            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 12, margin: [0, 0, 0, 20] },
+            { text: 'Fecha de salida: ' + formattedDate, fontSize: 10 },
+            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 10 },
+            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 10 },
+            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 10, margin: [0, 0, 0, 20] },
           ],
           [
-            { text: 'Contrato: ' + exitData.contract.contract, fontSize: 12 },
-            { text: 'Dirección: ' + exitData.contract.addres, fontSize: 12 },
-            { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 12 },
+            { text: 'Contrato: ' + exitData.contract.contract, fontSize: 10 },
+            { text: 'Dirección: ' + exitData.contract.addres, fontSize: 10 },
+            { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 10 },
           ],
         ],
       },
@@ -441,15 +443,15 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
             ],
             // Agrega filas con los detalles del traslado
             ...exitData.details.map((detail) => [
-              {text: detail.material?.code ? detail.material.code : detail.meter.code, alignment: 'center', fontSize: 10},
+              {text: detail.material?.code ? detail.material.code : detail.meter.code, alignment: 'center', fontSize: 8},
                {text: detail.material?.name ? detail.material.name : detail.meter.name,  // Usar medidor.name si material.name es null
                alignment: 'center',
-               fontSize: 10,}, 
+               fontSize: 8,}, 
                {text: detail.material?.unity ? detail.material.unity : detail.meter.unity,  // Usar medidor.name si material.name es null
                alignment: 'center',
-               fontSize: 10,}, 
-               { text: detail.meter?.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 10},
-              {text: detail.assignedQuantity, alignment: 'center', fontSize: 10},
+               fontSize: 8,}, 
+               { text: detail.meter?.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 8},
+              {text: detail.assignedQuantity, alignment: 'center', fontSize: 8},
               { text: ' ', alignment: 'center' }, // Centrar la cantidad
               {text: detail.used, alignment: 'center'},
               {text: detail.total, alignment: 'center'}
@@ -458,7 +460,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
           ],
         },
       },
-      { text: 'Observaciones: ' + exitData.observation, fontSize: 12, margin: [0, 20] },
+      { text: 'Observaciones: ' + exitData.observation, fontSize: 10, margin: [0, 20] },
     ],
     styles :{
       tableHeader: {
