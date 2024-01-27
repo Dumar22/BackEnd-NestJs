@@ -226,6 +226,8 @@ export class EntriesService {
     });
 
     const pdfDefinition = {
+      pageSize: 'letter', //legal
+    pageMargins: [40, 40, 40, 40],
       header: {
         image: logoBase64,
         fit: [100, 100],
@@ -233,19 +235,19 @@ export class EntriesService {
         margin: [40, 20],
       },
       content: [
-        { text: 'TRASLADOS', fontSize: 15, alignment: 'center', margin: [0, 15, 0, 35] },
+        { text: 'TRASLADOS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
         {
           columns: [
             // Datos a la izquierda
             [
-              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 12 },
-              { text: 'Número de entrada: ' + transferData.entryNumber, fontSize: 12 },
-              { text: 'Origen: ' + transferData.origin, fontSize: 12 },
+              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 10 },
+              { text: 'Número de entrada: ' + transferData.entryNumber, fontSize: 10 },
+              { text: 'Origen: ' + transferData.origin, fontSize: 10 },
             
             ],
             [
-              { text: 'Nit: ' + transferData.origin, fontSize: 12 },
-              { text: 'Provedor: ' + transferData.providerName, fontSize: 12, margin: [0, 0, 0, 20] }
+              { text: 'Nit: ' + transferData.origin, fontSize: 10 },
+              { text: 'Provedor: ' + transferData.providerName, fontSize: 10, margin: [0, 0, 0, 20] }
               
             ],
           ],
@@ -254,7 +256,7 @@ export class EntriesService {
         {
           table: {
             headerRows: 1,
-            widths: ['*', '*', '*', '*', '*', '*'],
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
                 { text: 'Código', style: 'tableHeader' },
@@ -268,20 +270,29 @@ export class EntriesService {
               ],
               // Agrega filas con los detalles del traslado
               ...transferData.details.map((detail) => [
-                {text: detail.code, alignment: 'center', fontSize: 10},
-                 {text: detail.name, alignment: 'center', fontSize: 10}, 
-                {text: detail.unity, alignment: 'center', fontSize: 10},
-                {text: detail.serial, alignment: 'center', fontSize: 10},
-                {text: detail.brand, alignment: 'center', fontSize: 10},
-                { text: detail.quantity, alignment: 'center' }, // Centrar la cantidad
-                {text: detail.price, alignment: 'center'},
-                {text: detail.total, alignment: 'center'}
+                {text: detail.code, alignment: 'center', fontSize: 8},
+                 {text: detail.name, alignment: 'center', fontSize: 8}, 
+                {text: detail.unity, alignment: 'center', fontSize: 8},
+                {text: detail.serial, alignment: 'center', fontSize: 8},
+                {text: detail.brand, alignment: 'center', fontSize: 8},
+                { text: detail.quantity, alignment: 'center',fontSize: 9 }, // Centrar la cantidad
+                {text: detail.price, alignment: 'center', fontSize: 9},
+                {text: detail.total, alignment: 'center', fontSize: 9}
               ]),
               ['', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
             ],
+            layout: {
+              defaultBorder: false, // Deshabilita los bordes por defecto
+              hLineWidth: function(i, node) { return (i === 0 || i === node.table.body.length) ? 1 : 0; }, // Establece el ancho de línea horizontal
+              vLineWidth: function(i, node) { return 0; }, // Deshabilita las líneas verticales
+              hLineColor: function(i, node) { return 'black'; }, // Establece el color de línea horizontal
+              paddingTop: function(i, node) { return 5; }, // Añade relleno superior a todas las celdas
+              paddingBottom: function(i, node) { return 5; }, // Añade relleno inferior a todas las celdas
+            },
+            margin: [0, 10], // Establece el margen de la tabla
           },
         },
-        { text: 'Observaciones: ' + transferData.observation, fontSize: 12, margin: [0, 20] },
+        { text: 'Observaciones: ' + transferData.observation, fontSize: 9, margin: [0, 20] },
       ],
       styles :{
         tableHeader: {

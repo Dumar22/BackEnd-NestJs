@@ -399,7 +399,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
   });
 
   const pdfDefinition = {
-    pageSize: 'letter',
+    pageSize: 'letter', //legal
     pageMargins: [40, 40, 40, 40],
     header: {
       image: logoBase64,
@@ -408,7 +408,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       margin: [40, 20],
     },
     content: [
-      { text: 'SALIDAS DE ALMACEN', fontSize: 15, alignment: 'center', margin: [0, 15, 0, 35] },
+      { text: 'SALIDAS DE ALMACEN', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
       {
         columns: [
           // Datos a la izquierda

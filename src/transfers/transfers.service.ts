@@ -106,6 +106,8 @@ export class TransfersService {
     });
 
     const pdfDefinition = {
+      pageSize: 'letter', //legal
+    pageMargins: [40, 40, 40, 40],
       header: {
         image: logoBase64,
         fit: [100, 100],
@@ -113,20 +115,20 @@ export class TransfersService {
         margin: [40, 20],
       },
       content: [
-        { text: 'TRASLADOS', fontSize: 15, alignment: 'center', margin: [0, 15, 0, 35] },
+        { text: 'TRASLADOS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
         {
           columns: [
             // Datos a la izquierda
             [
-              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 12 },
-              { text: 'Origen: ' + transferData.origin, fontSize: 12 },
-              { text: 'Envía: ' + transferData.delivery, fontSize: 12 },
-              { text: 'Autoriza: ' + transferData.autorization, fontSize: 12, margin: [0, 0, 0, 20] },
+              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 10 },
+              { text: 'Origen: ' + transferData.origin, fontSize: 10 },
+              { text: 'Envía: ' + transferData.delivery, fontSize: 10 },
+              { text: 'Autoriza: ' + transferData.autorization, fontSize: 10, margin: [0, 0, 0, 20] },
             ],
             [
-              { text: 'Número de traslado: ' + transferData.transferNumber, fontSize: 12 },
-              { text: 'Destino: ' + transferData.destination, fontSize: 12 },
-              { text: 'Recibe: ' + transferData.receive, fontSize: 12 },
+              { text: 'Número de traslado: ' + transferData.transferNumber, fontSize: 10 },
+              { text: 'Destino: ' + transferData.destination, fontSize: 10 },
+              { text: 'Recibe: ' + transferData.receive, fontSize: 10 },
             ],
           ],
         },
@@ -134,7 +136,7 @@ export class TransfersService {
         {
           table: {
             headerRows: 1,
-            widths: ['*', '*', '*', '*', '*', '*'],
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
                 { text: 'Código', style: 'tableHeader' },
@@ -146,15 +148,25 @@ export class TransfersService {
               ],
               // Agrega filas con los detalles del traslado
               ...transferData.details.map((detail) => [
-                {text: detail.code, alignment: 'center', fontSize: 10},
-                 {text: detail.name, alignment: 'center', fontSize: 10}, 
-                {text: detail.unity, alignment: 'center', fontSize: 10},
-                { text: detail.quantity, alignment: 'center' }, // Centrar la cantidad
-                {text: detail.price, alignment: 'center'},
-                {text: detail.total, alignment: 'center'}
+                {text: detail.code, alignment: 'center', fontSize: 8},
+                 {text: detail.name, alignment: 'center', fontSize: 8}, 
+                {text: detail.unity, alignment: 'center', fontSize: 8},
+                { text: detail.quantity, alignment: 'center', fontSize: 9}, // Centrar la cantidad
+                {text: detail.price, alignment: 'center', fontSize: 9},
+                {text: detail.total, alignment: 'center', fontSize: 9}
               ]),
               ['', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
             ],
+            layout: {
+              defaultBorder: false, // Deshabilita los bordes por defecto
+              hLineWidth: function(i, node) { return (i === 0 || i === node.table.body.length) ? 1 : 0; }, // Establece el ancho de línea horizontal
+              vLineWidth: function(i, node) { return 0; }, // Deshabilita las líneas verticales
+              hLineColor: function(i, node) { return 'black'; }, // Establece el color de línea horizontal
+              paddingTop: function(i, node) { return 5; }, // Añade relleno superior a todas las celdas
+              paddingBottom: function(i, node) { return 5; }, // Añade relleno inferior a todas las celdas
+            },
+            margin: [0, 10], // Establece el margen de la tabla
+
           },
         },
         { text: 'Observaciones: ' + transferData.observation, fontSize: 12, margin: [0, 20] },
@@ -162,6 +174,7 @@ export class TransfersService {
       styles :{
         tableHeader: {
           bold: true,
+          fontSize: 10,
           fillColor: '#F5F5F5',
           alignment: 'center',
         },
