@@ -430,7 +430,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       {
         table: {
           headerRows: 1,
-          widths: ['*', '*', '*', '*', '*', '*', '*', '*'],
+          widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Código', style: 'tableHeader' },
@@ -452,10 +452,10 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
                alignment: 'center',
                fontSize: 8,}, 
                { text: detail.meter?.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 8},
-              {text: detail.assignedQuantity, alignment: 'center', fontSize: 8},
-              { text: ' ', alignment: 'center', fontSize: 8 }, // Centrar la cantidad
-              {text: detail.used, alignment: 'center', fontSize: 8},
-              {text: detail.total, alignment: 'center', fontSize: 8}
+              {text: detail.assignedQuantity, alignment: 'center', fontSize: 9},
+              { text: ' ', alignment: 'center', fontSize: 9 }, // Centrar la cantidad
+              {text: detail.used, alignment: 'center', fontSize: 9},
+              {text: detail.total, alignment: 'center', fontSize: 9}
             ]),
             ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
           ],
