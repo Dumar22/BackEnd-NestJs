@@ -415,11 +415,12 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
           [
             { text: 'Fecha de salida: ' + formattedDate, fontSize: 10 },
             { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 10 },
-            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 10 },
-            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 10, margin: [0, 0, 0, 20] },
+            { text: 'cargo: ' + exitData.collaborator.operation, fontSize: 10, },
+            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 10, margin: [0, 0, 0, 20] },
           ],
           [
             { text: 'Contrato: ' + exitData.contract.contract, fontSize: 10 },
+            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 10 },
             { text: 'Dirección: ' + exitData.contract.addres, fontSize: 10 },
             { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 10 },
           ],
@@ -452,12 +453,21 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
                fontSize: 8,}, 
                { text: detail.meter?.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 8},
               {text: detail.assignedQuantity, alignment: 'center', fontSize: 8},
-              { text: ' ', alignment: 'center' }, // Centrar la cantidad
-              {text: detail.used, alignment: 'center'},
-              {text: detail.total, alignment: 'center'}
+              { text: ' ', alignment: 'center', fontSize: 8 }, // Centrar la cantidad
+              {text: detail.used, alignment: 'center', fontSize: 8},
+              {text: detail.total, alignment: 'center', fontSize: 8}
             ]),
             ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
           ],
+          layout: {
+            defaultBorder: false, // Deshabilita los bordes por defecto
+            hLineWidth: function(i, node) { return (i === 0 || i === node.table.body.length) ? 1 : 0; }, // Establece el ancho de línea horizontal
+            vLineWidth: function(i, node) { return 0; }, // Deshabilita las líneas verticales
+            hLineColor: function(i, node) { return 'black'; }, // Establece el color de línea horizontal
+            paddingTop: function(i, node) { return 5; }, // Añade relleno superior a todas las celdas
+            paddingBottom: function(i, node) { return 5; }, // Añade relleno inferior a todas las celdas
+          },
+          margin: [0, 10], // Establece el margen de la tabla
         },
       },
       { text: 'Observaciones: ' + exitData.observation, fontSize: 10, margin: [0, 20] },
@@ -465,6 +475,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
     styles :{
       tableHeader: {
         bold: true,
+        fontSize: 10,
         fillColor: '#F5F5F5',
         alignment: 'center',
       },
