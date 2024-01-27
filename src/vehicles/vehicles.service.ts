@@ -61,20 +61,20 @@ export class VehiclesService {
       .leftJoinAndSelect('vehicle.warehouse', 'warehouse');
   
     if (!user.rol.includes('admin')) {
-      // Si no es administrador, aplicar restricciones por bodega
+      // Si no es administrador, aplicar restricciones por bodega y usuario
       vehiclesQuery = vehiclesQuery
-        // .where('user.id = :userId', { userId: user.id })
-        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        .andWhere('user.id = :userId', { userId: user.id })
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
-    // Agrega la condición para excluir las erramientas eliminados
-      vehiclesQuery = vehiclesQuery.andWhere('vehicle.deletedAt IS NULL');
+    // Agrega la condición para excluir los vehículos eliminados
+    vehiclesQuery = vehiclesQuery.andWhere('vehicle.deletedAt IS NULL');
   
-    const vehicle = await vehiclesQuery
+    const vehicles = await vehiclesQuery
       .skip(offset)
       .take(limit)
       .getMany();
   
-    return vehicle
+    return vehicles;
   }
 
  async findOne(term: string, user: User) {
