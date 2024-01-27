@@ -24,13 +24,13 @@ export class ContractService {
 
     const existingContract = await this.contractsRepository.createQueryBuilder('contract')
     .where('contract.contract = :contract AND warehouseId = :warehouseId', { 
-      ot: createContractDto.ot, 
+      contract: createContractDto.contract, 
       warehouseId: user.warehouses[0].id  
     })
     .getOne();
   
       if (existingContract) {
-        throw new BadRequestException(`El Contrato con Orden de trabajo ${createContractDto.ot} ya existe en la bodega ${user.warehouses[0].name}.`);
+        throw new BadRequestException(`El Contrato ${createContractDto.contract} ya existe en la bodega ${user.warehouses[0].name}.`);
       }
 
     try {   
@@ -109,8 +109,8 @@ export class ContractService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       contractsQuery = contractsQuery
-        // .where('user.id = :userId', { userId: user.id })
-        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        .andWhere('user.id = :userId', { userId: user.id })
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir las erramientas eliminados
       contractsQuery = contractsQuery.andWhere('contract.deletedAt IS NULL');

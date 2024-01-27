@@ -215,8 +215,8 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       exitMaterialQuery = exitMaterialQuery
-        // .where('user.id = :userId', { userId: user.id })
-        .where('warehouse.id IN (:...warehouseIds)', {
+        .andWhere('user.id = :userId', { userId: user.id })
+        .andWhere('warehouse.id IN (:...warehouseIds)', {
           warehouseIds: user.warehouses.map(warehouse => warehouse.id),
         });
     }
@@ -414,7 +414,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
             { text: 'Fecha de salida: ' + formattedDate, fontSize: 12 },
             { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 12 },
             { text: 'Documento: ' + exitData.collaborator.document, fontSize: 12 },
-            { text: 'Orden de trabajo: ' + exitData.contract.ot, fontSize: 12, margin: [0, 0, 0, 20] },
+            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 12, margin: [0, 0, 0, 20] },
           ],
           [
             { text: 'Contrato: ' + exitData.contract.contract, fontSize: 12 },

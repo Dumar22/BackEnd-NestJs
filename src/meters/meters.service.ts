@@ -115,9 +115,8 @@ export class MetersService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       metersQuery = metersQuery
-        // .where('user.id = :userId', { userId: user.id })
-        // .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
-        .where('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+        .andWhere('user.id = :userId', { userId: user.id })
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir las erramientas eliminados
       metersQuery = metersQuery.andWhere('meter.deletedAt IS NULL');
