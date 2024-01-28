@@ -28,7 +28,8 @@ export class UpdateDetailDto extends PartialType(CreateDetailDto) {
     @MinLength(2)
     brand?:string;
   
-    @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO']) 
+    // @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO']) 
+    @IsString()
     unity:string;
   
     @IsNumber()

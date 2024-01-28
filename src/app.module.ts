@@ -21,6 +21,7 @@ import { FileUploadService } from './upload-xls/upload-xls.service';
 import { UploadXlsModule } from './upload-xls/upload-xls.module';
 import { ProyectsModule } from './proyects/proyects.module';
 import { AssingMaterialsProyectModule } from './assing-materials-proyect/assing-materials-proyect.module';
+import { EntriesToolsModule } from './entries-tools/entries-tools.module';
 
 
 @Module({
@@ -58,6 +59,7 @@ import { AssingMaterialsProyectModule } from './assing-materials-proyect/assing-
     UploadXlsModule,
     ProyectsModule,
     AssingMaterialsProyectModule,
+    EntriesToolsModule,
   ],
   controllers: [],
   providers: [FileUploadService],

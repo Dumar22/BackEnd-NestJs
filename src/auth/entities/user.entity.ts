@@ -14,6 +14,7 @@ import { Transfer } from "src/transfers/entities";
 import { ToolAssignment } from "src/tool-assignment/entities/tool-assignment.entity";
 import { AssignmentMaterialsVehicle } from "src/assignment-materials-vehicle/entities";
 import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
+import { EntriesTool } from "src/entries-tools/entities/entries-tool.entity";
 
 @Entity()
 export class User {
@@ -97,6 +98,12 @@ export class User {
     (entry) => entry.user
   )
  entry: Entry
+
+  @OneToMany(
+    ()=> EntriesTool,
+    (entry) => entry.user
+  )
+ entryTool: EntriesTool
 
   @OneToMany(
     ()=> Transfer,

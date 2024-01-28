@@ -21,8 +21,8 @@ export class CreateDetailDto {
     @MinLength(2)
     brand?:string;
   
-    // @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO']) 
-    @IsString()
+    // @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO'])
+    @IsString() 
     unity:string;
   
     @IsNumber()

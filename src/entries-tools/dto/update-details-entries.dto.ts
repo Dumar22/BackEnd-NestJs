@@ -1,7 +1,14 @@
+import { PartialType } from "@nestjs/mapped-types";
 import { IsBoolean, IsIn, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { CreateDetailDto } from "./create-details-entries.dto";
 
 
-export class CreateDetailDto {
+export class UpdateDetailToolDto extends PartialType(CreateDetailDto) {
+
+
+    @IsString()
+    @IsOptional()    
+    id?:string;
 
     @IsString({message:'El nombre debe ser texto'})
     @MinLength(2,{message:'El nombre debe tener mas de 2 caracteres'}) 
@@ -42,4 +49,3 @@ export class CreateDetailDto {
     observation?:string;
 
 }
-
