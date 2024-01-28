@@ -1,9 +1,9 @@
-import moment from "moment";
+import { DetailsEntriesTools } from "./entries-tool-details.entity";
 import { User } from "src/auth/entities/user.entity";
 import { Warehouse } from "src/warehouses/entities/warehouse.entity";
-import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, BeforeInsert, BeforeUpdate } from "typeorm";
-import { DetailsEntriesTools } from "./entries-tool-details.entity";
-
+import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, BeforeInsert, BeforeUpdate, Entity } from "typeorm";
+import moment from "moment";
+@Entity()
 export class EntriesTool {
 
 
