@@ -7,10 +7,11 @@ import { ToolsModule } from 'src/tools/tools.module';
 import { UploadXlsModule } from 'src/upload-xls/upload-xls.module';
 import { EntriesTool } from './entities/entries-tool.entity';
 import { DetailsEntriesTools } from './entities/entries-tool-details.entity';
+import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 
 @Module({
   controllers: [EntriesToolsController],
-  providers: [EntriesToolsService],
+  providers: [EntriesToolsService, FileUploadService],
   imports: [
     TypeOrmModule.forFeature([EntriesTool,DetailsEntriesTools]),
     UsersModule,

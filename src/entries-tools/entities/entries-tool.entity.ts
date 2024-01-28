@@ -1,6 +1,5 @@
 import moment from "moment";
 import { User } from "src/auth/entities/user.entity";
-import { DetailsEntry } from "src/entries/entities";
 import { Warehouse } from "src/warehouses/entities/warehouse.entity";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, BeforeInsert, BeforeUpdate } from "typeorm";
 import { DetailsEntriesTools } from "./entries-tool-details.entity";
