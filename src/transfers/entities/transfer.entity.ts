@@ -65,14 +65,14 @@ export class Transfer {
   deletedAt: Date;
 
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.transfers, {
-    eager: true,
+    eager: true, 
   })
   warehouse: Warehouse;
 
   @OneToMany(
     () => DetailsTransfer,
     (details) => details.transfer, {
-    eager: true,
+    eager: true, cascade: true
   } )
   details: DetailsTransfer[];
 

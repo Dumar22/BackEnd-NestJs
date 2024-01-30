@@ -259,6 +259,7 @@ export class TransfersService {
 
   
   async update(id: string, updateTransferDto: UpdateTransferDto, updateDetailTransferDtos: UpdateDetailTransferDto[], user: User) {
+    
     const existingTransfer = await this.transfersRepository.findOne({
       where: [{id: id}],
         relations: ['details'],
@@ -281,7 +282,7 @@ export class TransfersService {
   
       // Actualizar el detalle con los datos proporcionados en updateDetailTransferDto
       this.detailsTransferRepository.merge(existingDetail, updateDetailTransferDto);
-      return existingDetail;
+      return existingDetail; 
     });
 
     // Actualizar materiales y medidores
@@ -293,7 +294,8 @@ export class TransfersService {
     
     return { transfer: existingTransfer, message: 'Traslado actualizado con éxito.' };
    } catch (error) {
-    
+    this.handleDBExceptions(error);
+    throw error; 
    }
   }
 
@@ -384,7 +386,7 @@ async updateMaterialAndMeterDetails(transfer: Transfer) {
   
       if (error instanceof Error) {
         // Capturar y manejar errores específicos lanzados con el mensaje deseado
-        console.error(error.message);
+        //console.error(error.message);
         throw new BadRequestException(error.message);
       }
   

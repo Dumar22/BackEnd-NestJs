@@ -268,7 +268,7 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     details: UpdateDetailExitMaterialsDto[],
     user: User, ) {
 
-      console.log(updateExitMaterialsDto);
+      // console.log(updateExitMaterialsDto);
       
       
 
