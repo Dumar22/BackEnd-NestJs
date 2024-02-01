@@ -64,7 +64,7 @@ export class ProyectsService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       proyectsQuery = proyectsQuery
-        .andWhere('user.id = :userId', { userId: user.id })
+        // .andWhere('user.id = :userId', { userId: user.id })
         .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir los proveedores eliminados

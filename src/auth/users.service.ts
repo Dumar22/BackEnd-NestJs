@@ -114,6 +114,8 @@ private readonly jwtService: JwtService,
   const token = this.jwtService.sign(payload);
   return token;
   }
+
+  
   private handleDBExeptions(error: any): never{    
 
     if (error.code === 'ER_DUP_ENTRY') {

@@ -112,7 +112,7 @@ export class ProvidersService {
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       providersQuery = providersQuery
-        .andWhere('user.id = :userId', { userId: user.id })
+        // .andWhere('user.id = :userId', { userId: user.id })
         .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir los proveedores eliminados
