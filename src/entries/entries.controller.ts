@@ -37,6 +37,15 @@ async createxls(
   return this.entriesService.createEntryFromExcel(createEntryDto, user, fileBuffer);
 }
 
+@Get()
+  @Auth()
+  findAll(
+    @Query() paginationDto:PaginationDto,
+    @GetUser() user: User,
+  ) {
+    return this.entriesService.findAll(paginationDto, user);
+  }
+
 
 @Get('pdf/:id')
    @Auth()
@@ -64,15 +73,6 @@ async createxls(
         }
       }
 
-
-  @Get()
-  @Auth()
-  findAll(
-    @Query() paginationDto:PaginationDto,
-    @GetUser() user: User,
-  ) {
-    return this.entriesService.findAll(paginationDto, user);
-  }
 
   @Get(':term')
   @Auth()

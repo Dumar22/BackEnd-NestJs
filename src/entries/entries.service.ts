@@ -208,19 +208,19 @@ export class EntriesService {
   } 
   
   async generarPDF(id: string, user: User): Promise<Buffer> {
-    const transferData = await this.entriesRepository.findOneBy({id: id});
+    const entriesData = await this.entriesRepository.findOneBy({id: id});
     
-    if (!transferData) {
+    if (!entriesData) {
       throw new NotFoundException('Entrada no encontrada');
     }
 
-    const formattedDate = moment(transferData.date).format('DD/MM/YYYY HH:mm');
+    const formattedDate = moment(entriesData.date).format('DD/MM/YYYY HH:mm');
   
     // Calcular el total de los detalles del traslado
-    const totalMat = transferData.details.reduce((acc, detail) => acc + (detail.total), 0);
+    const totalMat = entriesData.details.reduce((acc, detail) => acc + (detail.total), 0);
     const totalFormatted = currencyFormatter.format(totalMat, { code: 'COP' });
 
-    transferData.details.forEach((detail) => {
+    entriesData.details.forEach((detail) => {
       detail.price = currencyFormatter.format(detail.price, { code: 'USD' }); // Cambia 'USD' según tu moneda
       detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
     });
@@ -235,19 +235,19 @@ export class EntriesService {
         margin: [40, 20],
       },
       content: [
-        { text: 'TRASLADOS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
+        { text: 'ENTRADA DE MATERIALES', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
         {
           columns: [
             // Datos a la izquierda
             [
-              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 10 },
-              { text: 'Número de entrada: ' + transferData.entryNumber, fontSize: 10 },
-              { text: 'Origen: ' + transferData.origin, fontSize: 10 },
+              { text: 'Fecha entrada: ' + formattedDate, fontSize: 10 },
+              { text: 'Número de entrada: ' + entriesData.entryNumber, fontSize: 10 },
+              { text: 'Origen: ' + entriesData.origin, fontSize: 10 },
             
             ],
             [
-              { text: 'Nit: ' + transferData.origin, fontSize: 10 },
-              { text: 'Provedor: ' + transferData.providerName, fontSize: 10, margin: [0, 0, 0, 20] }
+              { text: 'Nit: ' + entriesData.origin, fontSize: 10 },
+              { text: 'Provedor: ' + entriesData.providerName, fontSize: 10, margin: [0, 0, 0, 20] }
               
             ],
           ],
@@ -256,7 +256,7 @@ export class EntriesService {
         {
           table: {
             headerRows: 1,
-            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
                 { text: 'Código', style: 'tableHeader' },
@@ -269,7 +269,7 @@ export class EntriesService {
                 { text: 'Total', style: 'tableHeader' },
               ],
               // Agrega filas con los detalles del traslado
-              ...transferData.details.map((detail) => [
+              ...entriesData.details.map((detail) => [
                 {text: detail.code, alignment: 'center', fontSize: 8},
                  {text: detail.name, alignment: 'center', fontSize: 8}, 
                 {text: detail.unity, alignment: 'center', fontSize: 8},
@@ -279,7 +279,7 @@ export class EntriesService {
                 {text: detail.price, alignment: 'center', fontSize: 9},
                 {text: detail.total, alignment: 'center', fontSize: 9}
               ]),
-              ['', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+              ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
             ],
             layout: {
               defaultBorder: false, // Deshabilita los bordes por defecto
@@ -292,7 +292,7 @@ export class EntriesService {
             margin: [0, 10], // Establece el margen de la tabla
           },
         },
-        { text: 'Observaciones: ' + transferData.observation, fontSize: 9, margin: [0, 20] },
+        { text: 'Observaciones: ' + entriesData.observation, fontSize: 9, margin: [0, 20] },
       ],
       styles :{
         tableHeader: {
