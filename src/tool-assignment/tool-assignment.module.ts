@@ -9,13 +9,14 @@ import { MetersModule } from 'src/meters/meters.module';
 import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
 import { ToolsModule } from 'src/tools/tools.module';
 import { ToolAssignmentService } from './tool-assignment.service';
+import { ToolAssignmentDetails } from './entities';
 
 @Module({
   controllers: [ToolAsignamentController],
   providers: [ToolAssignmentService],
   imports: [
     UsersModule,
-    TypeOrmModule.forFeature([ToolAssignment]),
+    TypeOrmModule.forFeature([ToolAssignment, ToolAssignmentDetails]),
     MaterialsModule,
     MetersModule,
     CollaboratorsModule,

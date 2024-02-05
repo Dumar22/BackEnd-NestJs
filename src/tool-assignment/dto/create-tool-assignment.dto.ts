@@ -1,6 +1,7 @@
 
 
-import { IsBoolean, IsDate,   IsNumber,   IsOptional,  IsPositive,  IsString,  IsUUID, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsDate, IsNumber, IsOptional, IsPositive, IsString,  IsUUID, MinLength } from 'class-validator';
+import { ToolAssignmentDetails } from '../entities';
 import { Type } from 'class-transformer';
 
 
@@ -13,27 +14,31 @@ export class CreateToolAssignmentDto {
   @IsString() 
   @IsUUID()
   collaboratorId: string;
-  
-  @IsString() 
-  @IsUUID()
-  toolId: string;
-
-  @IsNumber()
-  @IsPositive()
-  assignedQuantity: number;
 
   @IsString()
   @IsOptional()
   observation?: string;
  
-  @IsDate()
-  @Type(() => Date)
-  assignedAt: Date;
+  @IsArray()  
+   details:ToolAssignmentDetails[];
+  
+}
+
+export class CreateToolAssignmentDetailsDto {
+
+  @IsString() 
+  @IsUUID()
+  toolId?: string;
+
+  @IsNumber()
+  @IsPositive()
+  assignedQuantity: number;
 
   @IsDate()
   @IsOptional()
   @Type(() => Date)
-  returnedAt?: Date;
+  returnedA?: Date;
 
-  
+  @IsBoolean()
+  returnMaterials?: boolean;
 }

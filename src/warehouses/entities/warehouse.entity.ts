@@ -1,19 +1,19 @@
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import * as moment from 'moment-timezone';
-import { User } from "src/auth/entities/user.entity";
-import { Material } from "src/materials/entities/material.entity";
-import { Tool } from "src/tools/entities/tool.entity";
-import { Meter } from "src/meters/entities/meter.entity";
-import { Provider } from "src/providers/entities/provider.entity";
-import { Collaborator } from "src/collaborators/entities/collaborator.entity";
-import { Vehicle } from "src/vehicles/entities/vehicle.entity";
-import { Contract } from "src/contract/entities/contract.entity";
-import { Entry } from "src/entries/entities";
-import { Transfer } from "src/transfers/entities";
-import { ToolAssignment } from "src/tool-assignment/entities/tool-assignment.entity";
-import { AssignmentMaterialsVehicle } from "src/assignment-materials-vehicle/entities";
-import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
-import { EntriesTool } from "src/entries-tools/entities/entries-tool.entity";
+import { User } from "../../auth/entities/user.entity";
+import { Material } from "../../materials/entities/material.entity";
+import { Tool } from "../../tools/entities/tool.entity";
+import { Meter } from "../../meters/entities/meter.entity";
+import { Provider } from "../../providers/entities/provider.entity";
+import { Collaborator } from "../../collaborators/entities/collaborator.entity";
+import { Vehicle } from "../../vehicles/entities/vehicle.entity";
+import { Contract } from "../../contract/entities/contract.entity";
+import { Entry } from "../../entries/entities";
+import { Transfer } from "../../transfers/entities";
+import { ToolAssignment } from "../../tool-assignment/entities/tool-assignment.entity";
+import { AssignmentMaterialsVehicle } from "../../assignment-materials-vehicle/entities";
+import { ExitMaterial } from "../../exit-materials/entities/exit-material.entity";
+import { EntriesTool } from "../../entries-tools/entities/entries-tool.entity";
 
 @Entity()
 export class Warehouse {
@@ -24,10 +24,13 @@ export class Warehouse {
   @Column('varchar',{unique: true, nullable: true})
   name: string;
     
-  @CreateDateColumn()
+  @Column( 'datetime')
+  date: Date;
+
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 
   @ManyToMany(() => User, user => user.warehouses)

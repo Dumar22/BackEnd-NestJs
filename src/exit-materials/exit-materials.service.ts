@@ -6,6 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { CreateExitMaterialDto } from './dto/create-exit-material.dto';
+import * as moment from 'moment-timezone';
 import { UpdateExitMaterialDto } from './dto/update-exit-material.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,7 +25,6 @@ import * as currencyFormatter from 'currency-formatter';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { logoBase64 } from 'src/common/helpers/logo-base64';
 
-import *as moment from 'moment-timezone';
 
 moment.tz.setDefault("America/Bogota");
 @Injectable()

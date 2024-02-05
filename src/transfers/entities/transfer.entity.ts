@@ -19,7 +19,7 @@ export class Transfer {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
+  @Column({  type: 'datetime', nullable: false })
   date: Date;
 
   @Column({ nullable: false })

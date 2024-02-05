@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import * as moment from 'moment-timezone';
 import { CreateAssignmentMaterialsVehicleDto } from './dto/create-assignment-materials-vehicle.dto';
 import { UpdateAssignmentMaterialsVehicleDto } from './dto/update-assignment-materials-vehicle.dto';
 import { CreateAssignmentDetailsMaterialsVehicleDto } from './dto';
@@ -6,6 +7,13 @@ import { User } from 'src/auth/entities/user.entity';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as pdfMake from 'pdfmake/build/pdfmake';
+import * as currencyFormatter from 'currency-formatter';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import { logoBase64 } from 'src/common/helpers/logo-base64';
+
+
+moment.tz.setDefault("America/Bogota");
 import { Material } from 'src/materials/entities/material.entity';
 import { AssignmentDetailsMaterialsVehicle, AssignmentMaterialsVehicle } from './entities';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -27,7 +35,7 @@ export class AssignmentMaterialsVehicleService {
     private readonly materialAssignmentRepository: Repository<AssignmentMaterialsVehicle>,
     @InjectRepository(AssignmentDetailsMaterialsVehicle)
     private readonly materialAssignmentDetailRepository: Repository<AssignmentDetailsMaterialsVehicle>,
-  ) {}
+  ) {pdfMake.vfs = pdfFonts.pdfMake.vfs;}
 
 
   async create(createAssignmentMaterialsVehicleDto: CreateAssignmentMaterialsVehicleDto, details: CreateAssignmentDetailsMaterialsVehicleDto[], user: User) {
@@ -155,6 +163,112 @@ for (const detail of detailsWithMaterials) {
       throw new NotFoundException(`Asignación de material con ID ${id} no encontrada.`);
     }  
     return materialAssignment;
+  }
+
+  async generarPDF(id: string, user: User): Promise<Buffer> {
+    const exitData = await this. materialAssignmentRepository.findOneBy({id: id}); 
+    
+    if (!exitData) {
+      throw new NotFoundException('Asignación de materiales no encontrada');
+    }
+  
+    const formattedDate = moment(exitData.date).format('DD/MM/YYYY HH:mm');
+  
+    // Calcular el total de los detalles
+    const totalMat = exitData.details.reduce((acc, detail) => acc + (detail.total), 0);
+    const totalFormatted = currencyFormatter.format(totalMat, { code: 'COP' });
+  
+    exitData.details.forEach((detail) => {
+      detail.material.price = currencyFormatter.format(detail.material.price, { code: 'USD' }); // Cambia 'USD' según tu moneda
+      detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
+    });
+  
+    const pdfDefinition = {
+      pageSize: 'letter', //legal
+      pageMargins: [40, 40, 40, 40],
+      header: {
+        image: logoBase64,
+        fit: [100, 100],
+        alignment: 'left',
+        margin: [40, 20],
+      },
+      content: [
+        { text: 'ASIGNACION MATERIALES A VEHICULOS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
+        {
+          columns: [
+            // Datos a la izquierda
+            [
+              { text: 'Fecha de salida: ' + formattedDate, fontSize: 10 },
+              { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 10 },
+              { text: 'cargo: ' + exitData.collaborator.operation, fontSize: 10, },
+              { text: 'Documento: ' + exitData.collaborator.document, fontSize: 10, margin: [0, 0, 0, 20] },
+            ],
+            [
+              { text: 'Vehiculo: ' + exitData.vehicle.plate, fontSize: 10 },
+              { text: 'Marca: ' + exitData.vehicle.make, fontSize: 10 },
+              { text: 'Estado: ' + exitData.vehicle.status, fontSize: 10 },
+            ],
+          ],
+        },
+        // ... Otros detalles según sea necesario
+        {
+          table: {
+            headerRows: 1,
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+            body: [
+              [
+                { text: 'Código', style: 'tableHeader' },
+                { text: 'Material', style: 'tableHeader' },
+                { text: 'Unidad', style: 'tableHeader' },
+                { text: 'Cantidad Asignada', style: 'tableHeader' },
+                { text: 'Precio', style: 'tableHeader' },
+                { text: 'Total', style: 'tableHeader' },
+              ],
+              // Agrega filas con los detalles del traslado
+              ...exitData.details.map((detail) => [
+                {text: detail.material.code, alignment: 'center', fontSize: 8},
+                 {text: detail.material.name, alignment: 'center', fontSize: 8}, 
+                {text: detail.material.unity, alignment: 'center', fontSize: 8},
+                { text: detail.assignedQuantity, alignment: 'center',fontSize: 9 }, // Centrar la cantidad
+                {text: detail.material.price, alignment: 'center', fontSize: 9},
+                {text: detail.total, alignment: 'center', fontSize: 9}
+              ]),
+              ['', '','', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+            ],
+            layout: {
+              defaultBorder: false, // Deshabilita los bordes por defecto
+              hLineWidth: function(i, node) { return (i === 0 || i === node.table.body.length) ? 1 : 0; }, // Establece el ancho de línea horizontal
+              vLineWidth: function(i, node) { return 0; }, // Deshabilita las líneas verticales
+              hLineColor: function(i, node) { return 'black'; }, // Establece el color de línea horizontal
+              paddingTop: function(i, node) { return 5; }, // Añade relleno superior a todas las celdas
+              paddingBottom: function(i, node) { return 5; }, // Añade relleno inferior a todas las celdas
+            },
+            margin: [0, 10], // Establece el margen de la tabla
+          },
+        },
+        { text: 'Observaciones: ' + exitData.observation, fontSize: 10, margin: [0, 20] },
+      ],
+      styles :{
+        tableHeader: {
+          bold: true,
+          fontSize: 10,
+          fillColor: '#F5F5F5',
+          alignment: 'center',
+        },
+      }
+    };
+    
+    
+     
+  
+    const pdfBuffer = await new Promise<Buffer>((resolve) => {
+      const pdfDocGenerator = pdfMake.createPdf(pdfDefinition);
+      pdfDocGenerator.getBuffer((buffer) => {
+        resolve(buffer);
+      });
+    });
+  
+    return pdfBuffer;
   }
 
   update(id: string, updateAssignmentMaterialsVehicleDto: UpdateAssignmentMaterialsVehicleDto,details: CreateAssignmentDetailsMaterialsVehicleDto[], user: User) {

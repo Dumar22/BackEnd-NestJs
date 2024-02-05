@@ -38,7 +38,7 @@ import { EntriesToolsModule } from './entries-tools/entries-tools.module';
       database: process.env.DB_DATABASE,
       //timezone: 'Z',
       autoLoadEntities: true,
-      synchronize:true, // use synchronize for development
+      synchronize:false, // use synchronize for development
     }),
     MaterialsModule,
     CommonModule,

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, NotFoundException, Res } from '@nestjs/common';
 import { AssignmentMaterialsVehicleService } from './assignment-materials-vehicle.service';
 
 import { UpdateAssignmentMaterialsVehicleDto } from './dto/update-assignment-materials-vehicle.dto';
@@ -36,6 +36,34 @@ export class AssignmentMaterialsVehicleController {
   @GetUser() user: User,) {
     return this.assignmentMaterialsVehicleService.findOne(term,user);
   }
+
+
+  @Get('pdf/:id')
+   @Auth()
+  async generateReport(
+    @Param('id',ParseUUIDPipe) id: string,
+    @GetUser() user: User,
+    @Res() res ) : Promise<void> {
+        
+        try {
+          const buffer = await this.assignmentMaterialsVehicleService.generarPDF(id,user);
+    
+          res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=example.pdf',
+            'Content-Length': buffer.length.toString(),
+          });
+    
+          res.end(buffer);
+        } catch (error) {
+          
+          if (error instanceof NotFoundException) {
+            res.status(404).json({ message: error.message });
+          } else {
+            res.status(500).json({ message: 'Error interno del servidor' });
+          }
+        }
+      }
 
   @Patch(':id')
   @Auth()

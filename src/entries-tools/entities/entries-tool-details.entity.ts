@@ -1,8 +1,8 @@
+import * as moment from 'moment-timezone';
 import { EntriesTool } from "./entries-tool.entity";
 import { BeforeInsert, BeforeUpdate, Column, 
     CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn,
      UpdateDateColumn } from "typeorm";
-import * as moment from 'moment-timezone';
 
 
 @Entity()

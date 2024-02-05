@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe, Res, NotFoundException } from '@nestjs/common';
 import { ToolAssignmentService } from './tool-assignment.service';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { CreateToolAssignmentDto, UpdateToolAsignamentDto } from './dto';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { CreateToolAssignmentDetailsDto } from './dto/create-tool-assignment.dto';
+import { UpdateToolAssignmentDetailsDto } from './dto/update-tool-assignment.dto';
 
 
 @Controller('tool-asignament')
@@ -14,9 +16,10 @@ export class ToolAsignamentController {
   @Auth()
   create(    
     @Body() createToolAssignmentDto: CreateToolAssignmentDto, 
+    @Body('details') details: CreateToolAssignmentDetailsDto[],
     @GetUser() user: User
     ) {
-    return this.toolAssignmentService.create(createToolAssignmentDto, user);
+    return this.toolAssignmentService.create(createToolAssignmentDto, details, user);
   }
 
 
@@ -49,8 +52,9 @@ export class ToolAsignamentController {
   update
   (@Param('id', ParseUUIDPipe) id: string,
   @Body() updateToolAsignamentDto: UpdateToolAsignamentDto,
+  @Body('details') details: UpdateToolAssignmentDetailsDto[],
   @GetUser() user: User,) {
-    return this.toolAssignmentService.update(id, updateToolAsignamentDto, user);
+    return this.toolAssignmentService.update(id, updateToolAsignamentDto, details, user);
   }
 
   @Delete(':id')
@@ -59,5 +63,33 @@ export class ToolAsignamentController {
   @GetUser() user: User) {
     return this.toolAssignmentService.remove(id, user);
   }
+
+
+  @Get('pdf/:id')
+   @Auth()
+  async generateReport(
+    @Param('id',ParseUUIDPipe) id: string,
+    @GetUser() user: User,
+    @Res() res ) : Promise<void> {
+        
+        try {
+          const buffer = await this.toolAssignmentService.generarPDF(id,user);
+    
+          res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=example.pdf',
+            'Content-Length': buffer.length.toString(),
+          });
+    
+          res.end(buffer);
+        } catch (error) {
+                    
+          if (error instanceof NotFoundException) {
+            res.status(404).json({ message: error.message });
+          } else {
+            res.status(500).json({ message: 'Error interno del servidor' });
+          }
+        }
+      }
   
 }

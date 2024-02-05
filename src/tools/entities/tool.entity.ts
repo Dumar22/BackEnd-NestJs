@@ -4,7 +4,7 @@ import { BeforeInsert, BeforeUpdate, Column,
 import * as moment from 'moment-timezone';
 import { User } from "src/auth/entities/user.entity";
 import { Warehouse } from "src/warehouses/entities/warehouse.entity";
-import { ToolAssignment } from "src/tool-assignment/entities/tool-assignment.entity";
+import { ToolAssignmentDetails } from "src/tool-assignment/entities";
 
 
 @Entity()
@@ -52,8 +52,8 @@ export class Tool {
     @ManyToOne(() => Warehouse, warehouse => warehouse.tools)
     warehouse: Warehouse;
    
-    @OneToMany(() => ToolAssignment, toolAssignment => toolAssignment.tool)
-    toolAssignments: ToolAssignment[];
+    @OneToMany(() => ToolAssignmentDetails, toolAssignment => toolAssignment.tool)
+    toolAssignments: ToolAssignmentDetails[];
 
    @Column({ nullable: true })
    deletedBy: string;

@@ -7,7 +7,7 @@ import { Entity, Column, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from 't
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
+  
   @Column()
   message: string;
 

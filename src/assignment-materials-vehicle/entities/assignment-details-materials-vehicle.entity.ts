@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { AssignmentMaterialsVehicle } from './assignment-materials-vehicle.entity';
 import { Material } from 'src/materials/entities/material.entity';
 
@@ -8,7 +8,7 @@ export class AssignmentDetailsMaterialsVehicle {
   id: string;  
 
   @ManyToOne(() => Material,
-   tool => tool.materialAssignments,
+   material => material.materialAssignments,
    {eager: true})
   material: Material;
   
@@ -24,10 +24,23 @@ export class AssignmentDetailsMaterialsVehicle {
   @Column({default:false, nullable: false })
   returnMaterials: boolean;
 
+  @Column('float', { default: 0, nullable: false })
+  total: number;
+
   @ManyToOne(() => AssignmentMaterialsVehicle,
   assignmentDetailsMaterialsVehicle =>
    assignmentDetailsMaterialsVehicle.details,
    )
    assignmentDetailsMaterialsVehicle: AssignmentDetailsMaterialsVehicle;
 
+   @BeforeInsert()
+    insertTotal(){     
+      this.total = this.assignedQuantity * this.material.price
+   }
+
+
+   @BeforeUpdate()
+   insert(){     
+    this.total = this.assignedQuantity * this.material.price
+ }
 }

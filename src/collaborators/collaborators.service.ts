@@ -51,9 +51,7 @@ export class CollaboratorsService {
     } catch (error) {          
       //console.log(error); 
       this.handleDBExeptions(error)
-    }
-   
-
+    }   
   }
 
 
@@ -152,6 +150,7 @@ export class CollaboratorsService {
       where: [
         { name: Like(`%${term}%`) },
         { code: Like(`%${term}%`) },
+        { operation: Like(`%${term}%`) },
       ],
     });
     return data;

@@ -4,7 +4,7 @@ import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Warehouse } from './entities/warehouse.entity';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+
 
 @Injectable()
 export class WarehousesService {

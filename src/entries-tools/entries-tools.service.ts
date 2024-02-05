@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import *as moment from 'moment-timezone';
 import { CreateEntriesToolDto } from './dto/create-entries-tool.dto';
 import { UpdateEntriesToolDto } from './dto/update-entries-tool.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,7 +14,6 @@ import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as currencyFormatter from 'currency-formatter';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { logoBase64 } from 'src/common/helpers/logo-base64';
-import *as moment from 'moment-timezone';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
 import { UpdateDetailToolDto } from './dto/update-details-entries.dto';
@@ -207,12 +207,12 @@ export class EntriesToolsService {
         margin: [40, 20],
       },
       content: [
-        { text: 'TRASLADOS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
+        { text: 'ENTRADA DE HERRAMIENTAS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
         {
           columns: [
             // Datos a la izquierda
             [
-              { text: 'Fecha del traslado: ' + formattedDate, fontSize: 10 },
+              { text: 'Fecha de la entrada: ' + formattedDate, fontSize: 10 },
               { text: 'Número de entrada: ' + entryData.entryNumber, fontSize: 10 },
               { text: 'Origen: ' + entryData.origin, fontSize: 10 },
             
@@ -228,7 +228,7 @@ export class EntriesToolsService {
         {
           table: {
             headerRows: 1,
-            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
                 { text: 'Código', style: 'tableHeader' },
@@ -251,7 +251,7 @@ export class EntriesToolsService {
                 {text: detail.price, alignment: 'center', fontSize: 9},
                 {text: detail.total, alignment: 'center', fontSize: 9}
               ]),
-              ['', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+              ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
             ],
             layout: {
               defaultBorder: false, // Deshabilita los bordes por defecto

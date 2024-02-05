@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateVehicleDto } from './create-vehicle.dto';
-import { IsBoolean, IsIn, IsNumber, IsOptional, IsPositive, IsString, MaxLength, MinLength } from "class-validator";
+import { IsBoolean, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class UpdateVehicleDto extends PartialType(CreateVehicleDto) {
   
@@ -9,7 +9,7 @@ export class UpdateVehicleDto extends PartialType(CreateVehicleDto) {
   make:string;
 
   @IsString()
-  @MinLength(2)
+  @Matches(/^[A-Za-z]{3}\d{3}$/, { message: 'El formato debe ser 3 letras seguidas de 3 números, por ejemplo BFC435' })
   plate:string;
 
   @IsString()
