@@ -15,6 +15,7 @@ import { ToolAssignment } from "src/tool-assignment/entities/tool-assignment.ent
 import { AssignmentMaterialsVehicle } from "src/assignment-materials-vehicle/entities";
 import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
 import { EntriesTool } from "src/entries-tools/entities/entries-tool.entity";
+import { ListExitMaterial } from "src/list-exit-materials/entities/list-exit-material.entity";
 
 @Entity()
 export class User {
@@ -56,6 +57,12 @@ export class User {
     (material) => material.user
   )
   material: Material
+
+  @OneToMany(
+    ()=> ListExitMaterial,
+    (material) => material.user
+  )
+  materialList: ListExitMaterial
 
   @OneToMany(
     ()=> Tool,

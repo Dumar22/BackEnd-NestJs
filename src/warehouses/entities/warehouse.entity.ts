@@ -14,6 +14,7 @@ import { ToolAssignment } from "../../tool-assignment/entities/tool-assignment.e
 import { AssignmentMaterialsVehicle } from "../../assignment-materials-vehicle/entities";
 import { ExitMaterial } from "../../exit-materials/entities/exit-material.entity";
 import { EntriesTool } from "../../entries-tools/entities/entries-tool.entity";
+import { ListExitMaterial } from "src/list-exit-materials/entities/list-exit-material.entity";
 
 @Entity()
 export class Warehouse {
@@ -38,6 +39,9 @@ export class Warehouse {
 
   @OneToMany(() => Material, material => material.warehouse )
   materials: Material[];
+
+  @OneToMany(() => ListExitMaterial, material => material.warehouse )
+  materialsList: ListExitMaterial[];
 
   @OneToMany(() => Tool, tool => tool.warehouse )
   tools: Tool[];

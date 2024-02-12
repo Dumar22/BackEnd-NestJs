@@ -67,7 +67,9 @@ export class AssignmentMaterialsVehicleController {
 
   @Patch(':id')
   @Auth()
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateAssignmentMaterialsVehicleDto: UpdateAssignmentMaterialsVehicleDto,
+  update(
+    @Param('id', ParseUUIDPipe) id: string, 
+    @Body() updateAssignmentMaterialsVehicleDto: UpdateAssignmentMaterialsVehicleDto,
   details: UpdateAssignmentDetailsMaterialsVehicleDto[], user: User ) {
     return this.assignmentMaterialsVehicleService.update(id, updateAssignmentMaterialsVehicleDto, details, user);
   }

@@ -7,6 +7,7 @@ import { Warehouse } from "src/warehouses/entities/warehouse.entity";
 import { AssignmentDetailsMaterialsVehicle } from "src/assignment-materials-vehicle/entities";
 import { DetailsExitMaterials } from "src/exit-materials/entities/details-exit-materials";
 import { AssingMaterialsDetailsProyect } from "src/assing-materials-proyect/entities/assing-materials-details-proyect.entity";
+import { DetailsListMaterials } from "src/list-exit-materials/entities/details-list-material.entity";
 
 @Entity()
 export class Material {
@@ -55,6 +56,10 @@ export class Material {
     @OneToMany(() => AssignmentDetailsMaterialsVehicle,
     materialAssignment => materialAssignment.material)     
   materialAssignments: AssignmentDetailsMaterialsVehicle[];
+
+    @OneToMany(() => DetailsListMaterials,
+    materialList => materialList.material)     
+  materialList: DetailsListMaterials[];
 
     @OneToMany(() => DetailsExitMaterials ,
     materialexit => materialexit.material,

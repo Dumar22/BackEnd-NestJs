@@ -93,23 +93,4 @@ export class DetailsExitMaterials {
 
 }
 
-// @Column({ nullable: false })
-// name: string;
 
-// @Column({ nullable: false })
-// code: string;
-
-// @Column({ nullable: false })
-// unity: string;
-
-// @Column({ nullable: true })
-// serial: string;
-
-// @Column({ nullable: true })
-// brand: string;
-
-// @Column('float', { default: 0, nullable: false })
-// price: number;
-
-// @Column('float', { default: 0, nullable: false })
-// total: number;

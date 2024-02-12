@@ -22,6 +22,8 @@ import { UploadXlsModule } from './upload-xls/upload-xls.module';
 import { ProyectsModule } from './proyects/proyects.module';
 import { AssingMaterialsProyectModule } from './assing-materials-proyect/assing-materials-proyect.module';
 import { EntriesToolsModule } from './entries-tools/entries-tools.module';
+import { ListExitMaterialsModule } from './list-exit-materials/list-exit-materials.module';
+import { MessagesWsModule } from './messages-ws/messages-ws.module';
 
 
 @Module({
@@ -60,6 +62,8 @@ import { EntriesToolsModule } from './entries-tools/entries-tools.module';
     ProyectsModule,
     AssingMaterialsProyectModule,
     EntriesToolsModule,
+    ListExitMaterialsModule,
+    MessagesWsModule,
   ],
   controllers: [],
   providers: [FileUploadService],
