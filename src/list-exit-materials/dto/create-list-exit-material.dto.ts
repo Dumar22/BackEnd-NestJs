@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsNumber, IsPositive, IsBoolean, IsOptional, IsUUID } from "class-validator";
+import { IsString, MinLength, IsNumber, IsPositive, IsBoolean, IsOptional, IsUUID, IsArray } from "class-validator";
 
 export class CreateListExitMaterialDto {
 
@@ -9,6 +9,8 @@ export class CreateListExitMaterialDto {
   @MinLength(2,{message:'El nombre debe tener mas de 2 caracteres'}) 
   nameList:string;
 
+  @IsArray()  
+   details:CreateDetailsMaterialsDto[];
   
 }
 

@@ -8,7 +8,7 @@ export class DetailsListMaterials {
   id: string;  
 
   @ManyToOne(() => Material,
-   material => material.materialAssignments,
+   material => material.materialList,
    {eager: true})
   material: Material;
 
@@ -17,4 +17,7 @@ export class DetailsListMaterials {
     () => ListExitMaterial, list => list.details,
     {eager: true})
   list: ListExitMaterial;
+
+  
+
 }

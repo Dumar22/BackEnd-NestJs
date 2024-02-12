@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { ListExitMaterial } from './entities/list-exit-material.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { DetailsListMaterials } from './entities/details-list-material.entity';
+import { Material } from 'src/materials/entities/material.entity';
 
 @Injectable()
 export class ListExitMaterialsService {
@@ -15,7 +16,9 @@ export class ListExitMaterialsService {
 
   constructor(   
     @InjectRepository( ListExitMaterial)
-    private readonly materialsRepository: Repository<ListExitMaterial>,
+    private readonly listExitMaterialRepository: Repository<ListExitMaterial>,
+    @InjectRepository( Material)
+    private readonly materialRepository: Repository<Material>,
     @InjectRepository( DetailsListMaterials)
     private readonly detailsMaterialsRepository: Repository<DetailsListMaterials>,
    
@@ -23,78 +26,52 @@ export class ListExitMaterialsService {
   ){}
 
 
-  async create(createMaterialDto: CreateListExitMaterialDto,details:CreateDetailsMaterialsDto[], user: User) {
+  async create(createMaterialDto: CreateListExitMaterialDto, details: CreateDetailsMaterialsDto[], user: User) {
+    try {
+        const existingMaterial = await this.listExitMaterialRepository.createQueryBuilder()
+            .where('(nameList = :nameList) AND warehouseId = :warehouseId', {
+                nameList: createMaterialDto.nameList,
+                warehouseId: user.warehouses[0].id
+            })
+            .getOne();
 
-    const existingMaterial = await this.materialsRepository.createQueryBuilder()
-    .where('(nameList = :nameList OR code = :code) AND warehouseId = :warehouseId', { 
-      name: createMaterialDto.nameList,      
-      warehouseId: user.warehouses[0].id  
-    })
-    .getOne();
-  
-      if (existingMaterial) {
-        throw new BadRequestException(`La lista ${createMaterialDto.nameList} ya existe en la bodega ${user.warehouses[0].name}.`);
-      }
+        if (existingMaterial) {
+            throw new BadRequestException(`La lista ${createMaterialDto.nameList} ya existe en la bodega ${user.warehouses[0].name}.`);
+        }
 
-    try {   
+        const list = new ListExitMaterial();
+        list.nameList = createMaterialDto.nameList;
+        list.user = user;
+        list.warehouse = user.warehouses[0];
 
-       const material = this.materialsRepository.create({
-       ...createMaterialDto,
-       user, 
-       details,
-       warehouse: user.warehouses[0]
-        
-      });
+        const savedList = await this.listExitMaterialRepository.save(list);
 
+        const detailsWithMaterials = [];
+        for (const detail of details) {
+          const material = await this. materialRepository.findOne({ where: { id: detail.materialId } });
 
-      const detailsWithMaterials = [];
-      for (const detail of details) {
-      
-        const material = await this.materialsRepository.findOneBy({id:detail.materialId});
-      
-        detailsWithMaterials.push({
-          ...detail,
-          material
-        });  
-      } 
-      //console.log(detailsWithMaterials);  
-      
-      const savedMaterial = await this.materialsRepository.save(material);
-      
-      const detailMaterials = [];
-    
-    for (const detail of detailsWithMaterials) {
-      detailMaterials.push(
-        this.detailsMaterialsRepository.create({
-          ...detail,
-          list: savedMaterial
-        })
-      );
+            const detailEntity = new DetailsListMaterials();
+            detailEntity.material = material;
+            detailEntity.list = savedList;
+            detailsWithMaterials.push(detailEntity);
+        }
+
+        const savedDetails = await this.detailsMaterialsRepository.save(detailsWithMaterials);
+
+        // Devolver los detalles asociados guardados correctamente
+        return savedDetails;
+
+    } catch (error) {
+        this.handleDBExeptions(error);
     }
-      //console.log('data save',detailAssignments);
-      
-      await this.detailsMaterialsRepository.save(detailMaterials);
-        
-        
-            // Devolver la asignación completa con los detalles asociados
-            return detailMaterials
-        
-            
-          } catch (error) {
-           // console.log('created',error);
-            
-            // Manejar las excepciones de la base de datos
-            this.handleDBExeptions(error);
-      
-          }
-       }
-    
+}
+
  
 
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;
   
-    let materialsQuery = this.materialsRepository.createQueryBuilder('material')
+    let materialsQuery = this.listExitMaterialRepository.createQueryBuilder('material')
       .leftJoinAndSelect('material.user', 'user')
       .leftJoinAndSelect('material.details', 'details')
       .leftJoinAndSelect('details.material', 'material')
@@ -118,7 +95,7 @@ export class ListExitMaterialsService {
   }
 
   async findOne(id: string,user: User) {
-    const materialAssignment = await this.materialsRepository.findOne({
+    const materialAssignment = await this.listExitMaterialRepository.findOne({
       where: {id: id},     
         relations: [ 'details.material']      
     });
@@ -132,7 +109,7 @@ export class ListExitMaterialsService {
   async update(id: string, updateListExitMaterialDto: UpdateListExitMaterialDto, details: UpdateDetailsMaterialsDto[], user: User) {
     try {
       // Buscar la lista de materiales por su ID
-      const listExitMaterial = await this.materialsRepository.findOne({
+      const listExitMaterial = await this.listExitMaterialRepository.findOne({
         where: { id: id },
          relations: ['details'] });
   
@@ -146,7 +123,7 @@ export class ListExitMaterialsService {
       // }
   
       // Actualizar los campos de la lista de materiales
-      this.materialsRepository.merge(listExitMaterial, updateListExitMaterialDto);
+      this.listExitMaterialRepository.merge(listExitMaterial, updateListExitMaterialDto);
   
       // Actualizar los detalles de los materiales
       if (details && details.length > 0) {
@@ -166,7 +143,7 @@ export class ListExitMaterialsService {
       }
   
       // Guardar la lista de materiales actualizada
-      const updatedListExitMaterial = await this.materialsRepository.save(listExitMaterial);
+      const updatedListExitMaterial = await this.listExitMaterialRepository.save(listExitMaterial);
   
       return updatedListExitMaterial;
     } catch (error) {
@@ -177,14 +154,14 @@ export class ListExitMaterialsService {
   
   async remove(id: string, user: User) {
 
-    const material = await this.materialsRepository.findOneBy({id: id});
+    const material = await this.listExitMaterialRepository.findOneBy({id: id});
 
   if (material) {
     // material.code = material.code+'XX'
     // material.deletedBy = user.id;
     // material.deletedAt = new Date();
 
-    await this.materialsRepository.remove(material);
+    await this.listExitMaterialRepository.remove(material);
     // const material = await this.findOne( id );
     //await this.materialsRepository.delete({ id });
     return {message:'Material eliminado.'}
