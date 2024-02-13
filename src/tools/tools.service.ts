@@ -106,7 +106,7 @@ export class ToolsService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let toolsQuery = this.toolsRepository.createQueryBuilder('tool')
       .leftJoinAndSelect('tool.user', 'user')
@@ -122,8 +122,8 @@ export class ToolsService {
       toolsQuery = toolsQuery.andWhere('tool.deletedAt IS NULL');
   
     const tools = await toolsQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return tools

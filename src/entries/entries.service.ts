@@ -317,7 +317,7 @@ export class EntriesService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let entriesQuery = this.entriesRepository.createQueryBuilder('entry')
       .leftJoinAndSelect('entry.details', 'details')
@@ -333,8 +333,8 @@ export class EntriesService {
       entriesQuery = entriesQuery.andWhere('entry.deletedAt IS NULL');
   
     const entries = await entriesQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return entries

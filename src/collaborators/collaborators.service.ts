@@ -102,7 +102,7 @@ export class CollaboratorsService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let colaboratorsQuery = this.collaboratorsRepository.createQueryBuilder('collaborator')
       .leftJoinAndSelect('collaborator.user', 'user')
@@ -117,8 +117,8 @@ export class CollaboratorsService {
       colaboratorsQuery = colaboratorsQuery.andWhere('collaborator.deletedAt IS NULL');
   
     const collaborators = await colaboratorsQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return collaborators

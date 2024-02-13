@@ -71,11 +71,11 @@ export class ListExitMaterialsService {
   async findAll(paginationDto: PaginationDto, user: User) {
     const { limit = 10, offset = 0 } = paginationDto;
   
-    let materialsQuery = this.listExitMaterialRepository.createQueryBuilder('material')
-      .leftJoinAndSelect('material.user', 'user')
-      .leftJoinAndSelect('material.details', 'details')
+    let materialsQuery = this.listExitMaterialRepository.createQueryBuilder('listMaterials')
+      .leftJoinAndSelect('listMaterials.user', 'user')
+      .leftJoinAndSelect('listMaterials.details', 'details')
       .leftJoinAndSelect('details.material', 'material')
-      .leftJoinAndSelect('material.warehouse', 'warehouse');
+      .leftJoinAndSelect('listMaterials.warehouse', 'warehouse');
   
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
@@ -84,7 +84,7 @@ export class ListExitMaterialsService {
        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
     // Agrega la condición para excluir los materiales eliminados
-      materialsQuery = materialsQuery.andWhere('material.deletedAt IS NULL');
+      materialsQuery = materialsQuery.andWhere('listMaterials.deletedAt IS NULL');
   
     const materials = await materialsQuery
       .skip(offset)
@@ -97,7 +97,7 @@ export class ListExitMaterialsService {
   async findOne(id: string,user: User) {
     const materialAssignment = await this.listExitMaterialRepository.findOne({
       where: {id: id},     
-        relations: [ 'details.material']      
+        relations: [ 'details']      
     });
   
     if (!materialAssignment) {

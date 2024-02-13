@@ -100,7 +100,7 @@ export class ContractService {
 
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let contractsQuery = this.contractsRepository.createQueryBuilder('contract')
       .leftJoinAndSelect('contract.user', 'user')
@@ -115,8 +115,8 @@ export class ContractService {
       contractsQuery = contractsQuery.andWhere('contract.deletedAt IS NULL');
   
     const contract = await contractsQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return contract

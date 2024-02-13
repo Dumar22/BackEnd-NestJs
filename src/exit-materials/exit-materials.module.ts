@@ -8,6 +8,7 @@ import { MaterialsModule } from 'src/materials/materials.module';
 import { MetersModule } from 'src/meters/meters.module';
 import { DetailsExitMaterials, ExitMaterial } from './entities';
 import { ContractModule } from 'src/contract/contract.module';
+import { AssignmentPeAlPeModule } from 'src/assignment-pe-al-pe/assignment-pe-al-pe.module';
 
 @Module({
   controllers: [ExitMaterialsController],
@@ -18,7 +19,9 @@ import { ContractModule } from 'src/contract/contract.module';
     MaterialsModule,
     MetersModule,
     CollaboratorsModule,
-    ContractModule
+    ContractModule,
+    AssignmentPeAlPeModule
+
   
     ],
     exports:[TypeOrmModule]

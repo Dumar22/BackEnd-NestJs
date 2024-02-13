@@ -103,7 +103,7 @@ export class ProvidersService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let providersQuery = this.providersRepository.createQueryBuilder('provider')
       .leftJoinAndSelect('provider.user', 'user')
@@ -119,8 +119,8 @@ export class ProvidersService {
       providersQuery = providersQuery.andWhere('provider.deletedAt IS NULL');
   
     const providers = await providersQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return providers

@@ -106,7 +106,7 @@ await this.materialAssignmentDetailRepository.save(detailAssignments);
  }
 
  async findAll(paginationDto: PaginationDto, user: User) {
-  const { limit = 10, offset = 0 } = paginationDto;
+  // const { limit = 10, offset = 0 } = paginationDto;
 
   let materialAssignmentQuery = this.materialAssignmentRepository.createQueryBuilder('materialAssignment')
     .leftJoinAndSelect('materialAssignment.proyect', 'proyect')
@@ -125,8 +125,8 @@ await this.materialAssignmentDetailRepository.save(detailAssignments);
     materialAssignmentQuery = materialAssignmentQuery.andWhere('materialAssignment.deletedAt IS NULL');
 
   const materialassignment = await materialAssignmentQuery
-    .skip(offset)
-    .take(limit)
+    // .skip(offset)
+    // .take(limit)
     .getMany();
 
   return  materialassignment

@@ -7,6 +7,7 @@ import { Warehouse } from "src/warehouses/entities/warehouse.entity";
 import { ToolAssignment } from "src/tool-assignment/entities/tool-assignment.entity";
 import { AssignmentMaterialsVehicle } from "src/assignment-materials-vehicle/entities";
 import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
+import { AssignmentPeAlPe } from "src/assignment-pe-al-pe/entities/assignment-pe-al-pe.entity";
 
 
 @Entity()
@@ -57,6 +58,10 @@ export class Collaborator {
     @OneToMany(() => AssignmentMaterialsVehicle, 
     assignmentMaterialsVehicle => assignmentMaterialsVehicle.collaborator)
     assignmentsMaterialsVehicle: AssignmentMaterialsVehicle[];
+
+    @OneToMany(() =>  AssignmentPeAlPe, 
+    assignmentPeAlPe => assignmentPeAlPe.collaborator)
+    assignmentPeAlPe:  AssignmentPeAlPe[];
 
     @OneToMany(() => ExitMaterial, 
     exitMateial => exitMateial.collaborator)

@@ -16,6 +16,7 @@ import { AssignmentMaterialsVehicle } from "src/assignment-materials-vehicle/ent
 import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
 import { EntriesTool } from "src/entries-tools/entities/entries-tool.entity";
 import { ListExitMaterial } from "src/list-exit-materials/entities/list-exit-material.entity";
+import { AssignmentPeAlPe } from "src/assignment-pe-al-pe/entities/assignment-pe-al-pe.entity";
 
 @Entity()
 export class User {
@@ -135,6 +136,12 @@ export class User {
     (assignmentMaterialsVehicle) => assignmentMaterialsVehicle.user
   )
   assignmentMaterialsVehicle: AssignmentMaterialsVehicle
+
+  @OneToMany(
+    ()=> AssignmentPeAlPe,
+    (assignmentPeAlPe) => assignmentPeAlPe.user
+  )
+  assignmentPeAlPe: AssignmentPeAlPe
 
 
  @OneToMany(() => Notification, (notification) => notification.sender)

@@ -24,6 +24,7 @@ import { AssingMaterialsProyectModule } from './assing-materials-proyect/assing-
 import { EntriesToolsModule } from './entries-tools/entries-tools.module';
 import { ListExitMaterialsModule } from './list-exit-materials/list-exit-materials.module';
 import { MessagesWsModule } from './messages-ws/messages-ws.module';
+import { AssignmentPeAlPeModule } from './assignment-pe-al-pe/assignment-pe-al-pe.module';
 
 
 @Module({
@@ -64,6 +65,7 @@ import { MessagesWsModule } from './messages-ws/messages-ws.module';
     EntriesToolsModule,
     ListExitMaterialsModule,
     MessagesWsModule,
+    AssignmentPeAlPeModule,
   ],
   controllers: [],
   providers: [FileUploadService],

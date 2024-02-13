@@ -106,7 +106,7 @@ export class MetersService {
 
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let metersQuery = this.metersRepository.createQueryBuilder('meter')
       .leftJoinAndSelect('meter.user', 'user')
@@ -122,8 +122,8 @@ export class MetersService {
       metersQuery = metersQuery.andWhere('meter.deletedAt IS NULL');
   
     const meters = await metersQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return meters

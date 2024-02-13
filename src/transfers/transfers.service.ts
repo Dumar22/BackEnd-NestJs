@@ -195,7 +195,7 @@ export class TransfersService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let transfersQuery = this.transfersRepository.createQueryBuilder('transfer')
       .leftJoinAndSelect('transfer.details', 'details')
@@ -212,8 +212,8 @@ export class TransfersService {
       transfersQuery = transfersQuery.andWhere('transfer.deletedAt IS NULL');
   
     const transfers = await transfersQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return transfers

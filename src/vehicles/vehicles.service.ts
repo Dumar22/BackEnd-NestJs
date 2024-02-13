@@ -54,7 +54,7 @@ export class VehiclesService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let vehiclesQuery = this.vehiclesRepository.createQueryBuilder('vehicle')
       .leftJoinAndSelect('vehicle.user', 'user')
@@ -69,8 +69,8 @@ export class VehiclesService {
     vehiclesQuery = vehiclesQuery.andWhere('vehicle.deletedAt IS NULL');
   
     const vehicles = await vehiclesQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return vehicles;

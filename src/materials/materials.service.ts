@@ -104,7 +104,7 @@ private readonly logger = new Logger('MaterialsService')
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let materialsQuery = this.materialsRepository.createQueryBuilder('material')
       .leftJoinAndSelect('material.user', 'user')
@@ -120,9 +120,11 @@ private readonly logger = new Logger('MaterialsService')
       materialsQuery = materialsQuery.andWhere('material.deletedAt IS NULL');
   
     const materials = await materialsQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
+
+      // console.log(materials)
   
     return materials
   }

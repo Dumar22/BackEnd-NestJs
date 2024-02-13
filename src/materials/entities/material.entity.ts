@@ -8,6 +8,7 @@ import { AssignmentDetailsMaterialsVehicle } from "src/assignment-materials-vehi
 import { DetailsExitMaterials } from "src/exit-materials/entities/details-exit-materials";
 import { AssingMaterialsDetailsProyect } from "src/assing-materials-proyect/entities/assing-materials-details-proyect.entity";
 import { DetailsListMaterials } from "src/list-exit-materials/entities/details-list-material.entity";
+import { AssignmentDetails } from "src/assignment-pe-al-pe/entities/details-assignment-pe-al-pe.entity";
 
 @Entity()
 export class Material {
@@ -32,6 +33,7 @@ export class Material {
     @Column({default:false, nullable: false })
     available: boolean;
   
+    // @Column('decimal', { precision: 10, scale: 2, default:0,nullable: false })
     @Column('float',{default:0,nullable: false })
     total: number;
 
@@ -56,6 +58,11 @@ export class Material {
     @OneToMany(() => AssignmentDetailsMaterialsVehicle,
     materialAssignment => materialAssignment.material)     
   materialAssignments: AssignmentDetailsMaterialsVehicle[];
+
+  //pe al pe
+    @OneToMany(() => AssignmentDetails,
+    materialAssignment => materialAssignment.material)     
+  materialAssignment: AssignmentDetails[];
 
     @OneToMany(() => DetailsListMaterials,
     materialList => materialList.material)     

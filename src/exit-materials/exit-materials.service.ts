@@ -24,6 +24,7 @@ import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as currencyFormatter from 'currency-formatter';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { logoBase64 } from 'src/common/helpers/logo-base64';
+import { AssignmentPeAlPe } from 'src/assignment-pe-al-pe/entities/assignment-pe-al-pe.entity';
 
 
 moment.tz.setDefault("America/Bogota");
@@ -39,6 +40,8 @@ export class ExitMaterialsService {
     @InjectRepository(Meter)
     private readonly meterRepository: Repository<Meter>,
     @InjectRepository(Contract)
+    private readonly assignmentPeAlPeRepository: Repository<AssignmentPeAlPe>,
+    @InjectRepository(AssignmentPeAlPe)
     private readonly contarctRepository: Repository<Contract>,
     @InjectRepository(ExitMaterial)
     private readonly exitMaterialsRepository: Repository<ExitMaterial>,
@@ -200,7 +203,7 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
  
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
 
     let exitMaterialQuery = this.exitMaterialsRepository
       .createQueryBuilder('exitMaterial')
@@ -226,8 +229,8 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     );
 
     const exitMaterial = await exitMaterialQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
 
     return exitMaterial;
@@ -359,6 +362,8 @@ updateExitMaterialsDto.details.forEach((detail, index) => {
       // Actualiza la cantidad de herramientas en el inventario
      await this.retunMaterialsAndMeters(details, ware);
 
+     // Actualizar las asignaciones "PE al PE"
+await this.updatePEtoPEAssignments(collaboratorId, ware, details)
 
 
 // Guardar la salida actualizada
@@ -495,6 +500,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
   return pdfBuffer;
 }
 
+
   async remove(id: string, user: User) {
 
     const exitMaterials =  await this.exitMaterialsRepository.findOneBy({ id: id });
@@ -573,6 +579,12 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
               `Material con ID ${materialId} no encontrada en la bodega asignada`,
             );
           }
+
+          // Verificar si el material es el que se desea omitir
+        if (material.code === '10006401') {
+          // Si es el material a omitir, no hacer nada
+          continue;
+        }
 
           // Verificar si la cantidad asignada es mayor que la cantidad disponible
           if (assignedQuantity > material.quantity) {
@@ -662,6 +674,46 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       this.handleDBExceptions(error);
     }
   }
+
+  async updatePEtoPEAssignments(collaboratorId: string, warehouseId:string, details: UpdateDetailExitMaterialsDto[]): Promise<void> {
+    try {
+      for (const detail of details) {
+        const materialId = detail.materialId;
+        const assignedQuantity = detail.assignedQuantity;
+  
+        const assignment = await this.assignmentPeAlPeRepository.findOne({
+          where: {
+            collaborator: { id: collaboratorId },
+            warehouse:{ id: warehouseId },
+            details: { material: { id: materialId } }
+          },
+          relations: ['details']
+        });
+  
+        if (assignment) {
+          for (const assignmentDetail of assignment.details) {
+            const updatedUsedQuantity = assignmentDetail.used - assignedQuantity;
+  
+            if (updatedUsedQuantity < 0) {
+              throw new Error('La cantidad a restar es mayor que la cantidad utilizada en la asignación "PE al PE".');
+            }
+  
+            assignmentDetail.used = updatedUsedQuantity;
+            assignment.updatedAt = new Date();
+          }
+  
+          await this.assignmentPeAlPeRepository.save(assignment);
+        } else {
+          throw new NotFoundException('Asignación de material "PE al PE" no encontrada para el colaborador y material especificados.');
+        }
+      }
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
+  
+ 
+  
 
   private handleDBExceptions(error: any) {
 

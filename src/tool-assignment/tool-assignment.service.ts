@@ -125,7 +125,7 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let toolAssignmentQuery = this.toolAssignmentRepository.createQueryBuilder('tool-assignment')
       .leftJoinAndSelect('tool-assignment.collaborator', 'collaborator')
@@ -145,8 +145,8 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
       toolAssignmentQuery = toolAssignmentQuery.andWhere('tool-assignment.deletedAt IS NULL');
   
     const toolassignment = await toolAssignmentQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return  toolassignment

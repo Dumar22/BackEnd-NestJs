@@ -55,7 +55,7 @@ export class ProyectsService {
   }
 
   async findAll(paginationDto: PaginationDto, user: User) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    // const { limit = 10, offset = 0 } = paginationDto;
   
     let proyectsQuery = this.proyectsRepository.createQueryBuilder('proyect')
       .leftJoinAndSelect('proyect.user', 'user')
@@ -71,8 +71,8 @@ export class ProyectsService {
       proyectsQuery = proyectsQuery.andWhere('proyect.deletedAt IS NULL');
   
     const proyects = await proyectsQuery
-      .skip(offset)
-      .take(limit)
+      // .skip(offset)
+      // .take(limit)
       .getMany();
   
     return proyects
