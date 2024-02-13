@@ -18,9 +18,9 @@ export class UpdateCollaboratorDto extends PartialType(CreateCollaboratorDto) {
   @MinLength(2)
   operation:string;
 
-  @IsNumber()
-  @IsPositive()
-  document:number;
+  @IsString()
+  @MinLength(6)
+  document:string;
 
   @IsString()
   @MinLength(6)

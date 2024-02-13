@@ -24,8 +24,8 @@ export class Collaborator {
     @Column({nullable: false })
     operation: string;
 
-    @Column('int',{ default:0, nullable: false, unique: true })
-    document: number;
+    @Column({ nullable: false, unique: true })
+    document: string;
 
     @Column({ nullable: false })
     phone: string;
