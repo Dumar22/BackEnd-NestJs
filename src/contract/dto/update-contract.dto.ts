@@ -15,6 +15,7 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
     name:string
 
     @IsString()
+    @IsOptional()
     ot:string
 
     @IsString()
@@ -40,8 +41,16 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
     @Type(() => Date)
     date: Date;
 
+    @IsDate()
+    @Type(() => Date)
+    dateFinalization: Date;
+
 
     @IsString()
     @IsOptional()
     observation?:string
+
+    @IsOptional()
+    @IsString()
+    status: string;
 }

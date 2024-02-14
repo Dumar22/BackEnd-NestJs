@@ -12,6 +12,7 @@ export class CreateContractDto {
     name:string
 
     @IsString()
+    @IsOptional()
     ot:string
 
     @IsString()
@@ -36,6 +37,8 @@ export class CreateContractDto {
     @IsDate()
     @Type(() => Date)
     date: Date;
+
+    
 
     @IsOptional()
     @IsString()
