@@ -18,7 +18,7 @@ export class Contract {
     @Column({nullable: false })
     name: string;
   
-    @Column({nullable: false })
+    @Column({nullable: true })
     ot: string;
   
     @Column({nullable: false })
@@ -26,6 +26,9 @@ export class Contract {
 
     @Column({nullable: false })
     request: string;
+
+    @Column({nullable: false })
+    status: string;
 
     @Column({nullable: false })
     municipality: string;
@@ -38,6 +41,10 @@ export class Contract {
 
     @Column({nullable: false })
     date: Date;
+
+    @Column({nullable: true })
+    dateFinalization: Date;
+
     // @Column({default:false, nullable: false })
     // available: boolean;
       

@@ -37,6 +37,10 @@ export class CreateContractDto {
     @Type(() => Date)
     date: Date;
 
+    @IsOptional()
+    @IsString()
+    status: string;
+
 
 
 //     @IsNotEmpty()

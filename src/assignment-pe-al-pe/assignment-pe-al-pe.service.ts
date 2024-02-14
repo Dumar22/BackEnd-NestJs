@@ -182,7 +182,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       margin: [40, 20],
     },
     content: [
-      { text: 'ASIGNACION MATERIALES A VEHICULOS', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
+      { text: 'ASIGNACION PE AL PE', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
       {
         columns: [
           // Datos a la izquierda
