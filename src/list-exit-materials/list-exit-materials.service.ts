@@ -164,7 +164,7 @@ export class ListExitMaterialsService {
   // await this.detailsMaterialsRepository.delete({ id: listId });
 
   // Ahora puedes eliminar la lista de materiales de salida
-  await this.listExitMaterialRepository.remove(listMaterials);
+  await this.listExitMaterialRepository.delete({id});
     
     return {message:'Material eliminado.'}
   
