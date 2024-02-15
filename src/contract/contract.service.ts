@@ -66,8 +66,8 @@ export class ContractService {
   
       for (const contract of contracts) {
         const existingContract = await this.contractsRepository.createQueryBuilder()
-        .where('ot = :ot AND warehouseId = :warehouseId', {  
-          ot: contract.ot,
+        .where('contract = :contract AND warehouseId = :warehouseId', {  
+          contract: contract.contract,
           warehouseId: user.warehouses[0].id  
         })
     .getOne();
@@ -76,6 +76,7 @@ export class ContractService {
       failedContracts.push({ 
         contract, 
         reason: `El Contrato con órden de trabajo ${contract.ot} ya existe en la bodega ${user.warehouses[0].name}.` 
+        
       });    
     } else {    
       // Guardar el Contarto solo si no existe
@@ -130,13 +131,13 @@ export class ContractService {
      }else{      
       const queryBuilder = this.contractsRepository.createQueryBuilder();
       contract = await queryBuilder
-       .where('UPPER(name) =:name or ot =:ot',{
+       .where('UPPER(name) =:name or contract =:contract',{
         name: term.toUpperCase(),
-        ot: term,
+        contract: term,
        }).getOne();
     }    
     if (!contract)
-      throw new NotFoundException(`Medidor no fue encontrado.`);
+      throw new NotFoundException(`Contarto no encontrado.`);
 
       return contract;
   }  
@@ -163,16 +164,16 @@ export class ContractService {
     });
       
     const existingContract = await this.contractsRepository.createQueryBuilder('contract')
-    .where('(LOWER(contract.contract) = LOWER(:contract) OR contract.ot = :ot) AND contract.warehouseId = :warehouseId', {
+    .where('(LOWER(contract.contract) = LOWER(:contract) OR contract.request = :request) AND contract.warehouseId = :warehouseId', {
       contract: updateContractDto.contract,
-      ot: updateContractDto.ot,
+      request: updateContractDto.request,
       warehouseId: user.warehouses[0].id,
     })
     .andWhere('contract.id != :contractId', { contractId: id })
     .getOne();
 
-  if (existingContract && (existingContract.contract !== contract.contract || existingContract.ot !== contract.ot)) {
-    throw new BadRequestException(`El contrato con orden de trabajo ${updateContractDto.ot} ya existe en la bodega ${user.warehouses[0].name}.`);
+  if (existingContract && (existingContract.contract !== contract.contract || existingContract.request !== contract.request)) {
+    throw new BadRequestException(`El contrato con solicitud de trabajo ${updateContractDto.request} ya existe en la bodega ${user.warehouses[0].name}.`);
   }   
         try {
           await this.contractsRepository.save(contract);

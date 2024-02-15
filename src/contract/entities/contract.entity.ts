@@ -63,7 +63,8 @@ export class Contract {
      {eager: true})
     user: User
 
-    @ManyToOne(() => Warehouse, warehouse => warehouse.contracts)
+    @ManyToOne(() => Warehouse,
+     warehouse => warehouse.contracts)
     warehouse: Warehouse;
 
     @OneToMany(() => ExitMaterial, 
@@ -76,7 +77,6 @@ export class Contract {
 
    @Column({ nullable: true })
    deletedAt: Date;
-
    
     @BeforeInsert()
     insertTotal(){

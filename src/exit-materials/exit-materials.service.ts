@@ -11,11 +11,11 @@ import { UpdateExitMaterialDto } from './dto/update-exit-material.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
+import { Contract } from 'src/contract/entities/contract.entity';
 import { Repository } from 'typeorm';
 import { Material } from 'src/materials/entities/material.entity';
 import { Meter } from 'src/meters/entities/meter.entity';
 import { DetailsExitMaterials, ExitMaterial } from './entities';
-import { Contract } from 'src/contract/entities/contract.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { CreateDetailExitMaterialsDto } from './dto/create-details-exit-materials.dto';
 import { UpdateDetailExitMaterialsDto } from './dto/update-details-exit-materials.dto';
@@ -39,10 +39,10 @@ export class ExitMaterialsService {
     private readonly materialRepository: Repository<Material>,
     @InjectRepository(Meter)
     private readonly meterRepository: Repository<Meter>,
-    @InjectRepository(Contract)
-    private readonly assignmentPeAlPeRepository: Repository<AssignmentPeAlPe>,
     @InjectRepository(AssignmentPeAlPe)
-    private readonly contarctRepository: Repository<Contract>,
+    private readonly assignmentPeAlPeRepository: Repository<AssignmentPeAlPe>,
+    @InjectRepository(Contract)
+    private readonly contractRepository: Repository<Contract>,
     @InjectRepository(ExitMaterial)
     private readonly exitMaterialsRepository: Repository<ExitMaterial>,
     @InjectRepository(DetailsExitMaterials)
@@ -54,11 +54,8 @@ export class ExitMaterialsService {
     details: CreateDetailExitMaterialsDto[],
     user: User,
   ) {
-    //console.log(details);
-    
+   
     const { collaboratorId, contractId, ...rest } = createexitMaterialsDto;
-
-
 
     // Obtener el número de salida para el usuario actual
   const lastExitNumber = await this.getLastExitNumberForUser(user.id);
@@ -112,12 +109,15 @@ export class ExitMaterialsService {
       throw new NotFoundException('Colaborador no encontrado');
     }
     // Buscar el contrato en la base de datos
-    const contract = await this.contarctRepository.findOne({
-      where: { id: contractId },
+    const exisContract = await this.contractRepository.findOne({
+      where: {id: contractId},
       relations: ['warehouse'],
     });
 
-    if (!contract) {
+    console.log(exisContract);
+    
+
+    if (!exisContract) {
       throw new NotFoundException('Contrato no encontrado');
     }
 
@@ -135,7 +135,7 @@ export class ExitMaterialsService {
         user,
         ExitNumber: lastExitNumber + 1,
         collaborator,
-        contract,
+        contract: exisContract,
         details,
         warehouse: user.warehouses[0],
       });
@@ -335,7 +335,7 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
       throw new NotFoundException('Colaborador no encontrado');
     }
     // Buscar el contrato en la base de datos
-    const contract = await this.contarctRepository.findOne({
+    const contract = await this.contractRepository.findOne({
       where: { id: contractId },
       relations: ['warehouse'],
     });
@@ -589,7 +589,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
           // Verificar si la cantidad asignada es mayor que la cantidad disponible
           if (assignedQuantity > material.quantity) {
             throw new Error(
-              `La cantidad asignada del material con ID ${materialId} es mayor que la cantidad disponible`,
+              `La cantidad asignada del material con ID ${material.name} es mayor que la cantidad disponible`,
             );
           }
 

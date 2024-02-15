@@ -1,7 +1,4 @@
 import * as moment from 'moment-timezone';
-import { User } from 'src/auth/entities/user.entity';
-import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
-import { Warehouse } from 'src/warehouses/entities/warehouse.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -13,6 +10,9 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
 } from 'typeorm';
+import { User } from 'src/auth/entities/user.entity';
+import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
+import { Warehouse } from 'src/warehouses/entities/warehouse.entity';
 import { Contract } from 'src/contract/entities/contract.entity';
 import { DetailsExitMaterials } from './details-exit-materials';
 
