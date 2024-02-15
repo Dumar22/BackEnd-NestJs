@@ -156,15 +156,15 @@ export class ListExitMaterialsService {
 
     const listMaterials = await this.listExitMaterialRepository.findOneBy({id: id});
 
-    if (!listMaterials) {
+    if (listMaterials) {
+      listMaterials.deletedBy = user.id;
+      listMaterials.deletedAt = new Date();  
+      await this.listExitMaterialRepository.save(listMaterials);
+    }else{
       throw new NotFoundException(`La lista de materiales de salida no fue encontrada.`);
   }
 
-  // / Elimina todas las filas en details_list_materials que hacen referencia a la lista que vas a eliminar
-  // await this.detailsMaterialsRepository.delete({ id: listId });
-
-  // Ahora puedes eliminar la lista de materiales de salida
-  await this.listExitMaterialRepository.delete({id});
+  // await this.listExitMaterialRepository.delete({id});
     
     return {message:'Material eliminado.'}
   
