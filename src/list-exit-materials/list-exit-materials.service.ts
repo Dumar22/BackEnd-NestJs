@@ -158,6 +158,7 @@ export class ListExitMaterialsService {
 
     if (listMaterials) {
       listMaterials.deletedBy = user.id;
+      listMaterials.nameList = new Date().toString();
       listMaterials.deletedAt = new Date();  
       await this.listExitMaterialRepository.save(listMaterials);
     }else{

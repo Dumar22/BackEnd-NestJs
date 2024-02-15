@@ -507,6 +507,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
 
     
     if (exitMaterials) {
+      
       exitMaterials.deletedBy = user.id;
       exitMaterials.deletedAt = new Date();  
       await this.exitMaterialsRepository.save(exitMaterials);
