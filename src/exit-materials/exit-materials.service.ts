@@ -705,7 +705,8 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
   
           await this.assignmentPeAlPeRepository.save(assignment);
         } else {
-          throw new NotFoundException('Asignación de material "PE al PE" no encontrada para el colaborador y material especificados.');
+          continue;
+         // throw new NotFoundException('Asignación de material "PE al PE" no encontrada para el colaborador y material especificados.');
         }
       }
     } catch (error) {

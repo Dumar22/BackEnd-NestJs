@@ -36,7 +36,7 @@ export class Contract {
     @Column({nullable: false })
     neighborhood: string;
 
-    @Column({ nullable: false })
+    @Column({ nullable: true })
     phone: string;
 
     @Column({nullable: false })
