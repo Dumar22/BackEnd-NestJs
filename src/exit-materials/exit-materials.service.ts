@@ -657,11 +657,11 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
           
         } else {
           // Verificar si la herramienta pertenece a la bodega del colaborador
-          // if (material.warehouse.id !== warehouseId) {
-          //   throw new Error(
-          //     `Material con ID ${materialId} no encontrada en la bodega asignada`,
-          //   );
-          continue;
+          if (material.warehouse.id !== warehouseId) {
+            continue;
+            // throw new Error(
+            //   `Material con ID ${materialId} no encontrada en la bodega asignada`,
+            // );
             }
 
           // Actualizar la cantidad de la herramienta en el inventario
