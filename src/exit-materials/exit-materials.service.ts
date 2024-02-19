@@ -576,9 +576,10 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
         } else {
           // Verificar si la herramienta pertenece a la bodega del colaborador
           if (material.warehouse.id !== warehouseId) {
-            throw new Error(
-              `Material con ID ${materialId} no encontrada en la bodega asignada`,
-            );
+            continue;
+            // throw new Error(
+            //   `Material con ID ${materialId} no encontrada en la bodega asignada`,
+            // );
           }
 
           // Verificar si el material es el que se desea omitir
