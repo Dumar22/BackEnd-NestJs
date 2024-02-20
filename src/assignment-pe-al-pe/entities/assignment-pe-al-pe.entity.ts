@@ -52,7 +52,8 @@ export class AssignmentPeAlPe {
    @OneToMany(
     () => AssignmentDetails,
     details => details.assignmentDetails,
-    {eager: true})
+    {eager:true}
+    )
    details: AssignmentDetails[];
 
    

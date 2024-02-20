@@ -41,7 +41,7 @@ import { AssignmentPeAlPeModule } from './assignment-pe-al-pe/assignment-pe-al-p
       database: process.env.DB_DATABASE,
       //timezone: 'Z',
       autoLoadEntities: true,
-      synchronize:true, // use synchronize for development
+      synchronize:false, // use synchronize for development
     }),
     MaterialsModule,
     CommonModule,

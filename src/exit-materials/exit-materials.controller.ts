@@ -48,7 +48,7 @@ export class ExitMaterialsController {
     
           res.end(buffer);
         } catch (error) {
-          // console.log(error);
+           console.log(error);
           
           if (error instanceof NotFoundException) {
             res.status(404).json({ message: error.message });

@@ -26,6 +26,9 @@ export class UpdateDetailExitMaterialsDto  extends PartialType(CreateDetailExitM
     @IsNumber()
     @IsPositive()
     restore: number;
+
+    @IsNumber()
+    used?: number;
       
     @IsString()
     @IsOptional()

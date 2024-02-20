@@ -25,6 +25,7 @@ import * as currencyFormatter from 'currency-formatter';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { logoBase64 } from 'src/common/helpers/logo-base64';
 import { AssignmentPeAlPe } from 'src/assignment-pe-al-pe/entities/assignment-pe-al-pe.entity';
+import { AssignmentDetails } from 'src/assignment-pe-al-pe/entities/details-assignment-pe-al-pe.entity';
 
 
 moment.tz.setDefault("America/Bogota");
@@ -41,6 +42,8 @@ export class ExitMaterialsService {
     private readonly meterRepository: Repository<Meter>,
     @InjectRepository(AssignmentPeAlPe)
     private readonly assignmentPeAlPeRepository: Repository<AssignmentPeAlPe>,
+    @InjectRepository(AssignmentDetails)
+    private readonly assignmentdetailsPeAlPeRepository: Repository<AssignmentDetails>,
     @InjectRepository(Contract)
     private readonly contractRepository: Repository<Contract>,
     @InjectRepository(ExitMaterial)
@@ -112,19 +115,13 @@ export class ExitMaterialsService {
     const exisContract = await this.contractRepository.findOne({
       where: {id: contractId},
       relations: ['warehouse'],
-    });
-
-    console.log(exisContract);
-    
+    });    
 
     if (!exisContract) {
-      throw new NotFoundException('Contrato no encontrado');
-    }
+      throw new NotFoundException('Contrato no encontrado');    }
 
 
     const ware = collaborator.warehouse.id;
-
-
 
     try {
 
@@ -387,6 +384,7 @@ return { message: 'Salida actualizada correctamente.', updatedExitMaterial, upda
 
 async generarPDF(id: string, user: User): Promise<Buffer> {
   const exitData = await this.exitMaterialsRepository.findOneBy({id: id}); 
+    
   
   if (!exitData) {
     throw new NotFoundException('Salida de materiales no encontrada');
@@ -399,8 +397,13 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
   const totalFormatted = currencyFormatter.format(totalMat, { code: 'COP' });
 
   exitData.details.forEach((detail) => {
-    detail.material.price = currencyFormatter.format(detail.material.price, { code: 'USD' }); // Cambia 'USD' según tu moneda
-    detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
+    if (detail.material) {
+      detail.material.price = currencyFormatter.format(detail.material.price, { code: 'USD' }); // Formatear el precio del material
+      detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Formatear el total
+    } else if (detail.meter) {
+      detail.meter.price = currencyFormatter.format(detail.meter.price, { code: 'USD' }); // Formatear el precio del medidor
+      detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Formatear el total
+    }
   });
 
   const pdfDefinition = {
@@ -449,18 +452,14 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
             ],
             // Agrega filas con los detalles del traslado
             ...exitData.details.map((detail) => [
-              {text: detail.material?.code ? detail.material.code : detail.meter.code, alignment: 'center', fontSize: 8},
-               {text: detail.material?.name ? detail.material.name : detail.meter.name,  // Usar medidor.name si material.name es null
-               alignment: 'center',
-               fontSize: 8,}, 
-               {text: detail.material?.unity ? detail.material.unity : detail.meter.unity,  // Usar medidor.name si material.name es null
-               alignment: 'center',
-               fontSize: 8,}, 
-               { text: detail.meter?.serial ? detail.meter.serial : '', alignment: 'center', fontSize: 8},
-              {text: detail.assignedQuantity, alignment: 'center', fontSize: 9},
+              { text: detail.material?.code || detail.meter?.code || '', alignment: 'center', fontSize: 8 },
+              { text: detail.material?.name || detail.meter?.name || '', alignment: 'center', fontSize: 8 },
+              { text: detail.material?.unity || detail.meter?.unity || '', alignment: 'center', fontSize: 8 },
+              { text: detail.meter?.serial || '', alignment: 'center', fontSize: 8 },
+              { text: detail.assignedQuantity, alignment: 'center', fontSize: 9 },
               { text: ' ', alignment: 'center', fontSize: 9 }, // Centrar la cantidad
-              {text: detail.used, alignment: 'center', fontSize: 9},
-              {text: detail.total, alignment: 'center', fontSize: 9}
+              { text: detail.used, alignment: 'center', fontSize: 9 },
+              { text: detail.total, alignment: 'center', fontSize: 9 }
             ]),
             ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
           ],
@@ -576,10 +575,10 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
         } else {
           // Verificar si la herramienta pertenece a la bodega del colaborador
           if (material.warehouse.id !== warehouseId) {
-            continue;
-            // throw new Error(
-            //   `Material con ID ${materialId} no encontrada en la bodega asignada`,
-            // );
+            //continue;
+            throw new Error(
+              `Material con ID ${materialId} no encontrada en la bodega asignada`,
+            );
           }
 
           // Verificar si el material es el que se desea omitir
@@ -678,45 +677,111 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
     }
   }
 
-  async updatePEtoPEAssignments(collaboratorId: string, warehouseId:string, details: UpdateDetailExitMaterialsDto[]): Promise<void> {
-    try {
+//   async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, details: any[]): Promise<void> {
+//     try {
+//         for (const detail of details) {
+//             if (detail.material.code === '10006401') {
+//                 const materialId = detail.materialId;
+//                 const assignedQuantity = detail.assignedQuantity;
+
+//                 const assignment = await this.assignmentPeAlPeRepository.findOne({
+//                     where: {
+//                         collaborator: { id: collaboratorId },
+//                         warehouse: { id: warehouseId },
+//                         details: { material: { id: materialId } }
+//                     },
+//                     relations: ['details']
+//                 });
+
+//                 if (!assignment) {
+//                     throw new NotFoundException('Asignación de material "PE al PE" no encontrada para el colaborador y material especificados.');
+//                 }
+
+//                 for (const assignmentDetail of assignment.details) {
+//                     console.log(assignmentDetail.material.id);
+//                     console.log(assignmentDetail.assignedQuantity);                   
+
+//                     const updatedUsedQuantity = assignmentDetail.used + assignedQuantity;
+                    
+//                     if (updatedUsedQuantity > assignmentDetail.assignedQuantity) {
+//                       throw new Error('La cantidad es mayor que la cantidad utilizada en la asignación "PE al PE".');
+//                   }
+
+//                     assignmentDetail.used = updatedUsedQuantity;
+//                 }
+
+              
+//                 await this.assignmentPeAlPeRepository.save(assignment);
+//                 await this.assignmentdetailsPeAlPeRepository.save(assignment.details)
+//             }
+//         }
+//     } catch (error) {
+//         this.handleDBExceptions(error);
+//     }
+// }
+
+async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, details: any[]): Promise<void> {
+  try {
       for (const detail of details) {
-        const materialId = detail.materialId;
-        const assignedQuantity = detail.assignedQuantity;
-  
-        const assignment = await this.assignmentPeAlPeRepository.findOne({
-          where: {
-            collaborator: { id: collaboratorId },
-            warehouse:{ id: warehouseId },
-            details: { material: { id: materialId } }
-          },
-          relations: ['details']
-        });
-  
-        if (assignment) {
-          for (const assignmentDetail of assignment.details) {
-            const updatedUsedQuantity = assignmentDetail.used - assignedQuantity;
-  
-            if (updatedUsedQuantity < 0) {
-              throw new Error('La cantidad a restar es mayor que la cantidad utilizada en la asignación "PE al PE".');
-            }
-  
-            assignmentDetail.used = updatedUsedQuantity;
-            assignment.updatedAt = new Date();
+          if (detail.material.code === '10006401') { // Verificar si es material "PE al PE"
+              const materialId = detail.materialId;
+              const assignedQuantity = detail.assignedQuantity;
+
+              let remainingQuantity = assignedQuantity; // Cantidad restante por asignar
+
+              // Buscar las asignaciones existentes del colaborador por fecha
+              const assignments = await this.assignmentPeAlPeRepository.find({
+                  where: {
+                      collaborator: { id: collaboratorId },
+                      warehouse: { id: warehouseId },
+                  },
+                  relations: ['details'],
+                  order: { createdAt: 'ASC' }, // Ordenar por fecha de creación ascendente
+              });
+
+              for (const assignment of assignments) {
+                  for (const assignmentDetail of assignment.details) {
+                      const availableQuantity = assignmentDetail.assignedQuantity - assignmentDetail.used;
+
+                      if (availableQuantity >= remainingQuantity) {
+                          // Si la asignación actual tiene suficiente cantidad disponible
+                          assignmentDetail.used += remainingQuantity;
+                          remainingQuantity = 0; // Se asigna toda la cantidad restante
+                          break; // Salir del bucle interno
+                      } else {
+                          // Si la asignación actual no tiene suficiente cantidad disponible
+                          assignmentDetail.used = assignmentDetail.assignedQuantity; // Asignar toda la cantidad disponible
+                          remainingQuantity -= availableQuantity; // Actualizar la cantidad restante
+                      }
+                  }
+
+                  if (remainingQuantity === 0) {
+                      break; // Salir del bucle externo si se ha asignado toda la cantidad
+                  }
+              }
+
+              if (remainingQuantity > 0) {
+                  throw new Error('No hay suficiente cantidad disponible en las asignaciones para cubrir la nueva asignación.');
+              }
+
+              // Guardar los cambios en las asignaciones
+              await Promise.all(assignments.map(async (assignment) => {
+                  await this.assignmentPeAlPeRepository.save(assignment);
+                  await this.assignmentdetailsPeAlPeRepository.save(assignment.details)
+              })
+              )
           }
-  
-          await this.assignmentPeAlPeRepository.save(assignment);
-        } else {
-          continue;
-         // throw new NotFoundException('Asignación de material "PE al PE" no encontrada para el colaborador y material especificados.');
-        }
       }
-    } catch (error) {
+  } catch (error) {
       this.handleDBExceptions(error);
-    }
   }
+}
+
+
+
+
+
   
- 
   
 
   private handleDBExceptions(error: any) {
