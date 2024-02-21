@@ -16,6 +16,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('register')
+  @Auth(ValidRols.admin || ValidRols.superUser)
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
@@ -62,7 +63,7 @@ export class UsersController {
     }
   }
   @Get('private3') 
-  @Auth()
+  @Auth(ValidRols.admin || ValidRols.superUser)
   privateRoute3( 
     //@Req() request: Express.Request
     @GetUser() user: User,
@@ -88,6 +89,7 @@ export class UsersController {
   }
 
   @Get()
+  @Auth(ValidRols.admin || ValidRols.superUser)
   findAll() {
     return this.usersService.findAll();
   }
