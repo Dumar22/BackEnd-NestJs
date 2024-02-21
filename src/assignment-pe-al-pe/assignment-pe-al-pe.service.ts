@@ -187,10 +187,10 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
         columns: [
           // Datos a la izquierda
           [
-            { text: 'Fecha de salida: ' + formattedDate, fontSize: 10 },
-            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 10 },
-            { text: 'cargo: ' + exitData.collaborator.operation, fontSize: 10, },
-            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 10, margin: [0, 0, 0, 20] },
+            { text: 'Fecha de salida: ' + formattedDate, fontSize: 9 },
+            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 9 },
+            { text: 'cargo: ' + exitData.collaborator.operation, fontSize: 9, },
+            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 9, margin: [0, 0, 0, 20] },
           ],
          
         ],
@@ -199,26 +199,23 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       {
         table: {
           headerRows: 1,
-          widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Código', style: 'tableHeader' },
               { text: 'Material', style: 'tableHeader' },
               { text: 'Unidad', style: 'tableHeader' },
               { text: 'Cantidad Asignada', style: 'tableHeader' },
-              { text: 'Precio', style: 'tableHeader' },
-              { text: 'Total', style: 'tableHeader' },
             ],
             // Agrega filas con los detalles del traslado
             ...exitData.details.map((detail) => [
-              {text: detail.material.code, alignment: 'center', fontSize: 8},
-               {text: detail.material.name, alignment: 'center', fontSize: 8}, 
-              {text: detail.material.unity, alignment: 'center', fontSize: 8},
-              { text: detail.assignedQuantity, alignment: 'center',fontSize: 9 }, // Centrar la cantidad
-              {text: detail.material.price, alignment: 'center', fontSize: 9},
-              {text: detail.total, alignment: 'center', fontSize: 9}
+              {text: detail.material.code, alignment: 'center', fontSize: 6},
+               {text: detail.material.name, alignment: 'center', fontSize: 6}, 
+              {text: detail.material.unity, alignment: 'center', fontSize: 6},
+              { text: detail.assignedQuantity, alignment: 'center',fontSize: 6 }, // Centrar la cantidad
+              
             ]),
-            ['', '','', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+            // ['', '','',  { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
           ],
           layout: {
             defaultBorder: false, // Deshabilita los bordes por defecto
@@ -231,12 +228,18 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
           margin: [0, 10], // Establece el margen de la tabla
         },
       },
-      { text: 'Observaciones: ' + exitData.observation, fontSize: 10, margin: [0, 20] },
+      { text: 'Observaciones: ' + exitData.observation, fontSize: 9, margin: [0, 20] },
+      {
+        columns: [
+          { text: 'Firma Jefe de Bodega:__________________________', alignment: 'left' ,fontSize: 8, margin: [0, 40] },
+          { text: 'Firma del Responsable: _________________________', fontSize: 8, margin: [0, 40] },
+        ],
+      },
     ],
     styles :{
       tableHeader: {
         bold: true,
-        fontSize: 10,
+        fontSize: 8,
         fillColor: '#F5F5F5',
         alignment: 'center',
       },

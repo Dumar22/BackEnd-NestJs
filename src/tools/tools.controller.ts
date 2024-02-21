@@ -6,6 +6,7 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ValidRols } from 'src/auth/interfaces/valid-rols';
 
 @Controller('tools')
 export class ToolsController {
@@ -54,7 +55,7 @@ export class ToolsController {
   }
 
   @Patch(':id')
-  @Auth()
+  @Auth(ValidRols.admin || ValidRols.superUser)
   update(@Param('id', ParseUUIDPipe) id: string, @Body() updateToolDto: UpdateToolDto,
   @GetUser() user: User,
   ) {

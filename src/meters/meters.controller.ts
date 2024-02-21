@@ -6,6 +6,7 @@ import { User } from 'src/auth/entities/user.entity';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ValidRols } from 'src/auth/interfaces/valid-rols';
 
 @Controller('meters')
 export class MetersController {
@@ -47,7 +48,7 @@ export class MetersController {
   }
 
   @Get('search/:term')
-  @Auth()
+  @Auth(ValidRols.admin || ValidRols.superUser)
   searchMeter(@Param('term') term: string,
   @GetUser() user:User
   ) {

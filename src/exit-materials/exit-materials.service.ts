@@ -421,16 +421,17 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
         columns: [
           // Datos a la izquierda
           [
-            { text: 'Fecha de salida: ' + formattedDate, fontSize: 10 },
-            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 10 },
-            { text: 'cargo: ' + exitData.collaborator.operation, fontSize: 10, },
-            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 10, margin: [0, 0, 0, 20] },
+            { text: 'Salida N°: ' + exitData.ExitNumber, fontSize: 9 },
+            { text: 'Fecha de salida: ' + formattedDate, fontSize: 9 },
+            { text: 'Responsable: ' + exitData.collaborator.name, fontSize: 9 },
+            { text: 'cargo: ' + exitData.collaborator.operation, fontSize: 9, },
+            { text: 'Documento: ' + exitData.collaborator.document, fontSize: 9, margin: [0, 0, 0, 20] },
           ],
           [
-            { text: 'Contrato: ' + exitData.contract.contract, fontSize: 10 },
-            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 10 },
-            { text: 'Dirección: ' + exitData.contract.addres, fontSize: 10 },
-            { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 10 },
+            { text: 'Contrato: ' + exitData.contract.contract, fontSize: 9 },
+            { text: 'Solicitud: ' + exitData.contract.request, fontSize: 9 },
+            { text: 'Dirección: ' + exitData.contract.addres, fontSize: 9 },
+            { text: 'Subsicriptor: ' + exitData.contract.name, fontSize: 9 },
           ],
         ],
       },
@@ -438,7 +439,7 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       {
         table: {
           headerRows: 1,
-          widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
             [
               { text: 'Código', style: 'tableHeader' },
@@ -447,21 +448,32 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
               { text: 'Serial', style: 'tableHeader' },
               { text: 'Cantidad Asignada', style: 'tableHeader' },
               { text: 'Devuelve', style: 'tableHeader' },
-              { text: 'Usado', style: 'tableHeader' },
-              { text: 'Total', style: 'tableHeader' },
+              
+              
             ],
             // Agrega filas con los detalles del traslado
             ...exitData.details.map((detail) => [
-              { text: detail.material?.code || detail.meter?.code || '', alignment: 'center', fontSize: 8 },
-              { text: detail.material?.name || detail.meter?.name || '', alignment: 'center', fontSize: 8 },
-              { text: detail.material?.unity || detail.meter?.unity || '', alignment: 'center', fontSize: 8 },
-              { text: detail.meter?.serial || '', alignment: 'center', fontSize: 8 },
-              { text: detail.assignedQuantity, alignment: 'center', fontSize: 9 },
-              { text: ' ', alignment: 'center', fontSize: 9 }, // Centrar la cantidad
-              { text: detail.used, alignment: 'center', fontSize: 9 },
-              { text: detail.total, alignment: 'center', fontSize: 9 }
+              { text: detail.material?.code || detail.meter?.code || '', alignment: 'center', fontSize: 6 },
+              { text: detail.material?.name || detail.meter?.name || '', alignment: 'center', fontSize: 6 },
+              { text: detail.material?.unity || detail.meter?.unity || '', alignment: 'center', fontSize: 6 },
+              { text: detail.meter?.serial || '', alignment: 'center', fontSize: 6 },
+              { text: detail.assignedQuantity, alignment: 'center', fontSize: 6 },
+              { text: ' ', alignment: 'center', fontSize: 6 }, // Centrar la cantidad
+              
+              
             ]),
-            ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            ['', '','', '', '', ''],
+            
+            // ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
           ],
           layout: {
             defaultBorder: false, // Deshabilita los bordes por defecto
@@ -474,12 +486,18 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
           margin: [0, 10], // Establece el margen de la tabla
         },
       },
-      { text: 'Observaciones: ' + exitData.observation, fontSize: 10, margin: [0, 20] },
+      { text: 'Observaciones: ' + exitData.observation, fontSize: 9, margin: [0, 20] },
+      {
+        columns: [
+          { text: 'Firma Jefe de Bodega:__________________________', alignment: 'left' ,fontSize: 8, margin: [0, 40] },
+          { text: 'Firma del Responsable: _________________________', fontSize: 8, margin: [0, 40] },
+        ],
+      },
     ],
     styles :{
       tableHeader: {
         bold: true,
-        fontSize: 10,
+        fontSize: 8,
         fillColor: '#F5F5F5',
         alignment: 'center',
       },
@@ -777,12 +795,6 @@ async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, detai
   }
 }
 
-
-
-
-
-  
-  
 
   private handleDBExceptions(error: any) {
 

@@ -7,6 +7,7 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { CreateDetailExitMaterialsDto } from './dto/create-details-exit-materials.dto';
 import { UpdateDetailExitMaterialsDto } from './dto/update-details-exit-materials.dto';
+import { ValidRols } from 'src/auth/interfaces/valid-rols';
 
 @Controller('exit-materials')
 export class ExitMaterialsController {
@@ -67,7 +68,7 @@ export class ExitMaterialsController {
   }
 
   @Patch(':id')
-  @Auth()
+  @Auth(ValidRols.admin || ValidRols.superUser)
   update(@Param('id') id: string, 
   @Body() updateExitMaterialDto: UpdateExitMaterialDto,
   @Body('details') details: UpdateDetailExitMaterialsDto[],

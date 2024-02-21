@@ -210,10 +210,10 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
           columns: [
             // Datos a la izquierda
             [
-              { text: 'Fecha de la asignación: ' + formattedDate, fontSize: 10 },
-              { text: 'Responsable: ' + entryData.collaborator.name, fontSize: 10 },
-              { text: 'cargo: ' + entryData.collaborator.operation, fontSize: 10, },
-              { text: 'Documento: ' + entryData.collaborator.document, fontSize: 10, margin: [0, 0, 0, 20] },
+              { text: 'Fecha de la asignación: ' + formattedDate, fontSize: 9 },
+              { text: 'Responsable: ' + entryData.collaborator.name, fontSize: 9 },
+              { text: 'cargo: ' + entryData.collaborator.operation, fontSize: 9, },
+              { text: 'Documento: ' + entryData.collaborator.document, fontSize: 9, margin: [0, 0, 0, 20] },
             
             ],
             
@@ -223,28 +223,29 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
         {
           table: {
             headerRows: 1,
-            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+            widths: ['auto', 'auto', 'auto', 'auto', ],
             body: [
               [
                 { text: 'Código', style: 'tableHeader' },
                 { text: 'Herramienta', style: 'tableHeader' },
                 { text: 'Unidad', style: 'tableHeader' },
                 { text: 'Cantidad', style: 'tableHeader' },
-                { text: 'Precio unidad', style: 'tableHeader' },
-                { text: 'Total', style: 'tableHeader' },
+                
+                
               ],
               // Agrega filas con los detalles del traslado
               ...entryData.details.map((detail) => [
-                {text: detail.tool.code, alignment: 'center', fontSize: 8},
-                 {text: detail.tool.name, alignment: 'center', fontSize: 8}, 
-                {text: detail.tool.unity, alignment: 'center', fontSize: 8},
+                {text: detail.tool.code, alignment: 'center', fontSize: 6},
+                 {text: detail.tool.name, alignment: 'center', fontSize: 6}, 
+                {text: detail.tool.unity, alignment: 'center', fontSize: 6},
                 
                 
-                { text: detail.assignedQuantity, alignment: 'center',fontSize: 9 }, // Centrar la cantidad
-                {text: detail.tool.price, alignment: 'center', fontSize: 9},
-                {text: detail.total, alignment: 'center', fontSize: 9}
+                { text: detail.assignedQuantity, alignment: 'center',fontSize: 6 }, // Centrar la cantidad
+               
+                
               ]),
-              ['', '','', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+              ['', '','', ''],
+              // ['', '','', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
             ],
             layout: {
               defaultBorder: false, // Deshabilita los bordes por defecto
@@ -258,11 +259,17 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
           },
         },
         { text: 'Observaciones: ' + entryData.observation, fontSize: 9, margin: [0, 20] },
+        {
+          columns: [
+            { text: 'Firma Jefe de Bodega:__________________________', alignment: 'left' ,fontSize: 8, margin: [0, 40] },
+            { text: 'Firma del Responsable: _________________________', fontSize: 8, margin: [0, 40] },
+          ],
+        },
       ],
       styles :{
         tableHeader: {
           bold: true,
-          fontSize: 10,
+          fontSize: 8,
           fillColor: '#F5F5F5',
           alignment: 'center',
         },
