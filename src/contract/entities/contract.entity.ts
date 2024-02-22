@@ -41,7 +41,7 @@ export class Contract {
     phone: string;
 
  
-    @Column({ type: 'varchar', length: 10, nullable: false })
+    @Column({ length: 10, nullable: false })
     date: string;
 
     @Column({nullable: true })
