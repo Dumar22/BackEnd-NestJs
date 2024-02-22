@@ -75,7 +75,7 @@ export class ContractService {
     if (existingContract) {
       failedContracts.push({ 
         contract, 
-        reason: `El Contrato con órden de trabajo ${contract.ot} ya existe en la bodega ${user.warehouses[0].name}.` 
+        reason: `El Contrato con órden de trabajo ${contract.request} ya existe en la bodega ${user.warehouses[0].name}.` 
         
       });    
     } else {    

@@ -50,7 +50,7 @@ export class UsersController {
 //  @SetMetadata('roles',['admin', 'user'])
 
   @Get('private2') 
-  @RoleProtected( ValidRols.user)
+  @RoleProtected( ValidRols.admin)
   @UseGuards( AuthGuard(), UseRoleGuard )
   privateRoute2( 
     //@Req() request: Express.Request

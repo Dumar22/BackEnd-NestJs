@@ -5,26 +5,26 @@ export class CreateContractDto {
     
     @IsString()
     @MinLength(2)
-    contract:string
+    contract:string;
 
     @IsString()
     @MinLength(2)
-    name:string
+    name:string;
 
     @IsString()
     @IsOptional()
-    ot:string
+    ot:string;
 
     @IsString()
     @MinLength(2)
-    addres:string
+    addres:string;
 
     @IsString()
     @MinLength(2)
-    request:string
+    request:string;
 
     @IsNotEmpty()   
-    phone:string
+    phone:string;
 
     @IsString()
     @MinLength(2)
@@ -37,8 +37,6 @@ export class CreateContractDto {
     @IsDate()
     @Type(() => Date)
     date: Date;
-
-    
 
     @IsOptional()
     @IsString()

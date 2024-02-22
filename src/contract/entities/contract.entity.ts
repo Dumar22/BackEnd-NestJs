@@ -5,6 +5,7 @@ import * as moment from 'moment-timezone';
 import { User } from "src/auth/entities/user.entity";
 import { Warehouse } from "src/warehouses/entities/warehouse.entity";
 import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
+import { Transform } from "class-transformer";
 
 @Entity()
 export class Contract {
@@ -39,7 +40,8 @@ export class Contract {
     @Column({ nullable: true })
     phone: string;
 
-    @Column({nullable: false })
+ 
+    @Column('date',{nullable: false })
     date: Date;
 
     @Column({nullable: true })
