@@ -34,8 +34,8 @@ export class CreateContractDto {
     @MinLength(2)
     neighborhood: string;
 
-    @IsDate()
-    @Type(() => Date)
+    //@IsDate()
+    //@Type(() => Date)
     date: Date;
 
     @IsOptional()
