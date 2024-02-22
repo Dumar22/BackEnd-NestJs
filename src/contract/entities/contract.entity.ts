@@ -42,7 +42,7 @@ export class Contract {
 
  
     @Column({nullable: false })
-    date: string;
+    date: Date;
 
     @Column({nullable: true })
     dateFinalization: Date;

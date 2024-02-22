@@ -37,9 +37,9 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
     @MinLength(2)
     neighborhood: string;
 
-    @IsString()
-    //@Type(() => Date)
-    date: string;
+    @IsDate()
+    @Type(() => Date)
+    date: Date;
 
     @IsDate()
     @Type(() => Date)
