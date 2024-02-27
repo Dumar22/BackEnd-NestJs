@@ -115,7 +115,7 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
   async findOne(id: string,user: User) {
     const toolAssignment = await this.toolAssignmentRepository.findOne({
       where: {id: id},     
-        relations: ['collaborator', 'tool']      
+        relations: ['collaborator', 'details', 'details.tool']      
     });
   
     if (!toolAssignment) {
