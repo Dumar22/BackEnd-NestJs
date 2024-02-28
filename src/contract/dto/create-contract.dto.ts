@@ -15,6 +15,11 @@ export class CreateContractDto {
     @IsOptional()
     ot:string;
 
+
+    @IsOptional()
+    contractNumber?:number;
+
+
     @IsString()
     @MinLength(2)
     addres:string;

@@ -14,6 +14,9 @@ export class UpdateContractDto extends PartialType(CreateContractDto) {
     @MinLength(2)
     name:string
 
+    @IsOptional()
+    contractNumber?:number;
+
     @IsString()
     @IsOptional()
     ot:string

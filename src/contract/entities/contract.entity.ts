@@ -13,6 +13,9 @@ export class Contract {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    @Column('int', { default: 0, nullable: true})
+    contractNumber: number;
+
     @Column({nullable: false })
     contract: string;
 

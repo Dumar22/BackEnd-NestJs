@@ -22,6 +22,9 @@ export class ContractService {
 
   async create(createContractDto: CreateContractDto, user: User) {
 
+     // Obtener el número de salida para la bodega actual
+  const lastExitNumber = await this.getLastExitNumberForUser(user.warehouses[0].id);
+
     const existingContract = await this.contractsRepository.createQueryBuilder('contract')
     .where('contract.contract = :contract AND warehouseId = :warehouseId', { 
       contract: createContractDto.contract, 
@@ -37,6 +40,7 @@ export class ContractService {
 
        const contract = this.contractsRepository.create({
        ...createContractDto,
+       contractNumber: lastExitNumber + 1,
        user, 
        warehouse: user.warehouses[0]
         
@@ -54,7 +58,19 @@ export class ContractService {
 
   }
 
+  private async getLastExitNumberForUser(userId: string): Promise<number> {
+    const lastExit = await this.contractsRepository.findOne({
+      where: { user: { id: userId } },
+      order: { contractNumber: 'DESC' },
+    });
+  
+    return lastExit ? lastExit.contractNumber : 0;
+  }
+
   async createxls(fileBuffer: Buffer, createContractDto: CreateContractDto, user: User) {
+
+     // Obtener el número de salida para la bodega actual
+  const lastExitNumber = await this.getLastExitNumberForUser(user.warehouses[0].id);
     try {
       // Lógica para procesar el archivo Excel y obtener la lista de materiales
       const contracts = await this.fileUploadService.processExcel(fileBuffer, this.contractsRepository, (entry: CreateContractDto) => {
