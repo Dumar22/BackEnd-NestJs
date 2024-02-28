@@ -12,6 +12,9 @@ export class ToolAssignment {
   @PrimaryGeneratedColumn('uuid')
   id: string; 
 
+  @Column('int', { default: 0, nullable: true })
+  assignmentNumber: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   assignedAt: Date;
 

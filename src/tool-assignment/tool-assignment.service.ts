@@ -40,7 +40,8 @@ export class ToolAssignmentService {
   
     const { collaboratorId, ...rest } = createToolAssignmentDTO;   
     
-    //console.log(createToolAssignmentDTO);
+     // Obtener el número de salida para el usuario actual
+  const lastAssignmentNumber = await this.getLastAssignmentNumberForUser(user.id);
     
     // Buscar el colaborador en la base de datos
     const collaborator = await this.collaboratorRepository.findOne({
@@ -59,6 +60,7 @@ export class ToolAssignmentService {
  const newToollAssignment = await this.toolAssignmentRepository.create({
   ...rest,
   user,
+  assignmentNumber: lastAssignmentNumber + 1,
   collaborator,
    details,
   warehouse: user.warehouses[0]
@@ -123,6 +125,18 @@ await this.toolAssignmentDetailsRepository.save(detailAssignments);
     }  
     return toolAssignment;
   }
+
+
+
+  // Método para obtener el último número de salida para el usuario
+private async getLastAssignmentNumberForUser(userId: string): Promise<number> {
+  const lastExit = await this.toolAssignmentRepository.findOne({
+    where: { user: { id: userId } },
+    order: { assignmentNumber: 'DESC' },
+  });
+
+  return lastExit ? lastExit.assignmentNumber : 0;
+}
 
   async findAll(paginationDto: PaginationDto, user: User) {
     // const { limit = 10, offset = 0 } = paginationDto;
