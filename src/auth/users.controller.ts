@@ -63,7 +63,7 @@ export class UsersController {
     }
   }
   @Get('private3') 
-  @Auth(ValidRols.admin, ValidRols.superUser)
+  @Auth()
   privateRoute3( 
     //@Req() request: Express.Request
     @GetUser() user: User,
