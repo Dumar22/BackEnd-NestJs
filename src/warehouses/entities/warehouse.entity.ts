@@ -14,8 +14,8 @@ import { ToolAssignment } from "../../tool-assignment/entities/tool-assignment.e
 import { AssignmentMaterialsVehicle } from "../../assignment-materials-vehicle/entities";
 import { ExitMaterial } from "../../exit-materials/entities/exit-material.entity";
 import { EntriesTool } from "../../entries-tools/entities/entries-tool.entity";
-import { ListExitMaterial } from "src/list-exit-materials/entities/list-exit-material.entity";
-import { AssignmentPeAlPe } from "src/assignment-pe-al-pe/entities/assignment-pe-al-pe.entity";
+import { ListExitMaterial } from "../../list-exit-materials/entities/list-exit-material.entity";
+import { AssignmentPeAlPe } from "../../assignment-pe-al-pe/entities/assignment-pe-al-pe.entity";
 
 @Entity()
 export class Warehouse {

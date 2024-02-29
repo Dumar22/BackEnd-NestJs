@@ -191,7 +191,7 @@ export class EntriesService {
           );
         
           // Verificar si el nuevo precio es mayor al existente
-          if (detail.price > existingMaterial.price) {
+          if (detail.price !=  existingMaterial.price) {
             // Actualizar el precio solo si es mayor
             await this.materialRepository.update(
               { code: detail.code },

@@ -53,15 +53,12 @@ export class ExitMaterialsService {
   ) {  pdfMake.vfs = pdfFonts.pdfMake.vfs;}
 
   async create(
-    createexitMaterialsDto: CreateExitMaterialDto,
-    details: CreateDetailExitMaterialsDto[],
-    user: User,
-  ) {
+    createexitMaterialsDto: CreateExitMaterialDto, details: CreateDetailExitMaterialsDto[], user: User,) {
    
     const { collaboratorId, contractId, ...rest } = createexitMaterialsDto;
-
     // Obtener el número de salida para el usuario actual
-  const lastExitNumber = await this.getLastExitNumberForUser(user.id);
+    //const lastExitNumber = await this.getLastExitNumberForUser(user.id);
+    const lastExitNumber = await this.getLastExitNumberForUser(user.warehouses[0].id);
 
 
     // Verificar si ya se hizo una salida al contrato de tipo instalación
@@ -178,6 +175,7 @@ export class ExitMaterialsService {
       //console.log('data save',detailAssignments);
 
       await this.detailsExitRepository.save(detailAssignments);
+      await this.updatePEtoPEAssignments(collaboratorId, ware, detailAssignments)
 
       // Devolver la asignación completa con los detalles asociados
       return {message:'Salida creada correctamente.'};
@@ -189,9 +187,9 @@ export class ExitMaterialsService {
 
 
   // Método para obtener el último número de salida para el usuario
-private async getLastExitNumberForUser(userId: string): Promise<number> {
+private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
   const lastExit = await this.exitMaterialsRepository.findOne({
-    where: { user: { id: userId } },
+    where: { warehouse: {id: warehouseId} },
     order: { ExitNumber: 'DESC' },
   });
 
@@ -264,27 +262,15 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     return data;
   }
 
-  async update(id: string , updateExitMaterialsDto: UpdateExitMaterialDto,
-    details: UpdateDetailExitMaterialsDto[],
-    user: User, ) {
+  async update(id: string , updateExitMaterialsDto: UpdateExitMaterialDto, details: UpdateDetailExitMaterialsDto[], newDetails: CreateDetailExitMaterialsDto[] | undefined, user: User, ) {
 
-      // console.log(updateExitMaterialsDto);
-      
-      
-
-      const { collaboratorId, contractId, ...rest } =updateExitMaterialsDto
+      const { collaboratorId, contractId } =updateExitMaterialsDto
 
        // Obtener la salida existente por su ID
   const exitMaterialsAndMeter = await this.exitMaterialsRepository.findOne({
     where: { id: id },
     relations: [
-      'collaborator',
-      'contract',
-      'user',
-      'details',
-      'details.material',
-      'details.meter',
-    ],
+      'collaborator', 'contract', 'details', 'details.material', 'details.meter' ],
   });
 
   if (!exitMaterialsAndMeter) {
@@ -345,31 +331,94 @@ private async getLastExitNumberForUser(userId: string): Promise<number> {
     const ware = collaborator.warehouse.id;
     try {
 // Usar merge para copiar los valores de updateExitMaterialsDto en la entidad principal
-this.exitMaterialsRepository.merge(exitMaterialsAndMeter, updateExitMaterialsDto);
+await this.exitMaterialsRepository.merge(exitMaterialsAndMeter, updateExitMaterialsDto);
 
-// Actualizar los detalles de la salida
-updateExitMaterialsDto.details.forEach((detail, index) => {
+
+
+if (newDetails) {
+  // Agregar los nuevos detalles a la lista existente de detalles
+  const updatedDetails = [...exitMaterialsAndMeter.details, ...newDetails];
+
+
+
+updateExitMaterialsDto.details.forEach(async (detail, index) => {
   if (exitMaterialsAndMeter.details[index]) {
+    // Realizar la operación de cálculo de used y total
+    const used = detail.assignedQuantity - detail.restore;
+    const materialPrice = exitMaterialsAndMeter.details[index].material.price || 0;
+    const meterPrice = exitMaterialsAndMeter.details[index].meter ? exitMaterialsAndMeter.details[index].meter.price || 0 : 0;
+    const selectedPrice = Math.max(materialPrice, meterPrice);
+    const total = used * selectedPrice;
+    detail.used = used;
+    detail.total = total;
     // Actualizar los campos necesarios de cada detalle
+    exitMaterialsAndMeter.details[index].assignedQuantity = detail.assignedQuantity;
     exitMaterialsAndMeter.details[index].restore = detail.restore;
+    exitMaterialsAndMeter.details[index].used = detail.used;
+    exitMaterialsAndMeter.details[index].total = detail.total;
     exitMaterialsAndMeter.details[index].observation = detail.observation;
+
+    // Guardar el detalle actualizado    
+    await this.detailsExitRepository.save(exitMaterialsAndMeter.details[index]);
   }
 });
 // Verificar si todas las herramientas existen y
-      // Actualiza la cantidad de herramientas en el inventario
+      // Actualiza la cantidad de herramientas en el inventario      
      await this.retunMaterialsAndMeters(details, ware);
 
      // Actualizar las asignaciones "PE al PE"
 await this.updatePEtoPEAssignments(collaboratorId, ware, details)
+ // Crear una instancia actualizada de salida con los nuevos detalles
+ const updatedExitMaterial = this.exitMaterialsRepository.create({
+  ...exitMaterialsAndMeter,
+  details: updatedDetails,
+});
+
+const detailsWithMaterials = [];
+      for (const detail of newDetails) {
+        const material = await this.materialRepository.findOneBy({
+          id: detail.materialId,
+        });
+        const meter = await this.meterRepository.findOneBy({
+          id: detail.materialId,
+        });
+
+        detailsWithMaterials.push({
+          ...detail,
+          meter,
+          material,
+        });
+      }
+
 
 
 // Guardar la salida actualizada
-const updatedExitMaterial = await this.exitMaterialsRepository.save(exitMaterialsAndMeter);
-const updatedDetailsExitMaterial = await this.detailsExitRepository.save(exitMaterialsAndMeter.details);
+const savedExitMaterial = await this.exitMaterialsRepository.save(updatedExitMaterial);
 
-// Realizar cualquier lógica adicional necesaria después de la actualización
 
-return { message: 'Salida actualizada correctamente.', updatedExitMaterial, updatedDetailsExitMaterial };
+
+
+
+
+const detailAssignments = [];
+
+for (const detail of detailsWithMaterials ) {
+  detailAssignments.push(
+    this.detailsExitRepository.create({
+      ...detail,
+      exitMaterial: savedExitMaterial,
+    }),
+  );
+}
+
+
+// Guardar los nuevos detalles en la base de datos
+await this.detailsExitRepository.save(detailAssignments);
+await this.updatePEtoPEAssignments(collaboratorId, ware, detailAssignments)
+
+return { message: 'Salida actualizada correctamente.', updatedExitMaterial: savedExitMaterial  };
+
+}
 
 } catch (error) {
   console.log('created',error);

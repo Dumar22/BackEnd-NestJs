@@ -163,7 +163,7 @@ export class EntriesToolsService {
           );
         
           // Verificar si el nuevo precio es mayor al existente
-          if (detail.price > existingTool.price) {
+          if (detail.price != existingTool.price) {
             // Actualizar el precio solo si es mayor
             await this.toolRepository.update(
               { code: detail.code },

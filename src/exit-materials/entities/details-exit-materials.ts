@@ -6,7 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   BeforeInsert,
-  BeforeUpdate,
+  
 } from 'typeorm';
 
 import { Material } from 'src/materials/entities/material.entity';
@@ -59,7 +59,7 @@ export class DetailsExitMaterials {
    // Asegurarse de que los valores sean números válidos
    const isNumeric = (value: any) => !isNaN(parseFloat(value)) && isFinite(value);
 // lo restamos con 0 por que en el momento de ingresar restore esta undifined
-   this.used =  this.assignedQuantity - this.restore;
+   const used =  this.assignedQuantity - this.restore;
 
    // Verificar si this.material tiene un precio y asignar un precio predeterminado
    const materialPrice = this.material && isNumeric(this.material.price) ? this.material.price : 0;
@@ -70,26 +70,9 @@ export class DetailsExitMaterials {
    // Seleccionar el precio mayor entre materialPrice y meterPrice
    const selectedPrice = Math.max(materialPrice, meterPrice);
    
-   this.total = this.used * selectedPrice;
+   this.total = used * selectedPrice;
   }
-  @BeforeUpdate()
-  updateTotal(){
-
-    const isNumeric = (value: any) => !isNaN(parseFloat(value)) && isFinite(value);
-    
-    this.used =  this.assignedQuantity - this.restore;
-
-    // Verificar si this.material tiene un precio y asignar un precio predeterminado
-    const materialPrice = this.material && isNumeric(this.material.price) ? this.material.price : 0;
  
-    // Verificar si this.meter tiene un precio y asignar un precio predeterminado
-    const meterPrice = this.meter && isNumeric(this.meter.price) ? this.meter.price : 0;
- 
-    // Seleccionar el precio mayor entre materialPrice y meterPrice
-    const selectedPrice = Math.max(materialPrice, meterPrice);
-    
-    this.total = this.used * selectedPrice;
-  }
 
 }
 

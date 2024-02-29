@@ -58,9 +58,9 @@ export class ContractService {
 
   }
 
-  private async getLastExitNumberForUser(userId: string): Promise<number> {
+  private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     const lastExit = await this.contractsRepository.findOne({
-      where: { user: { id: userId } },
+      where: { warehouse: {id: warehouseId} },
       order: { contractNumber: 'DESC' },
     });
   

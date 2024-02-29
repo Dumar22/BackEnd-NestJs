@@ -70,11 +70,12 @@ export class ExitMaterialsController {
   @Patch(':id')
   @Auth(ValidRols.admin || ValidRols.superUser)
   update(@Param('id') id: string, 
-  @Body() updateExitMaterialDto: UpdateExitMaterialDto,
-  @Body('details') details: UpdateDetailExitMaterialsDto[],
+  @Body() updateExitMaterialDto: UpdateExitMaterialDto & { details: UpdateDetailExitMaterialsDto[], newDetails: CreateDetailExitMaterialsDto[] },
   @GetUser() user: User
   ) {
-    return this.exitMaterialsService.update(id, updateExitMaterialDto,details, user);
+    const { details, newDetails, ...rest } = updateExitMaterialDto;
+    
+    return this.exitMaterialsService.update(id, updateExitMaterialDto,details, newDetails, user);
   }
 
   @Get('search/:term')
