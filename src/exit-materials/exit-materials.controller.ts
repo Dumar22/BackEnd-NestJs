@@ -68,7 +68,7 @@ export class ExitMaterialsController {
   }
 
   @Patch(':id')
-  @Auth(ValidRols.admin || ValidRols.superUser)
+  @Auth()
   update(@Param('id') id: string, 
   @Body() updateExitMaterialDto: UpdateExitMaterialDto & { details: UpdateDetailExitMaterialsDto[], newDetails: CreateDetailExitMaterialsDto[] },
   @GetUser() user: User
