@@ -150,13 +150,26 @@ private readonly logger = new Logger('MaterialsService')
   }  
 
   async searchMaterial(term: string, user: User) {
-    let data = await this.materialsRepository.find({
-      where: [
-        { name: Like(`%${term}%`) },
-        { code: Like(`%${term}%`) },
-      ],
-    });
-    return data;
+    let materialsQuery = this.materialsRepository.createQueryBuilder('material')
+      .leftJoinAndSelect('material.user', 'user')
+      .leftJoinAndSelect('material.warehouse', 'warehouse')
+      .where(
+        '(material.name LIKE :term OR material.code LIKE :term)',
+        { term: `%${term}%` },
+      );
+  
+    if (!user.rol.includes('admin')) {
+      // Si no es administrador, aplicar restricciones por bodega
+      materialsQuery = materialsQuery
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+    }
+  
+    // Agrega la condición para excluir los materiales eliminados
+    materialsQuery = materialsQuery.andWhere('material.deletedAt IS NULL');
+  
+    const materials = await materialsQuery.getMany();
+  
+    return materials;
   }
 
   
