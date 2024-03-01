@@ -256,11 +256,24 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
   async searchExitMaterial(term: string, user: User) {
     let data = await this.exitMaterialsRepository.createQueryBuilder('exitMaterials')
     .leftJoinAndSelect('exitMaterials.collaborator', 'collaborator')
-    .leftJoinAndSelect('exitMaterials.collaborator', 'contract')
-    .where('collaborator.name LIKE :term OR exitMaterials.type LIKE :term OR contract.ot OR exitMaterials.ExitNumber', { term: `%${term}%` })
-    .getMany();
-    return data;
-  }
+    .leftJoinAndSelect('exitMaterials.contract', 'contract')
+    .leftJoinAndSelect('exitMaterials.details', 'details')
+    .where('collaborator.name LIKE :term OR exitMaterials.type LIKE :term OR contract.contract OR exitMaterials.ExitNumber', { term: `%${term}%` });
+
+    if (!user.rol.includes('admin')) {
+      // Si no es administrador, aplicar restricciones por bodega
+      data = data
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+    }
+  
+    // Agrega la condición para excluir los materiales eliminados
+    data = data.andWhere('exitMaterials.deletedAt IS NULL');
+  
+    const exitMaterials = await data.getMany();
+  
+    return exitMaterials ;
+    }
+  
 
   async update(id: string , updateExitMaterialsDto: UpdateExitMaterialDto, details: UpdateDetailExitMaterialsDto[], newDetails: CreateDetailExitMaterialsDto[] | undefined, user: User, ) {
 
@@ -332,6 +345,12 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     try {
 // Usar merge para copiar los valores de updateExitMaterialsDto en la entidad principal
 await this.exitMaterialsRepository.merge(exitMaterialsAndMeter, updateExitMaterialsDto);
+
+
+// Antes de guardar la salida actualizada, asignar el estado al contrato si existe
+if (exitMaterialsAndMeter.contract) {
+  exitMaterialsAndMeter.contract.status = exitMaterialsAndMeter.state;
+}
 
 
 

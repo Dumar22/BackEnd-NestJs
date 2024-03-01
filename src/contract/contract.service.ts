@@ -163,7 +163,6 @@ export class ContractService {
     let data = await this.contractsRepository.find({
       where: [
         { name: Like(`%${term}%`) },
-        { ot: Like(`%${term}%`) },
         { contract: Like(`%${term}%`) },
         { request: Like(`%${term}%`) },
         { addres: Like(`%${term}%`) },

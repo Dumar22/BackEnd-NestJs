@@ -148,8 +148,12 @@ export class EntriesService {
     
     try {
       for (const detail of entry.details) {
+        
         // Obtener el material existente
-  const existingMaterial = await this.materialRepository.findOneBy({ code: detail.code });
+        const existingMaterial = await this.materialRepository.createQueryBuilder('material')
+        .where('material.code = :code', { code: detail.code })
+        .getOne();
+    
   
         // Si el material es un medidor
         if (detail.name.startsWith("MEDIDOR")) {
@@ -198,6 +202,14 @@ export class EntriesService {
               { price: detail.price }
             );
           }
+        }else{
+          // Si no existe el material, agregarlo
+          const newMaterial = this.materialRepository.create({
+            ...detail,
+            warehouse: entry.warehouse, // Asignar la bodega de la entrada
+            user: entry.user,
+          });
+          await this.materialRepository.save(newMaterial);
         }
   
       }
