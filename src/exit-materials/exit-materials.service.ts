@@ -364,7 +364,7 @@ updateExitMaterialsDto.details.forEach(async (detail, index) => {
   if (exitMaterialsAndMeter.details[index]) {
     // Realizar la operación de cálculo de used y total
     const used = detail.assignedQuantity - detail.restore;
-    const materialPrice = exitMaterialsAndMeter.details[index].material.price || 0;
+    const materialPrice = exitMaterialsAndMeter.details[index].material ?  exitMaterialsAndMeter.details[index].material.price || 0 : 0;
     const meterPrice = exitMaterialsAndMeter.details[index].meter ? exitMaterialsAndMeter.details[index].meter.price || 0 : 0;
     const selectedPrice = Math.max(materialPrice, meterPrice);
     const total = used * selectedPrice;
