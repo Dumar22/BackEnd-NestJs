@@ -433,7 +433,9 @@ for (const detail of detailsWithMaterials ) {
 
 // Guardar los nuevos detalles en la base de datos
 await this.detailsExitRepository.save(detailAssignments);
-await this.updatePEtoPEAssignments(collaboratorId, ware, detailAssignments)
+if (detailAssignments .length > 0) {
+  await this.updatePEtoPEAssignments(collaboratorId, ware, detailAssignments)
+}
 
 return { message: 'Salida actualizada correctamente.', updatedExitMaterial: savedExitMaterial  };
 
