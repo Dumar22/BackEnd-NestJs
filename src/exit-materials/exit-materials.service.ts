@@ -809,9 +809,11 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
 // }
 
 async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, details: any[]): Promise<void> {
-  try {
+  try {  
+    
       for (const detail of details) {
-          if (detail.material.code === '10006401') { // Verificar si es material "PE al PE"
+
+          if (detail && detail.material && detail.material.code === '10006401') { // Verificar si es material "PE al PE"
               const materialId = detail.materialId;
               const assignedQuantity = detail.assignedQuantity;
 
@@ -859,6 +861,7 @@ async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, detai
               })
               )
           }
+          continue
       }
   } catch (error) {
       this.handleDBExceptions(error);
