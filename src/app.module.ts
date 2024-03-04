@@ -25,6 +25,7 @@ import { EntriesToolsModule } from './entries-tools/entries-tools.module';
 import { ListExitMaterialsModule } from './list-exit-materials/list-exit-materials.module';
 import { MessagesWsModule } from './messages-ws/messages-ws.module';
 import { AssignmentPeAlPeModule } from './assignment-pe-al-pe/assignment-pe-al-pe.module';
+import { ProyectionsModule } from './proyections/proyections.module';
 
 
 @Module({
@@ -66,6 +67,7 @@ import { AssignmentPeAlPeModule } from './assignment-pe-al-pe/assignment-pe-al-p
     ListExitMaterialsModule,
     MessagesWsModule,
     AssignmentPeAlPeModule,
+    ProyectionsModule,
   ],
   controllers: [],
   providers: [FileUploadService],

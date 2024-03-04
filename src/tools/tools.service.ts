@@ -150,13 +150,27 @@ export class ToolsService {
   
 
   async searchTool(term: string, user: User) {
-    let data = await this.toolsRepository.find({
-      where: [
-        { name: Like(`%${term}%`) },
-        { code: Like(`%${term}%`) },
-      ],
-    });
-    return data;
+  
+    let toolsQuery = this.toolsRepository.createQueryBuilder('tool')
+      .leftJoinAndSelect('tool.user', 'user')
+      .leftJoinAndSelect('tool.warehouse', 'warehouse')
+      .where(
+        '(tool.name LIKE :term OR tool.code LIKE :term)',
+        { term: `%${term}%` },
+      );
+  
+    if (!user.rol.includes('admin')) {
+      // Si no es administrador, aplicar restricciones por bodega
+      toolsQuery = toolsQuery
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+    }
+  
+    // Agrega la condición para excluir los materiales eliminados
+    toolsQuery = toolsQuery.andWhere('material.deletedAt IS NULL');
+  
+    const tools = await toolsQuery.getMany();
+  
+    return tools;
   }
 
  async update(id: string, updateToolDto: UpdateToolDto, user: User) {
