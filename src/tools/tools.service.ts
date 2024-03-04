@@ -166,7 +166,7 @@ export class ToolsService {
     }
   
     // Agrega la condición para excluir los materiales eliminados
-    toolsQuery = toolsQuery.andWhere('material.deletedAt IS NULL');
+    toolsQuery = toolsQuery.andWhere('tool.deletedAt IS NULL');
   
     const tools = await toolsQuery.getMany();
   
