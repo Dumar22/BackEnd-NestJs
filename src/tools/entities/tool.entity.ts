@@ -73,7 +73,7 @@ export class Tool {
     @BeforeUpdate()
     updateTotal(){
         this.name = this.name.toUpperCase()
-        this.total = this.price* this.quantity;
+        this.total = this.price * this.quantity;
         this.updatedAt =  new Date();
         this.available = this.quantity > 0 ? true : false;
     }

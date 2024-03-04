@@ -159,6 +159,7 @@ export class EntriesToolsService {
             { code: detail.code },
             {
               quantity: () => `quantity + ${detail.quantity}`,
+              total: () => `total + ${detail.total}`,
             }
           );
         

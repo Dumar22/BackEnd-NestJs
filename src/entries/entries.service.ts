@@ -191,6 +191,7 @@ export class EntriesService {
             { code: detail.code },
             {
               quantity: () => `quantity + ${detail.quantity}`,
+              total: () => `total + ${detail.total}`,
             }
           );
         
