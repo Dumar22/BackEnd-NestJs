@@ -18,13 +18,13 @@ export class DetailsExitMaterials {
   @PrimaryGeneratedColumn('uuid')
   id: string; 
 
-  @Column('int', { default: 0, nullable: false })
+  @Column('float', { default: 0, nullable: false })
   assignedQuantity: number;
 
-  @Column('int', { default: 0, nullable: false })
+  @Column('float', { default: 0, nullable: false })
   restore: number;
 
-  @Column('int', { default: 0, nullable: false })
+  @Column('float', { default: 0, nullable: false })
   used: number;
 
   @Column('float', { default: 0, nullable: false })

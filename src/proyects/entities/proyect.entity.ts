@@ -5,6 +5,7 @@ import * as moment from 'moment-timezone';
 import { User } from "src/auth/entities/user.entity";
 import { Warehouse } from "src/warehouses/entities/warehouse.entity";
 import { AssingMaterialsProyect } from "src/assing-materials-proyect/entities/assing-materials-proyect.entity";
+import { Proyection } from "src/proyections/entities/proyection.entity";
 
 @Entity()
 export class Proyect {
@@ -13,8 +14,38 @@ export class Proyect {
 
     @Column({nullable: false })
     name: string;
-  
+
     @Column({nullable: false })
+    municipality: string;
+
+    @Column({nullable: true })
+    address: string;
+
+    @Column({nullable: false })
+    install: string;
+
+    @Column({nullable: true})
+    install2: string;
+
+    @Column({nullable: false })
+    type: string;
+
+    @Column({nullable: true })
+    house: number;
+
+    @Column({nullable: true})
+    apt: number;
+
+    @Column({nullable: true})
+    tower: string;
+
+    @Column({nullable: true})
+    floor: number   
+
+    @Column({nullable: true})
+    modifications: string    
+    
+    @Column({nullable: true })
     initialize: Date;
 
     @Column({nullable: true })
@@ -31,6 +62,12 @@ export class Proyect {
      (user) => user.provider,
      {eager: true})
     user: User
+
+    @OneToMany(
+        ()=> Proyection,
+        (proyection) => proyection.proyect
+      )
+      proyection: Proyection
 
     @ManyToOne(() => Warehouse, warehouse => warehouse.providers)
     warehouse: Warehouse;

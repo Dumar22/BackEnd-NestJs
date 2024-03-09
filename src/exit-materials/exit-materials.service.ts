@@ -654,6 +654,11 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
             'quantity',
             assignedQuantity,
           );
+          await await this.materialRepository.decrement(
+            { id: materialId },
+            'quantity',
+            assignedQuantity,
+          );
 
           await this.meterRepository.update(
             { id: materialId },

@@ -17,6 +17,7 @@ import { ExitMaterial } from "src/exit-materials/entities/exit-material.entity";
 import { EntriesTool } from "src/entries-tools/entities/entries-tool.entity";
 import { ListExitMaterial } from "src/list-exit-materials/entities/list-exit-material.entity";
 import { AssignmentPeAlPe } from "src/assignment-pe-al-pe/entities/assignment-pe-al-pe.entity";
+import { Proyection } from "src/proyections/entities/proyection.entity";
 
 @Entity()
 export class User {
@@ -64,6 +65,12 @@ export class User {
     (material) => material.user
   )
   materialList: ListExitMaterial
+
+  @OneToMany(
+    ()=> Proyection,
+    (proyection) => proyection.user
+  )
+  proyection: Proyection
 
   @OneToMany(
     ()=> Tool,

@@ -3,20 +3,24 @@ import { ProyectionsService } from './proyections.service';
 import { ProyectionsController } from './proyections.controller';
 import { UsersModule } from 'src/auth/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MetersModule } from 'src/meters/meters.module';
 import { CollaboratorsModule } from 'src/collaborators/collaborators.module';
+import { Proyection } from './entities/proyection.entity';
+import { ProyectsModule } from 'src/proyects/proyects.module';
+import { DetailsProyection } from './entities/details-proyection.entity';
 
 @Module({
   controllers: [ProyectionsController],
   providers: [ProyectionsService],
   imports: [  
-    UsersModule,
-    TypeOrmModule.forFeature([]),
+   
+    TypeOrmModule.forFeature([Proyection, DetailsProyection]),
     //MaterialsModule
     //MetersModule,
     CollaboratorsModule,
+    ProyectsModule,
     //ContractModule,
     //AssignmentPeAlPeModule
+    UsersModule
 
   
     ],

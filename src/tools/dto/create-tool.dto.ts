@@ -16,7 +16,6 @@ export class CreateToolDto {
     unity:string;
   
     @IsNumber()
-    @IsPositive()
     quantity:number;
   
     @IsNumber()
