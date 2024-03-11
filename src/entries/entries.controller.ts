@@ -92,8 +92,7 @@ async createxls(
 
   @Patch(':id')
   @Auth()
-  update
-  (@Param('id', ParseUUIDPipe) id: string,
+  update(@Param('id', ParseUUIDPipe) id: string,
   @Body() updateEntryDto: UpdateEntryDto,
   @Body() updateDetailDto: UpdateDetailDto[],
   @GetUser() user: User,) {

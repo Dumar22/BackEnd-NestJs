@@ -26,7 +26,7 @@ export class DetailsProyection {
     quantity_variable: number;
     
     @Column('float',{ default:0, nullable: false })
-    used: number;  
+    balance: number;  
 
     @Column('float',{default:0,nullable: false })
     total: number;

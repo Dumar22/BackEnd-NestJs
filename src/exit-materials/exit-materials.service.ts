@@ -175,7 +175,7 @@ export class ExitMaterialsService {
       //console.log('data save',detailAssignments);
 
       await this.detailsExitRepository.save(detailAssignments);
-      await this.updatePEtoPEAssignments(collaboratorId, ware, detailAssignments)
+      //await this.updatePEtoPEAssignments(collaboratorId, ware, detailAssignments)
 
       // Devolver la asignación completa con los detalles asociados
       return {message:'Salida creada correctamente.'};
@@ -769,49 +769,6 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
       this.handleDBExceptions(error);
     }
   }
-
-//   async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, details: any[]): Promise<void> {
-//     try {
-//         for (const detail of details) {
-//             if (detail.material.code === '10006401') {
-//                 const materialId = detail.materialId;
-//                 const assignedQuantity = detail.assignedQuantity;
-
-//                 const assignment = await this.assignmentPeAlPeRepository.findOne({
-//                     where: {
-//                         collaborator: { id: collaboratorId },
-//                         warehouse: { id: warehouseId },
-//                         details: { material: { id: materialId } }
-//                     },
-//                     relations: ['details']
-//                 });
-
-//                 if (!assignment) {
-//                     throw new NotFoundException('Asignación de material "PE al PE" no encontrada para el colaborador y material especificados.');
-//                 }
-
-//                 for (const assignmentDetail of assignment.details) {
-//                     console.log(assignmentDetail.material.id);
-//                     console.log(assignmentDetail.assignedQuantity);                   
-
-//                     const updatedUsedQuantity = assignmentDetail.used + assignedQuantity;
-                    
-//                     if (updatedUsedQuantity > assignmentDetail.assignedQuantity) {
-//                       throw new Error('La cantidad es mayor que la cantidad utilizada en la asignación "PE al PE".');
-//                   }
-
-//                     assignmentDetail.used = updatedUsedQuantity;
-//                 }
-
-              
-//                 await this.assignmentPeAlPeRepository.save(assignment);
-//                 await this.assignmentdetailsPeAlPeRepository.save(assignment.details)
-//             }
-//         }
-//     } catch (error) {
-//         this.handleDBExceptions(error);
-//     }
-// }
 
 async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, details: any[]): Promise<void> {
   try {  

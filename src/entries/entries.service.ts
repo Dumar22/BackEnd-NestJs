@@ -184,13 +184,7 @@ export class EntriesService {
           });
           await this.meterRepository.save(newMeter);
 
-          await this.materialRepository.update(
-            { code: detail.code },
-            {
-              quantity: () => `quantity + ${detail.quantity}`,
-              total: () => `total + ${detail.total}`,
-            }
-          );
+          
         }
   
         if (existingMaterial) {
