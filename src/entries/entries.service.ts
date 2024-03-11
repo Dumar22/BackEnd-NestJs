@@ -159,7 +159,7 @@ export class EntriesService {
         if (detail.name.startsWith("MEDIDOR")) {
           // Buscar si ya existe el medidor por código y serial
           const existingMeter = await this.meterRepository
-            .createQueryBuilder()
+            .createQueryBuilder('meter')
             .where(
               'meter.code = :code AND meter.serial = :serial AND warehouseId = :warehouseId',
               {
@@ -184,7 +184,13 @@ export class EntriesService {
           });
           await this.meterRepository.save(newMeter);
 
-          
+          await this.materialRepository.update(
+            { code: detail.code },
+            {
+              quantity: () => `quantity + ${detail.quantity}`,
+              total: () => `total + ${detail.total}`,
+            }
+          );
         }
   
         if (existingMaterial) {
