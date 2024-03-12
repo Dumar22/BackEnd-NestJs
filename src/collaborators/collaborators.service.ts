@@ -32,7 +32,7 @@ export class CollaboratorsService {
     .getOne();
   
       if (existingCollaborator) {
-        throw new BadRequestException(`El colaboraor ${createCollaboratorDto.name} ya existe en la bodega ${user.warehouses[0].name}.`);
+        throw new BadRequestException(`$ El colaboraor ${createCollaboratorDto.name} ya existe en la bodega ${user.warehouses[0].name}.`);
       }
 
     try {   
@@ -66,8 +66,8 @@ export class CollaboratorsService {
       const failedcollaborators: { collaborators: CreateCollaboratorDto; reason: string }[] = [];
   
       for (const collaborator of collaborators) {
-        const ExistingCollaborator = await this.collaboratorsRepository.createQueryBuilder('collaborator')
-        .where('(collaborator.name = :name OR collaborator.code = :code) AND warehouseId = :warehouseId', {
+        const ExistingCollaborator = await this.collaboratorsRepository.createQueryBuilder()
+        .where('(document = :document OR code = :code) AND warehouseId = :warehouseId', {
           name: collaborator.name,  
           code: collaborator.code,
           warehouseId: user.warehouses[0].id  

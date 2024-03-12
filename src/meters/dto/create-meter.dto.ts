@@ -19,7 +19,7 @@ export class CreateMeterDto {
     @MinLength(2)
     brand:string;
   
-    @IsIn(['UNIDAD']) 
+    @IsString() 
     unity:string;
   
     @IsNumber()

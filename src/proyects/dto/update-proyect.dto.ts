@@ -51,7 +51,7 @@ export class UpdateProyectDto extends PartialType(CreateProyectDto) {
     @IsString()
     modifications?: string 
   
-    @IsString({message:'El nombre debe ser texto'})
     @IsOptional()
+    @IsString()
     obs?:string;
 }

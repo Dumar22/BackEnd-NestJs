@@ -111,6 +111,8 @@ export class EntriesService {
         details: entryDetails
       });
   
+      console.log(entry);
+      
       // Actualizar materiales y medidores
       await this.updateMaterialAndMeterDetails(entry);
   
@@ -145,9 +147,14 @@ export class EntriesService {
 
   async updateMaterialAndMeterDetails(entry: Entry) {
     
-    
+
     try {
       for (const detail of entry.details) {
+    
+        if (!detail) {
+          console.log('Detalle indefinido:', detail);
+          continue; // O manejar este caso de acuerdo a tu lógica
+        }
         
         // Obtener el material existente
         const existingMaterial = await this.materialRepository.createQueryBuilder('material')
@@ -159,9 +166,9 @@ export class EntriesService {
         if (detail.name.startsWith("MEDIDOR")) {
           // Buscar si ya existe el medidor por código y serial
           const existingMeter = await this.meterRepository
-            .createQueryBuilder('meter')
+            .createQueryBuilder()
             .where(
-              'meter.code = :code AND meter.serial = :serial AND warehouseId = :warehouseId',
+              'code = :code AND serial = :serial AND warehouseId = :warehouseId',
               {
                 code: detail.code,
                 serial: detail.serial,
@@ -184,13 +191,7 @@ export class EntriesService {
           });
           await this.meterRepository.save(newMeter);
 
-          await this.materialRepository.update(
-            { code: detail.code },
-            {
-              quantity: () => `quantity + ${detail.quantity}`,
-              total: () => `total + ${detail.total}`,
-            }
-          );
+          
         }
   
         if (existingMaterial) {

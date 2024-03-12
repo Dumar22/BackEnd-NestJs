@@ -24,7 +24,7 @@ export class Material {
     @Column({nullable: false })
     unity: string;
 
-    @Column('int',{ default:0, nullable: false })
+    @Column('float',{ default:0, nullable: false })
     quantity: number;
 
     @Column('float',{default:0, nullable: false })

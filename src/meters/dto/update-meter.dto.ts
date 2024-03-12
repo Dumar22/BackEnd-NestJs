@@ -21,7 +21,7 @@ export class UpdateMeterDto extends PartialType(CreateMeterDto)  {
     @MinLength(2)
     brand:string;
   
-    @IsIn(['UNIDAD']) 
+    @IsString()
     unity:string;
   
     @IsNumber()

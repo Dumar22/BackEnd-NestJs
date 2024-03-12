@@ -51,7 +51,7 @@ export class CreateProyectDto {
     @IsString()
     modifications?: string 
 
-  @IsString({message:'El nombre debe ser texto'})
-  @IsOptional()
+    @IsOptional()
+  @IsString()
   obs?:string;
 }

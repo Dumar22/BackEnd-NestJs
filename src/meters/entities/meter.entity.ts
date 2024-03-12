@@ -33,7 +33,7 @@ export class Meter {
     @Column({nullable: false })
     brand: string;
   
-    @Column({default:false, nullable: false })
+    @Column({default:false, nullable: true })
     available: boolean;
   
     @Column('float',{default:0,nullable: false })

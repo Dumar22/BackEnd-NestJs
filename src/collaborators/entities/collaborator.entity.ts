@@ -24,7 +24,7 @@ export class Collaborator {
     @Column({nullable: false })
     operation: string;
 
-    @Column({ nullable: false, unique: true })
+    @Column({ nullable: false })
     document: string;
 
     @Column({ nullable: false })
