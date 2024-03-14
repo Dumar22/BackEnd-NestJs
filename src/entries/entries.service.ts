@@ -196,21 +196,25 @@ export class EntriesService {
   
         if (existingMaterial) {
           // Actualizar la cantidad en cualquier caso
-          await this.materialRepository.update(
-            { code: detail.code },
-            {
-              quantity: () => `quantity + ${detail.quantity}`,
-              total: () => `total + ${detail.total}`,
-            }
-          );
+          await this.materialRepository.createQueryBuilder()
+        .update(Material)
+        .set({
+            quantity: () => `quantity + ${detail.quantity}`,
+            total: () => `total + ${detail.total}`
+        })
+        .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+        .execute();
         
+          
           // Verificar si el nuevo precio es mayor al existente
-          if (detail.price !=  existingMaterial.price) {
-            // Actualizar el precio solo si es mayor
-            await this.materialRepository.update(
-              { code: detail.code },
-              { price: detail.price }
-            );
+    if (detail.price > existingMaterial.price) {
+      // Actualizar el precio solo si es mayor en la bodega actual
+      await this.materialRepository.createQueryBuilder()
+          .update(Material)
+          .set({ price: detail.price })
+          .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+          .execute();
+            
           }
         }else{
           // Si no existe el material, agregarlo
