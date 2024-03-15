@@ -29,6 +29,12 @@ export class Material {
 
     @Column('float',{default:0, nullable: false })
     price: number;
+
+    @Column('float',{default:0, nullable: false })
+    iva: number;
+
+    @Column('float',{default:0, nullable: false })
+    total_iva: number;
   
     @Column({default:false, nullable: false })
     available: boolean;

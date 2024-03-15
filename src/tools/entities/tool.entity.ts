@@ -33,6 +33,12 @@ export class Tool {
   
     @Column('float',{default:0,nullable: false })
     total: number;
+    
+    @Column('float',{default:0, nullable: false })
+    iva: number;
+
+    @Column('float',{default:0, nullable: false })
+    total_iva: number;
 
     @Column('text',{ nullable: true })
     observation: string;

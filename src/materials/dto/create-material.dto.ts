@@ -22,6 +22,14 @@ export class CreateMaterialDto {
   @IsPositive()
   price:number;
 
+  @IsNumber()
+  @IsPositive()
+  iva:number;
+
+  @IsNumber()
+  @IsPositive()
+  total_iva:number;
+
   @IsBoolean()
   @IsOptional()
   available?:boolean;
