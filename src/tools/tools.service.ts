@@ -38,10 +38,7 @@ export class ToolsService {
         throw new BadRequestException(`La herramienta ${createToolDto.name} ya existe en la bodega ${user.warehouses[0].name}.`);
       }
 
-      if(createToolDto.quantity < 0){
-        throw new BadRequestException(`No puede ingresar números negativos`);
-      }
-
+      
     try {   
 
        const tool = this.toolsRepository.create({

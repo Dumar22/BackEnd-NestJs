@@ -16,10 +16,17 @@ export class UpdateToolDto extends PartialType(CreateToolDto) {
     // @IsIn(['UNIDAD','METRO', 'METRO 3', 'KILO']) 
     @IsString()
     unity:string;
+
+    @IsNumber()  
+    iva:number;
+
+    @IsNumber()
+    total_iva:number;
   
+    @IsOptional()
     @IsNumber()
     @IsPositive()
-    quantity:number;
+    quantity?:number;
   
     @IsNumber()
     @IsPositive()

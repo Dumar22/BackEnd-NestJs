@@ -16,11 +16,14 @@ export class CreateToolDto {
     unity:string;
   
     @IsNumber()
-    quantity:number;
-  
-    @IsNumber()
     @IsPositive()
     price:number;
+
+    @IsNumber()  
+    iva:number;
+  
+    @IsNumber()
+    total_iva:number;
   
     @IsBoolean()
     @IsOptional()
