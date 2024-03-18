@@ -15,19 +15,12 @@ export class CreateMaterialDto {
   unity:string;
 
   @IsNumber()
-  @IsPositive()
-  quantity:number;
-
-  @IsNumber()
-  @IsPositive()
   price:number;
 
-  @IsNumber()
-  @IsPositive()
+  @IsNumber()  
   iva:number;
 
   @IsNumber()
-  @IsPositive()
   total_iva:number;
 
   @IsBoolean()

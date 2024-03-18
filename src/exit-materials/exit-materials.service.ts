@@ -258,7 +258,8 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     .leftJoinAndSelect('exitMaterials.collaborator', 'collaborator')
     .leftJoinAndSelect('exitMaterials.contract', 'contract')
     .leftJoinAndSelect('exitMaterials.details', 'details')
-    .where('collaborator.name LIKE :term OR exitMaterials.type LIKE :term OR contract.contract OR exitMaterials.ExitNumber', { term: `%${term}%` });
+    .leftJoin('details.meter', 'meter')
+    .where('collaborator.name LIKE :term OR exitMaterials.type LIKE :term OR contract.contract OR exitMaterials.ExitNumber OR meter.serial LIKE :term', { term: `%${term}%` });
 
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega

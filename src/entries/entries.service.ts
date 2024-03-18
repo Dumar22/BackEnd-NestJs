@@ -111,7 +111,7 @@ export class EntriesService {
         details: entryDetails
       });
   
-      console.log(entry);
+     /*  console.log(entry); */
       
       // Actualizar materiales y medidores
       await this.updateMaterialAndMeterDetails(entry);
@@ -190,7 +190,10 @@ export class EntriesService {
             user: entry.user,
           });
           await this.meterRepository.save(newMeter);
-
+          if (detail === undefined) {
+            console.log('Detalle indefinido:', detail);
+            continue; // O manejar este caso de acuerdo a tu lógica
+          }
           
         }
   
@@ -206,12 +209,30 @@ export class EntriesService {
         .execute();
         
           
-          // Verificar si el nuevo precio es mayor al existente
-    if (detail.price > existingMaterial.price) {
+          // Actualizar Precio
+    if (detail.price ) {
       // Actualizar el precio solo si es mayor en la bodega actual
       await this.materialRepository.createQueryBuilder()
           .update(Material)
           .set({ price: detail.price })
+          .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+          .execute();
+            
+          }
+    if (detail.iva ) {
+      // Actualizar el precio solo si es mayor en la bodega actual
+      await this.materialRepository.createQueryBuilder()
+          .update(Material)
+          .set({ iva: detail.iva })
+          .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+          .execute();
+            
+          }
+    if (detail.total_iva ) {
+      // Actualizar el precio solo si es mayor en la bodega actual
+      await this.materialRepository.createQueryBuilder()
+          .update(Material)
+          .set({ total_iva: detail.total_iva })
           .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
           .execute();
             
@@ -244,11 +265,17 @@ export class EntriesService {
   
     // Calcular el total de los detalles del traslado
     const totalMat = entriesData.details.reduce((acc, detail) => acc + (detail.total), 0);
+    const totalMatIva = entriesData.details.reduce((acc, detail) => acc + (detail.total_iva), 0);
     const totalFormatted = currencyFormatter.format(totalMat, { code: 'COP' });
-
+   
+    const totalFormattedIva = currencyFormatter.format(totalMatIva, { code: 'COP' });
+    const resIva = currencyFormatter.format(totalMatIva - totalMat, { code: 'COP' });
+    
+    
     entriesData.details.forEach((detail) => {
       detail.price = currencyFormatter.format(detail.price, { code: 'USD' }); // Cambia 'USD' según tu moneda
       detail.total = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
+      detail.total_iva = currencyFormatter.format(detail.total, { code: 'USD' }); // Cambia 'USD' según tu moneda
     });
 
     const pdfDefinition = {
@@ -282,7 +309,7 @@ export class EntriesService {
         {
           table: {
             headerRows: 1,
-            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto','auto','auto', 'auto'],
             body: [
               [
                 { text: 'Código', style: 'tableHeader' },
@@ -293,19 +320,25 @@ export class EntriesService {
                 { text: 'Cantidad', style: 'tableHeader' },
                 { text: 'Precio unidad', style: 'tableHeader' },
                 { text: 'Total', style: 'tableHeader' },
+                { text: 'Iva', style: 'tableHeader' },
+                { text: 'Total+Iva', style: 'tableHeader' },
               ],
               // Agrega filas con los detalles del traslado
               ...entriesData.details.map((detail) => [
-                {text: detail.code, alignment: 'center', fontSize: 8},
-                 {text: detail.name, alignment: 'center', fontSize: 8}, 
-                {text: detail.unity, alignment: 'center', fontSize: 8},
-                {text: detail.serial, alignment: 'center', fontSize: 8},
-                {text: detail.brand, alignment: 'center', fontSize: 8},
-                { text: detail.quantity, alignment: 'center',fontSize: 9 }, // Centrar la cantidad
-                {text: detail.price, alignment: 'center', fontSize: 9},
-                {text: detail.total, alignment: 'center', fontSize: 9}
+                {text: detail.code, alignment: 'center', fontSize: 7},
+                 {text: detail.name, alignment: 'center', fontSize: 7}, 
+                {text: detail.unity, alignment: 'center', fontSize: 7},
+                {text: detail.serial, alignment: 'center', fontSize: 7},
+                {text: detail.brand, alignment: 'center', fontSize: 7},
+                { text: detail.quantity, alignment: 'center',fontSize: 8 }, // Centrar la cantidad
+                {text: detail.price, alignment: 'center', fontSize: 8},
+                {text: detail.total, alignment: 'center', fontSize: 8},
+                {text: detail.iva, alignment: 'center', fontSize: 8},
+                {text: detail.total_iva, alignment: 'center', fontSize: 8}
               ]),
-              ['', '','', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+              ['', '','', '', '', '', '', '', { text: 'Total', style: 'tableHeader' }, {text: totalFormatted, style: 'tableHeader'}],
+              ['', '','', '', '', '','', '',  { text: 'IVA', style: 'tableHeader' }, {text: resIva, style: 'tableHeader'}],
+              ['', '','', '', '', '','', '',  { text: 'Total+IVA', style: 'tableHeader' }, {text: totalFormattedIva, style: 'tableHeader'}],
             ],
             layout: {
               defaultBorder: false, // Deshabilita los bordes por defecto
@@ -318,11 +351,12 @@ export class EntriesService {
             margin: [0, 10], // Establece el margen de la tabla
           },
         },
-        { text: 'Observaciones: ' + entriesData.observation, fontSize: 9, margin: [0, 20] },
+        { text: 'Observaciones: ' + entriesData.observation, fontSize: 8, margin: [0, 20] },
       ],
       styles :{
         tableHeader: {
           bold: true,
+          fontSize: 8,
           fillColor: '#F5F5F5',
           alignment: 'center',
         },

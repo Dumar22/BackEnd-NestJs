@@ -32,8 +32,10 @@ export class ContractService {
     })
     .getOne();
   
-      if (existingContract) {
-        throw new BadRequestException(`El Contrato ${createContractDto.contract} ya existe en la bodega ${user.warehouses[0].name}.`);
+      if (existingContract) { 
+        //actualizar_fecha_
+        await this.contractsRepository.update(existingContract.id, { date: createContractDto.date });
+        //throw new BadRequestException(`El Contrato ${createContractDto.contract} ya existe en la bodega ${user.warehouses[0].name}.`);
       }
 
     try {   
@@ -89,11 +91,8 @@ export class ContractService {
     .getOne();
           
     if (existingContract) {
-      failedContracts.push({ 
-        contract, 
-        reason: `El Contrato con órden de trabajo ${contract.request} ya existe en la bodega ${user.warehouses[0].name}.` 
-        
-      });    
+      await this.contractsRepository.update(existingContract.id, { date: createContractDto.date });
+         
     } else {    
       // Guardar el Contarto solo si no existe
       await this.contractsRepository.save(contract);     

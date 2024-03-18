@@ -94,7 +94,7 @@ export class Material {
     @BeforeInsert()
     insertTotal(){
         this.name = this.name.toUpperCase()
-        this.total = this.price* this.quantity;
+       // this.total = this.price* this.quantity;
         this.createdAt = moment().tz('America/Bogota').toDate();
         this.updatedAt =  new Date();
         this.available = this.quantity > 0 ? true : false;
@@ -102,7 +102,7 @@ export class Material {
     @BeforeUpdate()
     updateTotal(){
         this.name = this.name.toUpperCase()
-        this.total = this.price* this.quantity;
+        //this.total = this.price* this.quantity;
         this.updatedAt =  new Date();
         this.available = this.quantity > 0 ? true : false;
     }
