@@ -133,7 +133,7 @@ export class EntriesService {
   
       return { entry: savedEntry, message: 'Entrada creada desde Excel' };
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       this.handleDBExceptions(error);
     }
   }
@@ -162,7 +162,7 @@ export class EntriesService {
         .getOne();
     
   
-        // Si el material es un medidor
+       /*  // Si el material es un medidor
         if (detail.name.startsWith("MEDIDOR")) {
           // Buscar si ya existe el medidor por código y serial
           const existingMeter = await this.meterRepository
@@ -172,12 +172,14 @@ export class EntriesService {
               {
                 code: detail.code,
                 serial: detail.serial,
+                brand: detail.brand,
                 warehouseId: entry.warehouse.id,
               },
             )
             .getOne();
           if (existingMeter) {
-            throw new Error(`El medidor con serie ${detail.serial} ya existe en la bodega ${entry.warehouse.name}.`);
+            throw new Error(`El medidor con serie ${detail.serial} ya existe en la bodega ${entry.warehouse.name}.`);         
+           
           }
   
           if (detail.quantity !== 1) {
@@ -195,7 +197,7 @@ export class EntriesService {
             continue; // O manejar este caso de acuerdo a tu lógica
           }
           
-        }
+        } */
   
         if (existingMaterial) {
           // Actualizar la cantidad en cualquier caso
@@ -220,7 +222,7 @@ export class EntriesService {
             
           }
     if (detail.iva ) {
-      // Actualizar el precio solo si es mayor en la bodega actual
+      // Actualizar el IVA en la bodega actual
       await this.materialRepository.createQueryBuilder()
           .update(Material)
           .set({ iva: detail.iva })
@@ -251,6 +253,7 @@ export class EntriesService {
     } catch (error) {
       // Propagar la excepción
       throw new Error(error);
+      
     }
   } 
   
