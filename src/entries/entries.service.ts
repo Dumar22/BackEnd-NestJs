@@ -14,6 +14,7 @@ import * as currencyFormatter from 'currency-formatter';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { logoBase64 } from 'src/common/helpers/logo-base64';
 import *as moment from 'moment-timezone';
+import { Tool } from 'src/tools/entities/tool.entity';
 
 moment.tz.setDefault("America/Bogota");
 
@@ -31,6 +32,8 @@ export class EntriesService {
     private readonly detailsEntryRepository: Repository<DetailsEntry>,
     @InjectRepository( Material)
     private readonly materialRepository: Repository<Material>,
+    @InjectRepository( Tool)
+    private readonly toolRepository: Repository<Tool>,    
     @InjectRepository( Meter)
     private readonly meterRepository: Repository<Meter>,
 
@@ -152,7 +155,7 @@ export class EntriesService {
       for (const detail of entry.details) {
     
         if (!detail) {
-          console.log('Detalle indefinido:', detail);
+         // console.log('Detalle indefinido:', detail);
           continue; // O manejar este caso de acuerdo a tu lógica
         }
         
@@ -198,6 +201,57 @@ export class EntriesService {
           }
           
         } */
+         // Si el material es un medidor
+        if (detail.observation.startsWith("HERRAMIENTA")) {
+          // Buscar si ya existe el medidor por código y serial
+          
+
+            const existingTool = await this.toolRepository.createQueryBuilder('tool')
+        .where('tool.code = :code', { code: detail.code })
+        .getOne();
+
+            if (existingTool) {
+              // Actualizar la cantidad en cualquier caso
+              await this.toolRepository.createQueryBuilder()
+            .update(Tool)
+            .set({
+                quantity: () => `quantity + ${detail.quantity}`,
+                total: () => `total + ${detail.total}`
+            })
+            .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+            .execute();
+          
+            if (detail.price ) {
+              // Actualizar el precio solo si es mayor en la bodega actual
+              await this.materialRepository.createQueryBuilder()
+                  .update(Material)
+                  .set({ price: detail.price })
+                  .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+                  .execute();
+                    
+                  }
+            if (detail.iva ) {
+              // Actualizar el IVA en la bodega actual
+              await this.materialRepository.createQueryBuilder()
+                  .update(Material)
+                  .set({ iva: detail.iva })
+                  .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+                  .execute();
+                    
+                  }
+          }else{
+            // Si no existe , agregar
+          const newTool = this.toolRepository.create({
+            ...detail,
+            warehouse: entry.warehouse, // Asignar la bodega de la entrada
+            user: entry.user,
+          });
+          await this.toolRepository.save(newTool);
+          }
+          
+          
+          
+        }
   
         if (existingMaterial) {
           // Actualizar la cantidad en cualquier caso
@@ -240,15 +294,23 @@ export class EntriesService {
             
           }
         }else{
-          // Si no existe el material, agregarlo
-          const newMaterial = this.materialRepository.create({
-            ...detail,
-            warehouse: entry.warehouse, // Asignar la bodega de la entrada
-            user: entry.user,
-          });
-          await this.materialRepository.save(newMaterial);
+          
+          if (detail.observation.startsWith("MATERIAL")) {
+            const newMaterial = this.materialRepository.create({
+              ...detail,
+              warehouse: entry.warehouse, // Asignar la bodega de la entrada
+              user: entry.user,
+            });
+            await this.materialRepository.save(newMaterial);
+          }
+          
+          
         }
   
+        if (!detail.observation.startsWith("HERRAMIENTA") || !detail.observation.startsWith("MATERIAL") || detail.observation === "") {
+          throw new Error(`El material o herramienta a ingresar no tiene observación MATERIAL/HERRAMIENTA, por favor agregarla`);  
+        }
+
       }
     } catch (error) {
       // Propagar la excepción

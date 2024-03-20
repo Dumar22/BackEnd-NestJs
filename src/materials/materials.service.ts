@@ -146,8 +146,8 @@ private readonly logger = new Logger('MaterialsService')
     if (!material)
       throw new NotFoundException(`El material no fue encontrado.`);
 
-      //return material;
-      console.log(material);
+      return material;
+      //console.log(material);
       
   }  
 

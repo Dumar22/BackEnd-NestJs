@@ -814,7 +814,7 @@ async updatePEtoPEAssignments(collaboratorId: string, warehouseId: string, detai
               }
 
               if (remainingQuantity > 0) {
-                  throw new Error('No hay suficiente cantidad disponible en las asignaciones para cubrir la nueva asignación.');
+                  throw new Error(`No hay suficiente cantidad disponible de ${detail.material.code} - ${detail.material.name} en las asignaciones para cubrir la nueva asignación.`);
               }
 
               // Guardar los cambios en las asignaciones

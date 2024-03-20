@@ -8,6 +8,7 @@ import { MaterialsModule } from 'src/materials/materials.module';
 import { MetersModule } from 'src/meters/meters.module';
 import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 import { UploadXlsModule } from 'src/upload-xls/upload-xls.module';
+import { ToolsModule } from 'src/tools/tools.module';
 
 
 
@@ -18,6 +19,7 @@ import { UploadXlsModule } from 'src/upload-xls/upload-xls.module';
     TypeOrmModule.forFeature([Entry,DetailsEntry]),
     UsersModule,
     MaterialsModule,
+    ToolsModule,
     MetersModule,
     UploadXlsModule
     
