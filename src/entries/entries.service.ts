@@ -348,12 +348,12 @@ export class EntriesService {
     pageMargins: [40, 40, 40, 40],
       header: {
         image: logoBase64,
-        fit: [100, 100],
+        fit: [80, 80],
         alignment: 'left',
-        margin: [40, 20],
+        margin: [20, 20],
       },
       content: [
-        { text: 'ENTRADA DE MATERIALES', fontSize: 14, alignment: 'center', margin: [0, 15, 0, 35] },
+        { text: 'ENTRADA DE MATERIALES', fontSize: 14, alignment: 'center', margin: [-30, 15, 0, 35] },
         {
           columns: [
             // Datos a la izquierda
@@ -416,7 +416,13 @@ export class EntriesService {
             margin: [0, 10], // Establece el margen de la tabla
           },
         },
-        { text: 'Observaciones: ' + entriesData.observation, fontSize: 8, margin: [0, 20] },
+        { text: 'Observaciones: ' + entriesData.observation, fontSize: 8, margin: [60, 40] },
+        {
+          columns: [
+            { text: 'Firma Jefe de Bodega:__________________________', alignment: 'left' ,fontSize: 8, margin: [40, 40] },
+            { text: 'Firma Encargado de sede: _________________________', fontSize: 8, margin: [40, 40] },
+          ],
+        },
       ],
       styles :{
         tableHeader: {

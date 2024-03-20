@@ -443,7 +443,7 @@ return { message: 'Salida actualizada correctamente.', updatedExitMaterial: save
 }
 
 } catch (error) {
-  console.log('created',error);
+  //console.log('created',error);
 
  // Manejar las excepciones de la base de datos
  this.handleDBExceptions(error);
