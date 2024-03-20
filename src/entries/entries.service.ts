@@ -164,47 +164,13 @@ export class EntriesService {
         .where('material.code = :code', { code: detail.code })
         .getOne();
     
-  
-       /*  // Si el material es un medidor
-        if (detail.name.startsWith("MEDIDOR")) {
-          // Buscar si ya existe el medidor por código y serial
-          const existingMeter = await this.meterRepository
-            .createQueryBuilder()
-            .where(
-              'code = :code AND serial = :serial AND warehouseId = :warehouseId',
-              {
-                code: detail.code,
-                serial: detail.serial,
-                brand: detail.brand,
-                warehouseId: entry.warehouse.id,
-              },
-            )
-            .getOne();
-          if (existingMeter) {
-            throw new Error(`El medidor con serie ${detail.serial} ya existe en la bodega ${entry.warehouse.name}.`);         
-           
-          }
-  
-          if (detail.quantity !== 1) {
-            throw new Error( `La cantidad del medidor debe ser 1 para la entrada.`,);
-          }
-          // Si no existe el medidor, agregarlo
-          const newMeter = this.meterRepository.create({
-            ...detail,
-            warehouse: entry.warehouse, // Asignar la bodega de la entrada
-            user: entry.user,
-          });
-          await this.meterRepository.save(newMeter);
-          if (detail === undefined) {
-            console.log('Detalle indefinido:', detail);
-            continue; // O manejar este caso de acuerdo a tu lógica
-          }
-          
-        } */
-         // Si el material es un medidor
+        if (detail.observation === "") {
+          throw new Error(`El material o herramienta a ingresar no tiene observación MATERIAL/HERRAMIENTA, por favor agregarla`);  
+        }
+       
+        
         if (detail.observation.startsWith("HERRAMIENTA")) {
-          // Buscar si ya existe el medidor por código y serial
-          
+         
 
             const existingTool = await this.toolRepository.createQueryBuilder('tool')
         .where('tool.code = :code', { code: detail.code })
@@ -307,9 +273,7 @@ export class EntriesService {
           
         }
   
-        if (!detail.observation.startsWith("HERRAMIENTA") || !detail.observation.startsWith("MATERIAL") || detail.observation === "") {
-          throw new Error(`El material o herramienta a ingresar no tiene observación MATERIAL/HERRAMIENTA, por favor agregarla`);  
-        }
+       
 
       }
     } catch (error) {
@@ -318,6 +282,8 @@ export class EntriesService {
       
     }
   } 
+
+  
   
   async generarPDF(id: string, user: User): Promise<Buffer> {
     const entriesData = await this.entriesRepository.findOneBy({id: id});
