@@ -165,7 +165,7 @@ export class MetersService {
       .leftJoinAndSelect('meter.user', 'user')
       .leftJoinAndSelect('meter.warehouse', 'warehouse')
       .where(
-        '(meter.name LIKE :term OR meter.code LIKE :term OR meter.serialLIKE :term )',
+        '(meter.name LIKE :term OR meter.code LIKE :term OR meter.serial LIKE :term )',
         { term: `%${term}%` },
       );
   
