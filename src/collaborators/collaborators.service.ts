@@ -68,7 +68,7 @@ export class CollaboratorsService {
       for (const collaborator of collaborators) {
         const ExistingCollaborator = await this.collaboratorsRepository.createQueryBuilder()
         .where('(document = :document OR code = :code) AND warehouseId = :warehouseId', {
-          name: collaborator.name,  
+          document: collaborator.document,  
           code: collaborator.code,
           warehouseId: user.warehouses[0].id  
         })

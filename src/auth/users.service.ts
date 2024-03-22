@@ -81,29 +81,55 @@ private readonly jwtService: JwtService,
     let user: User;
     if (isUUID(id)) {
       user = await this.userRepository.findOneBy({id: id});
+      //console.log(user);
+      
     } else{
       throw new NotFoundException(`El usuario ${id} no fue encontrado.`);
-    }      
+    } 
+     
      return  user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.preload({
-      id: id,
-      ...updateUserDto
-    });
-      
-    if (!user) 
-        throw new NotFoundException(`user ${id} not found`);
-      
-        try {
-          await this.userRepository.save(user);
-          return {Message:'Usuario actualizado con exito'};
-   
-        } catch (error) {
-          this.handleDBExeptions(error)
+  async update(id: string, updateUserDto: UpdateUserDto, user: User) {
+    const warehouseIds = updateUserDto.warehouseIds;
+    const warehouses = await this.warehouseRepository.find({
+        where: {
+            id: In(warehouseIds)
         }
+    });
+
+    if (warehouses.length !== warehouseIds.length) {
+        throw new NotFoundException('Una o más bodegas proporcionadas no existen');
+    }   
+
+    const userData = await this.userRepository.findOneBy({ id: id });
+
+    if (!userData) {
+        throw new NotFoundException(`Usuario con el id ${id} no encontrado`);
+    }
+
+    try {
+      let { password, warehouseIds: dtoWarehouseIds, ...userDataWithoutPassword } = updateUserDto;
+      //console.log(updateUserDto);
+      
+      const userUpdate = await this.userRepository.preload({
+          id: id, // Asegúrate de incluir el campo id
+          ...userDataWithoutPassword,
+          password: bcrypt.hashSync(password, 11),
+          warehouses: warehouses
+      });
+  
+      if (!userUpdate) {
+          throw new NotFoundException(`No se pudo actualizar el usuario con ID: ${id}`);
+      }
+  
+      const updatedUser = await this.userRepository.save(userUpdate);
+  
+      return { message: 'Usuario actualizado con éxito' };
+  } catch (error) {
+      this.handleDBExeptions(error);
   }
+}
 
  async remove(id: string) {
     await this.userRepository.delete({ id });

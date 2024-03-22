@@ -100,9 +100,12 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Auth(ValidRols.admin, ValidRols.superUser)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @Auth(ValidRols.admin)
+  update(@Param('id', ParseUUIDPipe) id: string, 
+  @Body() updateUserDto: UpdateUserDto,
+  @GetUser() user: User,
+  ) {
+    return this.usersService.update(id, updateUserDto, user);
   }
 
   @Delete(':id')

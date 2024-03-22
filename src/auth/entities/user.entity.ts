@@ -31,7 +31,7 @@ export class User {
   @Column('text')
   fullName: string;
 
-  @Column('varchar',{select:false})
+  @Column('varchar',)
   password: string;
 
   @Column({ type: 'boolean', default: true })
