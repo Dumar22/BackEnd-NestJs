@@ -258,9 +258,8 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     .leftJoinAndSelect('exitMaterials.collaborator', 'collaborator')
     .leftJoinAndSelect('exitMaterials.contract', 'contract')
     .leftJoinAndSelect('exitMaterials.details', 'details')
-    .leftJoin('details.meter', 'meter')
-    .where('exitMaterial.type LIKE :term', { term: `%${term}%` })
-    .orWhere('exitMaterial.state LIKE :term', { term: `%${term}%` })
+    .andWhere('exitMaterials.type LIKE :term', { term: `%${term}%` })
+    .andWhere('exitMaterials.type LIKE :term', { term: `%${term}%` })
     .orWhere('collaborator.name LIKE :term', { term: `%${term}%` })
     .orWhere('contract.contract LIKE :term', { term: `%${term}%` })
     
