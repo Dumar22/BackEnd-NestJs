@@ -12,7 +12,7 @@ import { User } from 'src/auth/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Collaborator } from 'src/collaborators/entities/collaborator.entity';
 import { Contract } from 'src/contract/entities/contract.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Material } from 'src/materials/entities/material.entity';
 import { Meter } from 'src/meters/entities/meter.entity';
 import { DetailsExitMaterials, ExitMaterial } from './entities';
@@ -259,7 +259,11 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     .leftJoinAndSelect('exitMaterials.contract', 'contract')
     .leftJoinAndSelect('exitMaterials.details', 'details')
     .leftJoin('details.meter', 'meter')
-    .where('collaborator.name LIKE :term OR exitMaterials.type LIKE :term OR contract.contract OR exitMaterials.ExitNumber OR meter.serial LIKE :term', { term: `%${term}%` });
+    .where('exitMaterial.type LIKE :term', { term: `%${term}%` })
+    .orWhere('exitMaterial.state LIKE :term', { term: `%${term}%` })
+    .orWhere('collaborator.name LIKE :term', { term: `%${term}%` })
+    .orWhere('contract.contract LIKE :term', { term: `%${term}%` })
+    
 
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
@@ -274,6 +278,8 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
   
     return exitMaterials ;
     }
+
+    
   
 
   async update(id: string , updateExitMaterialsDto: UpdateExitMaterialDto, details: UpdateDetailExitMaterialsDto[], newDetails: CreateDetailExitMaterialsDto[] | undefined, user: User, ) {
