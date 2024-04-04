@@ -48,7 +48,7 @@ export class MetersController {
   }
 
   @Get('search/:term')
-  @Auth(ValidRols.admin || ValidRols.superUser)
+  @Auth()
   searchMeter(@Param('term') term: string,
   @GetUser() user:User
   ) {
