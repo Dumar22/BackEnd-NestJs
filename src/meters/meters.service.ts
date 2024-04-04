@@ -167,8 +167,7 @@ export class MetersService {
       .where(
         '(meter.serial LIKE :term OR meter.code LIKE :term OR meter.name LIKE :term )',
         { term: `%${term}%` },
-      );
-  
+      );  
     if (!user.rol.includes('admin')) {
       // Si no es administrador, aplicar restricciones por bodega
       meterQuery = meterQuery
