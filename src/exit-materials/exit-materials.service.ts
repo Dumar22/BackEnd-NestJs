@@ -259,10 +259,14 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     .leftJoinAndSelect('exitMaterials.contract', 'contract')
     .leftJoinAndSelect('exitMaterials.details', 'details')
     .leftJoinAndSelect('exitMaterials.warehouse', 'warehouse')
-    .andWhere('exitMaterials.type LIKE :term', { term: `%${term}%` })
-    .andWhere('exitMaterials.type LIKE :term', { term: `%${term}%` })
-    .orWhere('collaborator.name LIKE :term', { term: `%${term}%` })
-    .orWhere('contract.contract LIKE :term', { term: `%${term}%` })
+    .leftJoin('details.meter', 'meter')
+    .andWhere(qb => {
+      qb.where('exitMaterials.type LIKE :term', { term: `%${term}%` })
+        .orWhere('collaborator.name LIKE :term')
+        .orWhere('contract.contract LIKE :term')
+        .orWhere('meter.serial LIKE :term');
+    })
+    .andWhere('exitMaterials.deletedAt IS NULL'); // Mueve esta condición aquí para aplicarla a todas las consultas
     
 
     if (!user.rol.includes('admin')) {
@@ -272,7 +276,7 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
     }
   
     // Agrega la condición para excluir los materiales eliminados
-    data = data.andWhere('exitMaterials.deletedAt IS NULL');
+   // data = data.andWhere('exitMaterials.deletedAt IS NULL');
   
     const exitMaterials = await data.getMany();
   
