@@ -136,6 +136,7 @@ export class ExitMaterialsService {
     
 
       // Verificar si todas las herramientas existen y
+      await this.verifyPreviusMaterialsExistence(details, ware)
       // Actualiza la cantidad de herramientas en el inventario
       await this.verifyMaterialsExistence(details, ware);
 
@@ -704,6 +705,80 @@ async generarPDF(id: string, user: User): Promise<Buffer> {
             'quantity',
             assignedQuantity,
           );
+        }
+      }
+    } catch (error) {
+      // Manejar las excepciones de la base de datos
+      this.handleDBExceptions(error);
+    }
+  }
+
+  private async verifyPreviusMaterialsExistence(
+    details: CreateDetailExitMaterialsDto[],
+    warehouseId: string,
+  ): Promise<void> {
+    try {
+      for (const detail of details) {
+       // console.log(details);
+
+        const materialId = detail.materialId;
+        const assignedQuantity = detail.assignedQuantity;
+
+        // Buscar la material en la base de datos
+        const material = await this.materialRepository.findOne({
+          where: { id: materialId },
+          relations: ['warehouse'],
+        });
+
+        if (!material) {
+          const meter = await this.meterRepository.findOne({
+            where: { id: materialId },
+            relations: ['warehouse'],
+          });
+
+          if (!meter) {
+            throw new Error(`Medidor con ID ${materialId} no encontrado`);
+          }
+
+          // Verificar si la herramienta pertenece a la bodega del colaborador
+          if (meter.warehouse.id !== warehouseId) {
+            throw new Error(
+              `Medidor con ID ${materialId} no encontrado en la bodega asignada `,
+            );
+          }
+
+          // Verificar si la cantidad asignada es mayor que la cantidad disponible
+          if (assignedQuantity > meter.quantity) {
+            throw new Error(
+              `La cantidad asignada del meter con ID ${materialId} es mayor que la cantidad disponible`,
+            );
+          }
+
+          continue;
+          
+        } else {
+          // Verificar si la herramienta pertenece a la bodega del colaborador
+          if (material.warehouse.id !== warehouseId) {
+            //continue;
+            throw new Error(
+              `Material con ID ${materialId} no encontrada en la bodega asignada`,
+            );
+          }
+
+          // Verificar si el material es el que se desea omitir
+        if (material.code === '10006401') {
+          // Si es el material a omitir, no hacer nada
+          continue;
+        }
+
+          // Verificar si la cantidad asignada es mayor que la cantidad disponible
+          if (assignedQuantity > material.quantity) {
+            throw new Error(
+              `La cantidad asignada del material con ID ${material.name} es mayor que la cantidad disponible`,
+            );
+          }
+
+          continue;
         }
       }
     } catch (error) {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query, UploadedFile, UseInterceptors, Res, InternalServerErrorException, Request } from '@nestjs/common';
 import { MaterialsService } from './materials.service';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { UpdateMaterialDto } from './dto/update-material.dto';
@@ -6,6 +6,7 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as express from 'express';
 
 @Controller('materials')
 export class MaterialsController {
@@ -49,6 +50,7 @@ export class MaterialsController {
   ) {
     return this.materialsService.findOne(term, user);
   }
+
 
   @Get('search/:term')
   @Auth()

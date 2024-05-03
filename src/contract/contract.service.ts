@@ -31,12 +31,30 @@ export class ContractService {
       warehouseId: user.warehouses[0].id  
     })
     .getOne();
+
+    if (existingContract) {
+
+    existingContract.name = createContractDto.name;
+    existingContract.ot = createContractDto.ot;
+    existingContract.addres = createContractDto.addres;
+    existingContract.request = createContractDto.request;
+    existingContract.phone = createContractDto.phone;
+    existingContract.municipality = createContractDto.municipality;
+    existingContract.neighborhood = createContractDto.neighborhood;
+    existingContract.date = createContractDto.date;
+    existingContract.status = createContractDto.status;
+    existingContract.observation = createContractDto.observation;
+
+    await this.contractsRepository.save(existingContract);
+     // Enviar mensaje al cliente
+     await this.sendContractUpdateMessage(existingContract.id);
+
+     return { message: 'Contrato actualizado' };
+
+     
+         
+    } 
   
-      if (existingContract) { 
-        //actualizar_fecha_
-        await this.contractsRepository.update(existingContract.id, { date: createContractDto.date });
-        //throw new BadRequestException(`El Contrato ${createContractDto.contract} ya existe en la bodega ${user.warehouses[0].name}.`);
-      }
 
     try {   
 
@@ -58,6 +76,11 @@ export class ContractService {
     }
    
 
+  }
+
+  async sendContractUpdateMessage(contractId: string) {
+    // Lógica para enviar un mensaje al cliente informando sobre la actualización del contrato
+    console.log(`Enviando mensaje al cliente sobre la actualización del contrato con ID ${contractId}`);
   }
 
   private async getLastExitNumberForUser(warehouseId: string): Promise<number> {

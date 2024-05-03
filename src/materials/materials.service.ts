@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import * as xlsx from 'xlsx';
 import { UpdateMaterialDto } from './dto/update-material.dto';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -10,6 +9,7 @@ import { Material } from './entities/material.entity';
 import { validate as isUUID } from 'uuid';
 import { User } from 'src/auth/entities/user.entity';
 import { FileUploadService } from 'src/upload-xls/upload-xls.service';
+import * as xlsx from 'xlsx';
 
 @Injectable()
 export class MaterialsService {
@@ -232,6 +232,30 @@ private readonly logger = new Logger('MaterialsService')
        this.logger.error(error);
             
       throw new InternalServerErrorException('Unexpected error, check server logs');
+  }
+
+  async getAllMaterials(): Promise<Material[]> {
+    return this.materialsRepository.find();
+  }
+
+  async generateExcelFile(materials: Material[]): Promise<xlsx.WorkBook> { 
+    const workbook = xlsx.utils.book_new();
+    const worksheet = xlsx.utils.json_to_sheet(materials, {
+      header: [
+        'ID',
+        'Name',
+        'Code',
+        'Unity',
+        'Price',
+        'IVA',
+        'Total IVA',
+        'Available',
+        'Observation',
+        'Warehouses',
+      ],
+    });
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Materials');
+    return workbook;
   }
   
 }

@@ -525,7 +525,11 @@ export class EntriesService {
   if (entry) {
     entry.deletedBy = user.id;
     entry.deletedAt = new Date();
-    entry.entryNumber = 'XXXX-XX'
+    entry.entryNumber = entry.entryNumber+"-Eliminado";
+    // Actualizar los materiales y herramientas
+    await this.updateMaterialAndMeterDetailsOnDelete(entry);
+
+    
 
     await this.entriesRepository.save(entry);
     // const material = await this.findOne( id );
@@ -533,6 +537,48 @@ export class EntriesService {
     return {message:'Entrada eliminada.'}
   }else{
     throw new NotFoundException(`La entrada no fue encontrado.`);
+  }
+}
+
+
+async updateMaterialAndMeterDetailsOnDelete(entry: Entry) {
+  try {
+      for (const detail of entry.details) {
+          // Obtener el material o herramienta existente
+          const existingMaterial = await this.materialRepository.createQueryBuilder('material')
+              .where('material.code = :code', { code: detail.code })
+              .getOne();
+          const existingTool = await this.toolRepository.createQueryBuilder('tool')
+              .where('tool.code = :code', { code: detail.code })
+              .getOne();
+
+          // Disminuir la cantidad y el total de los materiales y herramientas
+          if (existingMaterial) {
+              await this.materialRepository.createQueryBuilder()
+                  .update(Material)
+                  .set({
+                      quantity: () => `quantity - ${detail.quantity}`,
+                      total: () => `total - ${detail.total}`
+                  })
+                  .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+                  .execute();
+          }
+
+          if (existingTool) {
+              await this.toolRepository.createQueryBuilder()
+                  .update(Tool)
+                  .set({
+                      quantity: () => `quantity - ${detail.quantity}`,
+                      total: () => `total - ${detail.total}`
+                  })
+                  .where("code = :code AND warehouseId = :warehouseId", { code: detail.code, warehouseId: entry.warehouse.id })
+                  .execute();
+          }
+          continue;
+      }
+  } catch (error) {
+      // Propagar la excepción
+      throw new Error(error);
   }
 }
   private handleDBExceptions(error: any){    
