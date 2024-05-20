@@ -114,8 +114,8 @@ export class ContractService {
     .getOne();
           
     if (existingContract) {
-      await this.contractsRepository.update(existingContract.id, { date: createContractDto.date });
-         
+     // await this.contractsRepository.update(existingContract.id, { date: createContractDto.date });
+         continue;
     } else {    
       // Guardar el Contarto solo si no existe
       await this.contractsRepository.save(contract);     
@@ -124,7 +124,7 @@ export class ContractService {
   
       return { contracts,  failedContracts, message: 'Contartos creados' };
     } catch (error) {
-      // console.log(error);
+     console.log(error);
       this.handleDBExeptions(error);
     }
   }

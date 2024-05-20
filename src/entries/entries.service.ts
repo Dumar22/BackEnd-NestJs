@@ -525,7 +525,7 @@ export class EntriesService {
   if (entry) {
     entry.deletedBy = user.id;
     entry.deletedAt = new Date();
-    entry.entryNumber = entry.entryNumber+"-Eliminado";
+    entry.entryNumber = entry.entryNumber+"-Cancelada";
     // Actualizar los materiales y herramientas
     await this.updateMaterialAndMeterDetailsOnDelete(entry);
 
