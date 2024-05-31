@@ -3,11 +3,12 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Contract } from './entities/contract.entity';
+import { ContractPostService } from './entities/contract-post-service.entity';
+import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 import { Like, Repository } from 'typeorm';
 import { User } from 'src/auth/entities/user.entity';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
-import { FileUploadService } from 'src/upload-xls/upload-xls.service';
 
 @Injectable()
 export class ContractService {
@@ -17,12 +18,14 @@ export class ContractService {
   constructor(   
     @InjectRepository( Contract)
     private readonly contractsRepository: Repository<Contract>,
+    @InjectRepository( ContractPostService)
+    private readonly contractPostServiceRepository: Repository<ContractPostService>,
     private readonly fileUploadService: FileUploadService
   ){}
 
   async create(createContractDto: CreateContractDto, user: User) {
 
-     // Obtener el número de salida para la bodega actual
+     // Obtener el número de contrato para la bodega actual
   const lastExitNumber = await this.getLastExitNumberForUser(user.warehouses[0].id);
 
     const existingContract = await this.contractsRepository.createQueryBuilder('contract')
@@ -77,6 +80,33 @@ export class ContractService {
    
 
   }
+  async createPostService(createContractDto: CreateContractDto, user: User) {
+
+     // Obtener el número de salida para la bodega actual
+  const lastExitNumber = await this.getLastExitNumberForUser(user.warehouses[0].id);
+
+    
+    try {   
+
+       const contract = this.contractPostServiceRepository.create({
+       ...createContractDto,
+       contractNumber: lastExitNumber + 1,
+       user, 
+       warehouse: user.warehouses[0]
+        
+      });
+
+     await this.contractPostServiceRepository.save(contract);
+
+      return {message:'Contrato creado'}
+      
+    } catch (error) {          
+      console.log(error); 
+      this.handleDBExeptions(error)
+    }
+   
+
+  }
 
   async sendContractUpdateMessage(contractId: string) {
     // Lógica para enviar un mensaje al cliente informando sobre la actualización del contrato
@@ -94,10 +124,8 @@ export class ContractService {
 
   async createxls(fileBuffer: Buffer, createContractDto: CreateContractDto, user: User) {
 
-     // Obtener el número de salida para la bodega actual
-  const lastExitNumber = await this.getLastExitNumberForUser(user.warehouses[0].id);
     try {
-      // Lógica para procesar el archivo Excel y obtener la lista de materiales
+      // Lógica para procesar el archivo Excel y obtener la lista
       const contracts = await this.fileUploadService.processExcel(fileBuffer, this.contractsRepository, (entry: CreateContractDto) => {
         return this.contractDataFormat(entry, user);
       });   
@@ -106,28 +134,73 @@ export class ContractService {
       const failedContracts: { contract: CreateContractDto; reason: string }[] = [];
   
       for (const contract of contracts) {
+       
+        
         const existingContract = await this.contractsRepository.createQueryBuilder()
         .where('contract = :contract AND warehouseId = :warehouseId', {  
           contract: contract.contract,
           warehouseId: user.warehouses[0].id  
         })
     .getOne();
-          
+
+      
     if (existingContract) {
-     // await this.contractsRepository.update(existingContract.id, { date: createContractDto.date });
-         continue;
+    
+    existingContract.name = contract.name;
+    existingContract.ot = contract.ot;
+    existingContract.addres = contract.addres;
+    existingContract.request = contract.request;
+    existingContract.phone = contract.phone;
+    existingContract.municipality = contract.municipality;
+    existingContract.neighborhood = contract.neighborhood;
+    existingContract.date = contract.date;
+    existingContract.status = contract.status;
+    existingContract.observation = contract.observation;
+
+    await this.contractsRepository.save(existingContract);
+     // Enviar mensaje al cliente
+     await this.sendContractUpdateMessage(existingContract.id);
+
+     return { message: 'Contrato actualizado' };
+         
     } else {    
       // Guardar el Contarto solo si no existe
       await this.contractsRepository.save(contract);     
     }
       }
   
-      return { contracts,  failedContracts, message: 'Contartos creados' };
+      return { contracts,  failedContracts, message: 'Contratos creados' };
     } catch (error) {
-     console.log(error);
+     //console.log(error);
       this.handleDBExeptions(error);
     }
   }
+  
+
+  async createxlsPostService(fileBuffer: Buffer, createContractDto: CreateContractDto, user: User) {
+
+   try {
+     // Lógica para procesar el archivo Excel y obtener la lista
+     const contracts = await this.fileUploadService.processExcel(fileBuffer, this.contractPostServiceRepository, (entry: CreateContractDto) => {
+       return this.contractDataFormat(entry, user);
+     });   
+       
+    
+     for (const contract of contracts) {
+      console.log(contract);
+      
+       
+     // Guardar el Contrato 
+     await this.contractPostServiceRepository.save(contract);     
+   
+     }
+ 
+     return { contracts, message: 'Contratos puesta en servicio creados' };
+   } catch (error) {
+    
+     this.handleDBExeptions(error);
+   }
+ }
   
   private contractDataFormat(entry: CreateContractDto, user: User): Contract {
     return this.contractsRepository.create({
@@ -138,6 +211,28 @@ export class ContractService {
   }
 
 
+  async findAllPostService(paginationDto: PaginationDto, user: User) {
+    // const { limit = 10, offset = 0 } = paginationDto;
+  
+    let contractsQuery = this.contractPostServiceRepository.createQueryBuilder('contract')
+      .leftJoinAndSelect('contract.user', 'user')
+      .leftJoinAndSelect('contract.warehouse', 'warehouse');
+  
+    if (!user.rol.includes('admin')) {
+      // Si no es administrador, aplicar restricciones por bodega
+      contractsQuery = contractsQuery
+        .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
+    }
+    // Agrega la condición para excluir las erramientas eliminados
+      contractsQuery = contractsQuery.andWhere('contract.deletedAt IS NULL');
+  
+    const contract = await contractsQuery
+      // .skip(offset)
+      // .take(limit)
+      .getMany();
+  
+    return contract
+  }
   async findAll(paginationDto: PaginationDto, user: User) {
     // const { limit = 10, offset = 0 } = paginationDto;
   
@@ -227,6 +322,7 @@ export class ContractService {
 
   if (contract) {
     contract.deletedBy = user.id;
+    contract.name = contract.name + ' eliminado'
     contract.deletedAt = new Date();
 
     await this.contractsRepository.save(contract);

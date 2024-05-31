@@ -19,12 +19,28 @@ export class ContractController {
     return this.contractService.create(createContractDto, user);
   }
 
+  @Post('post-service')
+  @Auth()
+  createPostService(@Body() createContractDto: CreateContractDto,
+  @GetUser() user: User,
+  ) {
+    return this.contractService.createPostService(createContractDto, user);
+  }
+
   @Post('upload-excel')
   @Auth()
   @UseInterceptors(FileInterceptor('file'))
   async createxls(@UploadedFile() file: Express.Multer.File, createContractDto: CreateContractDto, 
   @GetUser() user: User) {
     return this.contractService.createxls( file.buffer,  createContractDto, user,);
+  }
+
+  @Post('upload-excel-post-service')
+  @Auth()
+  @UseInterceptors(FileInterceptor('file'))
+  async createxlsPostService(@UploadedFile() file: Express.Multer.File, createContractDto: CreateContractDto, 
+  @GetUser() user: User) {
+    return this.contractService.createxlsPostService( file.buffer,  createContractDto, user,);
   }
 
 
@@ -35,6 +51,15 @@ export class ContractController {
     @GetUser() user: User,
   ) {
     return this.contractService.findAll(paginationDto, user);
+  }
+
+  @Get('post-service')
+  @Auth()
+  findAllPostService(
+    @Query() paginationDto:PaginationDto,
+    @GetUser() user: User,
+  ) {
+    return this.contractService.findAllPostService(paginationDto, user);
   }
 
   @Get(':term')

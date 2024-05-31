@@ -63,39 +63,27 @@ export class ExitMaterialsService {
 
     // Verificar si ya se hizo una salida al contrato de tipo instalación
     // Servicio común
-    async function validateNoPreviousExit(
-      contractId: string,
-      exitType: string,
-      exitMaterialsRepository: Repository<ExitMaterial>,
-    ) {
-      const previousExit = await exitMaterialsRepository.findOne({
+   
+      const existinExit = await this.exitMaterialsRepository.findOne({
         where: {
           contract: { id: contractId },
-          type: exitType,
+          type: createexitMaterialsDto.type
         },
         relations: ['contract'],
       });
 
-      if (previousExit) {
+      console.log(existinExit.type);
+      
+
+      if (existinExit) {
         throw new BadRequestException(
-          `Ya existe una salida previa de tipo ${exitType} para este contrato`,
+          `Ya existe una salida previa de tipo ${createexitMaterialsDto.type} para este contrato`,
         );
       }
-    }
+    
 
     // Reuso para instalación
-    await validateNoPreviousExit(
-      contractId,
-      'instalación',
-      this.exitMaterialsRepository,
-    );
-
-    // Reuso para puesta en servicio
-    await validateNoPreviousExit(
-      contractId,
-      'puesta en servicio',
-      this.exitMaterialsRepository,
-    );
+    
 
     // Continuar con la creación de la salida
 
@@ -283,9 +271,6 @@ private async getLastExitNumberForUser(warehouseId: string): Promise<number> {
   
     return exitMaterials ;
     }
-
-    
-  
 
   async update(id: string , updateExitMaterialsDto: UpdateExitMaterialDto, details: UpdateDetailExitMaterialsDto[], newDetails: CreateDetailExitMaterialsDto[] | undefined, user: User, ) {
 

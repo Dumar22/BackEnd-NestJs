@@ -64,8 +64,12 @@ private readonly jwtService: JwtService,
 
       if( !bcrypt.compareSync(password, userLogin.password))
          throw new UnauthorizedException('Credenciales no válidas (password)')
+        
+        
 
          const { password:_, ...rest  } = userLogin
+         
+         
 
     return {
       user: rest,

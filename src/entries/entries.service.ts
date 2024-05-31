@@ -283,8 +283,6 @@ export class EntriesService {
     }
   } 
 
-  
-  
   async generarPDF(id: string, user: User): Promise<Buffer> {
     const entriesData = await this.entriesRepository.findOneBy({id: id});
     
@@ -426,7 +424,7 @@ export class EntriesService {
       entriesQuery = entriesQuery
         .andWhere('warehouse.id IN (:...warehouseIds)', { warehouseIds: user.warehouses.map(warehouse => warehouse.id) });
     }
-    // Agrega la condición para excluir las erramientas eliminados
+    // Agrega la condición para excluir las entradas eliminados
       entriesQuery = entriesQuery.andWhere('entry.deletedAt IS NULL');
   
     const entries = await entriesQuery
@@ -480,7 +478,8 @@ export class EntriesService {
     const existingEntry = await this.entriesRepository.findOneBy({id: id});
   
     if (!existingEntry) 
-      throw new NotFoundException(`Entrada con ID ${id} no encontrada.`);   
+      throw new NotFoundException(`Entrada con ID ${id} no encontrada.`);
+       
            
   
     // Actualizar la entrada con los datos proporcionados en updateEntryDto
