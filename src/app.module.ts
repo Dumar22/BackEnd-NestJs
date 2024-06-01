@@ -26,6 +26,7 @@ import { ListExitMaterialsModule } from './list-exit-materials/list-exit-materia
 import { MessagesWsModule } from './messages-ws/messages-ws.module';
 import { AssignmentPeAlPeModule } from './assignment-pe-al-pe/assignment-pe-al-pe.module';
 import { ProyectionsModule } from './proyections/proyections.module';
+import { ExtiMaterialsAditionalsServicesModule } from './exti-materials-aditionals-services/exti-materials-aditionals-services.module';
 
 
 @Module({
@@ -68,6 +69,7 @@ import { ProyectionsModule } from './proyections/proyections.module';
     MessagesWsModule,
     AssignmentPeAlPeModule,
     ProyectionsModule,
+    ExtiMaterialsAditionalsServicesModule,
   ],
   controllers: [],
   providers: [FileUploadService],

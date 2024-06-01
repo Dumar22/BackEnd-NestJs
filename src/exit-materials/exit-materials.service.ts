@@ -72,8 +72,7 @@ export class ExitMaterialsService {
         relations: ['contract'],
       });
 
-      console.log(existinExit.type);
-      
+          
 
       if (existinExit) {
         throw new BadRequestException(
@@ -82,11 +81,7 @@ export class ExitMaterialsService {
       }
     
 
-    // Reuso para instalación
     
-
-    // Continuar con la creación de la salida
-
     // Buscar el colaborador en la base de datos
     const collaborator = await this.collaboratorRepository.findOne({
       where: { id: collaboratorId },

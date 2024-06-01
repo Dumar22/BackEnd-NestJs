@@ -35,7 +35,7 @@ export class ToolsService {
     .getOne();
   
       if (existingTool) {
-        throw new BadRequestException(`La herramienta ${createToolDto.name} ya existe en la bodega ${user.warehouses[0].name}.`);
+        throw new BadRequestException(`La herramienta ${createToolDto.name} o el código ${createToolDto.code} ya existe en la bodega ${user.warehouses[0].name}.`);
       }
 
       
