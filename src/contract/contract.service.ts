@@ -256,6 +256,24 @@ export class ContractService {
     return contract
   }
 
+ async findOnePostService(term: string, user: User) {
+   
+   let contract: ContractPostService;
+     if (isUUID(term)) {
+      contract = await this.contractPostServiceRepository.findOneBy({id: term});
+     }else{      
+      const queryBuilder = this.contractPostServiceRepository.createQueryBuilder();
+      contract = await queryBuilder
+       .where('UPPER(name) =:name or contract =:contract',{
+        name: term.toUpperCase(),
+        contract: term,
+       }).getOne();
+    }    
+    if (!contract)
+      throw new NotFoundException(`Contarto no encontrado.`);
+
+      return contract;
+  }  
  async findOne(term: string, user: User) {
    
    let contract: Contract;

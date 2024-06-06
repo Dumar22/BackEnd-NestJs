@@ -64,6 +64,12 @@ export class ContractController {
 
   @Get(':term')
   @Auth()
+  findOnePostService(@Param('term') term: string,
+  @GetUser() user: User,) {
+    return this.contractService.findOnePostService(term, user);
+  }
+  @Get(':term')
+  @Auth()
   findOne(@Param('term') term: string,
   @GetUser() user: User,) {
     return this.contractService.findOne(term, user);
